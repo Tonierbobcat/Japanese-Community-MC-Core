@@ -1,1 +1,1 @@
-Public repo for the code to the Japanese-English Community MC Server
+# Public repo for the code to the Japanese-English Community MC Server
