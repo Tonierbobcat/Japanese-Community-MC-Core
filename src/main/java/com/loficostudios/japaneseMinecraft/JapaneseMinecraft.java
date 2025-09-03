@@ -61,16 +61,13 @@ public final class JapaneseMinecraft extends JavaPlugin implements CommandExecut
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        String[] commands = {"suggest"};
         if (args.length > 1) {
             if (args[0].equals("suggest")) {
                 if (sender instanceof Player player) {
                     var suggestion = String.join(" ", args).substring(8).trim();
                     if (suggestion.isEmpty()) {
-                        var jp = isPlayerLanguageJapanese(player);
-                        var engMsg = "Cannot submit an empty suggestion.";
-                        var jpMsg = "空の提案は送信できません。";
-                        player.sendMessage(Component.text(jp ? jpMsg : engMsg));
+                        var message = Messages.getMessage(player, "cannot_submit_empty_suggestion");
+                        player.sendMessage(Component.text(message));
                         return true;
                     }
 
@@ -83,26 +80,24 @@ public final class JapaneseMinecraft extends JavaPlugin implements CommandExecut
                         }
                     } catch (Exception ex) {
                         ex.printStackTrace();
-                        var jp = isPlayerLanguageJapanese(player);
-                        var engMsg = "Failed to save your suggestion. Please try again later.";
-                        var jpMsg = "提案の保存に失敗しました。後でもう一度お試しください。";
-                        player.sendMessage(Component.text(jp ? jpMsg : engMsg));
+                        var message = Messages.getMessage(player, "failed_to_submit_suggestion");
+                        player.sendMessage(Component.text(message));
                         return true;
                     }
 
-                    var jp = isPlayerLanguageJapanese(player);
-                    player.sendMessage(Component.text(jp ? "ご提案ありがとうございます！" : "Thank you for your suggestion!"));
+                    var message = Messages.getMessage(player, "successfully_submitted_suggestion");
+                    player.sendMessage(Component.text(message));
                     return true;
                 } else {
                     sender.sendMessage("This command can only be used by players.");
                     return true;
                 }
             } else {
-                sender.sendMessage("Unknown subcommand. Available subcommands: suggest");
+                sender.sendMessage("Unknown Command.");
                 return true;
             }
         } else {
-            sender.sendMessage(commands);
+            sender.sendMessage("Usage: /jpmc suggest <your suggestion>");
             return true;
         }
     }
