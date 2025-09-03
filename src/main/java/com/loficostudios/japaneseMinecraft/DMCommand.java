@@ -25,12 +25,14 @@ public class DMCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length != 1) {
+            var dm = chatManager.getDM(sender);
             if (chatManager.stopDM(sender)) {
-                var eng = "Stopped DMing.";
-                var jp = "DMを終了しました。";
+                assert dm != null;
+                var eng = "You have stopped messaging " + dm + ".";
+                var jp = dm + "へのDMを終了しました。";
                 sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
             } else {
-                var eng = "You are not currently DMing anyone.";
+                var eng = "You are not currently not messaging anyone.";
                 var jp = "現在、DMを送っている相手はいません。";
                 sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
             }
@@ -56,7 +58,7 @@ public class DMCommand implements CommandExecutor, TabCompleter {
 
         chatManager.startDM(sender, targetPlayer);
 
-        var eng = "You are now DMing " + targetPlayer.getName() + ". Type /dm to stop.";
+        var eng = "You are now in a direct messaging " + targetPlayer.getName() + ". Type /dm to stop.";
         var jp = targetPlayer.getName() + "にDMを送っています。終了するには/dmと入力してください。";
         sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
 

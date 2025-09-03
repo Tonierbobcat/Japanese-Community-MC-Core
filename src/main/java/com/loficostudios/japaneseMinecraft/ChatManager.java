@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,5 +65,14 @@ public class ChatManager implements Listener {
 
     public boolean stopDM(Player sender) {
         return dm.remove(sender.getUniqueId()) != null;
+    }
+
+    public @Nullable String getDM(Player sender) {
+        var receiverUUID = dm.get(sender.getUniqueId());
+        if (receiverUUID == null) return null;
+        var receiver = Bukkit.getPlayer(receiverUUID);
+        if (receiver == null || !receiver.isOnline())
+            return null;
+        return receiver.getName();
     }
 }

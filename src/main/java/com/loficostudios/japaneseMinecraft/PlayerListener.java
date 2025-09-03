@@ -27,6 +27,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class PlayerListener implements Listener {
 
@@ -181,35 +182,54 @@ public class PlayerListener implements Listener {
             instance.removeModifier(JapaneseMinecraft.getNMK("death_speed_boost"));
         });
 
+        List<Consumer<Player>> notifications = List.of(
+                (p) -> {
+                    var lines = JapaneseMinecraft.isPlayerLanguageJapanese(p) ? JAPANESE_WELCOME_MESSAGE : ENGLISH_WELCOME_MESSAGE;
+
+                    for(String line : lines) {
+                        p.sendMessage(line.replace("<player>", p.getName()));
+                    }
+                    p.playSound(p, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
+                }, (p) -> {
+                    var message = Messages.getMessage(player, "github_hint");
+                    player.sendMessage(message);
+                    player.sendMessage(Component.text().append(Component.text("Github:")).append(Component.text(" "))
+                            .append(Component.text().append(Component.text("Japanese-Community-MC-Core", NamedTextColor.AQUA)))
+                            .clickEvent(ClickEvent.openUrl(GITHUB_URL)));
+
+                    player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
+                }
+        );
+
+        /// TODO Move these to a notification manager class
+
         new BukkitRunnable() {
             @Override
             public void run() {
-                var lines = JapaneseMinecraft.isPlayerLanguageJapanese(player) ? JAPANESE_WELCOME_MESSAGE : ENGLISH_WELCOME_MESSAGE;
+                if (notifications.isEmpty())
+                    return;
 
-                player.sendMessage(" "); // spacing
+                player.sendMessage(" ");
+                notifications.getFirst().accept(player);
 
-                for(String line : lines) {
-                    player.sendMessage(line.replace("<player>", player.getName()));
-                }
-                player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
+                new BukkitRunnable() {
+                    int index = 1;
+                    final int max = notifications.size();
+                    @Override
+                    public void run() {
+                        if (index >= max) {
+                            this.cancel();
+                            return;
+                        }
+
+                        player.sendMessage(" ");
+                        notifications.get(index).accept(player);
+
+                        index++;
+                    }
+                }.runTaskTimer(plugin, 20L*10L, 20L*10L);
             }
         }.runTaskLater(plugin, 30L);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                var message = Messages.getMessage(player, "github_hint");
-
-                player.sendMessage(" "); // spacing
-
-                player.sendMessage(message);
-                player.sendMessage(Component.text().append(Component.text("Github:")).append(Component.text(" "))
-                        .append(Component.text().append(Component.text("Japanese-Community-MC-Core", NamedTextColor.AQUA)))
-                                .clickEvent(ClickEvent.openUrl(GITHUB_URL)));
-
-                player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
-            }
-        }.runTaskLater(plugin, 10*20L);
     }
 
 
