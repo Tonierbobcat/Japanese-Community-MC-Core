@@ -1,6 +1,7 @@
 package com.loficostudios.japaneseMinecraft;
 
 import com.loficostudios.japaneseMinecraft.tasks.DeathEffectParticles;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -45,6 +46,8 @@ public class PlayerListener implements Listener {
             " ",
             " - 開発者注記。あなたが望むかもしれない機能をコード化/追加することができます。"
     };
+
+    private static final String CHAT_FORMAT = "§8[<local>§8] §f<player>: §r<message>";
 
     private static final String GITHUB_URL = "https://github.com/Tonierbobcat/Japanese-Community-MC-Core";
     private static final String DISCORD_URL = "discord.gg/YS8ZXeAwnB";
@@ -183,6 +186,9 @@ public class PlayerListener implements Listener {
             @Override
             public void run() {
                 var lines = JapaneseMinecraft.isPlayerLanguageJapanese(player) ? JAPANESE_WELCOME_MESSAGE : ENGLISH_WELCOME_MESSAGE;
+
+                player.sendMessage(" "); // spacing
+
                 for(String line : lines) {
                     player.sendMessage(line.replace("<player>", player.getName()));
                 }
@@ -194,6 +200,9 @@ public class PlayerListener implements Listener {
             @Override
             public void run() {
                 var message = Messages.getMessage(player, "github_hint");
+
+                player.sendMessage(" "); // spacing
+
                 player.sendMessage(message);
                 player.sendMessage(Component.text().append(Component.text("Github:")).append(Component.text(" "))
                         .append(Component.text().append(Component.text("Japanese-Community-MC-Core", NamedTextColor.AQUA)))
@@ -202,6 +211,14 @@ public class PlayerListener implements Listener {
                 player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
             }
         }.runTaskLater(plugin, 10*20L);
+    }
+
+    @EventHandler
+    private void onChat(AsyncChatEvent e) {
+        var isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(e.getPlayer());
+        e.message(Component.text(CHAT_FORMAT.replace("<local>", isJapanese ? "§5JP" : "§aEN")
+                .replace("<player>", e.getPlayer().getName())
+                .replace("<message>", "%s")));
     }
 
     private void handlePlayerLocale(Player player) {
