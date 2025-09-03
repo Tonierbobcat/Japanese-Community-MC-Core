@@ -5,6 +5,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
@@ -46,8 +47,6 @@ public class PlayerListener implements Listener {
             " ",
             " - 開発者注記。あなたが望むかもしれない機能をコード化/追加することができます。"
     };
-
-    private static final String CHAT_FORMAT = "§8[<local>§8] §f<player>: §r<message>";
 
     private static final String GITHUB_URL = "https://github.com/Tonierbobcat/Japanese-Community-MC-Core";
     private static final String DISCORD_URL = "discord.gg/YS8ZXeAwnB";
@@ -213,13 +212,7 @@ public class PlayerListener implements Listener {
         }.runTaskLater(plugin, 10*20L);
     }
 
-    @EventHandler
-    private void onChat(AsyncChatEvent e) {
-        var isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(e.getPlayer());
-        e.message(Component.text(CHAT_FORMAT.replace("<local>", isJapanese ? "§5JP" : "§aEN")
-                .replace("<player>", e.getPlayer().getName())
-                .replace("<message>", "%s")));
-    }
+
 
     private void handlePlayerLocale(Player player) {
         var local = player.locale();

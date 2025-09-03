@@ -4,3 +4,4 @@ main: com.loficostudios.japaneseMinecraft.JapaneseMinecraft
 api-version: '1.21'
 commands:
   jpmc:
+  dm:

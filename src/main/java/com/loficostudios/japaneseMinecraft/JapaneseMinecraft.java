@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,18 +26,23 @@ public final class JapaneseMinecraft extends JavaPlugin implements CommandExecut
 
     private WeatherManager weatherManager;
 
+    private ChatManager chatManager;
+
     public JapaneseMinecraft() {
         instance = this;
     }
 
     @Override
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
-        this.getCommand("jpmc").setExecutor(this);
-
         localeManager = new PlayerLocaleManager();
         weatherManager = new WeatherManager();
+        chatManager = new ChatManager();
+        Arrays.asList(
+                new PlayerListener(this), chatManager
+        ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
 
+        this.getCommand("jpmc").setExecutor(this);
+        this.getCommand("dm").setExecutor(new DMCommand(chatManager));
         new BukkitRunnable() {
             @Override
             public void run() {
