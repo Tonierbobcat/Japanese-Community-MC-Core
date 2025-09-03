@@ -29,7 +29,7 @@ import java.util.*;
 public class PlayerListener implements Listener {
 
     private static final String[] ENGLISH_WELCOME_MESSAGE = {
-            "Welcome, <player>, to the jp-eng community server!",
+            "Welcome, <player>, to the JP-ENG community server!",
             "This server is a work in progress. Features may be added or changed over time.",
             "If you have any suggestions, please use /jpmc suggest <your suggestion>",
             "Enjoy your time here!",
@@ -38,7 +38,7 @@ public class PlayerListener implements Listener {
     };
 
     private static final String[] JAPANESE_WELCOME_MESSAGE = {
-            "ようこそ、<player>さん、jp-engコミュニティサーバーへ！",
+            "ようこそ、<player>さん、JP-ENGコミュニティサーバーへ！",
             "このサーバーは進行中のプロジェクトです。機能は時間とともに追加または変更される場合があります。",
             "ご提案がございましたら、/jpmc suggest <あなたの提案> をご利用ください。",
             "ここでの時間をお楽しみください！",
@@ -102,7 +102,7 @@ public class PlayerListener implements Listener {
 
                     var symbol = symbols.getOrDefault(type, "<null>");
 
-                    player.sendActionBar(Component.text(livesText + "§r | " + timeText + "§r | " + symbol + " " + plugin.getWeatherManager().getTemperature(player) + "°C"));
+                    player.sendActionBar(Component.text(livesText + " §r| " + timeText + " §r| " + symbol + " §f" + plugin.getWeatherManager().getTemperature(player) + "°C"));
                 }
             }
         }.runTaskTimer(plugin, 0L, 2);
