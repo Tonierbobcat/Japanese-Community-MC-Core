@@ -50,6 +50,9 @@ public class PlayerListener implements Listener {
     private static final String DISCORD_URL = "discord.gg/YS8ZXeAwnB";
     private static final String SERVER_IP = "jp.loficostudios.com";
 
+    private static final String JOIN_MESSAGE = "§a§l+ §f<player>";
+    private static final String QUIT_MESSAGE = "§c§l- §f<player>";
+
     private static final boolean PLAY_GLOBAL_REVIVED_MESSAGE = false;
 
     private final BossBar overlay;
@@ -154,9 +157,6 @@ public class PlayerListener implements Listener {
                 .append(Component.text("\nSHIRITORI COMING SOON!!!", NamedTextColor.YELLOW));
         e.motd(motd);
     }
-
-    private static final String JOIN_MESSAGE = "§a§l+ <player>";
-    private static final String QUIT_MESSAGE = "§c§l- <player>";
 
     @EventHandler
     private void onQuit(PlayerQuitEvent e) {
