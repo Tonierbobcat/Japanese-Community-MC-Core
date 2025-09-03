@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -28,7 +29,7 @@ import java.util.*;
 public class PlayerListener implements Listener {
 
     private static final String[] ENGLISH_WELCOME_MESSAGE = {
-            "This is a community server. Please be respectful to others.",
+            "Welcome, <player>, to the jp-eng community server!",
             "This server is a work in progress. Features may be added or changed over time.",
             "If you have any suggestions, please use /jpmc suggest <your suggestion>",
             "Enjoy your time here!",
@@ -37,12 +38,12 @@ public class PlayerListener implements Listener {
     };
 
     private static final String[] JAPANESE_WELCOME_MESSAGE = {
-            "ここはコミュニティサーバーです。他の人に敬意を持って接してください。",
+            "ようこそ、<player>さん、jp-engコミュニティサーバーへ！",
             "このサーバーは進行中のプロジェクトです。機能は時間とともに追加または変更される場合があります。",
-            "ご提案がある場合は、/jpmc suggest <あなたの提案> を使用してください。",
-            "ここでの時間を楽しんでください！",
+            "ご提案がございましたら、/jpmc suggest <あなたの提案> をご利用ください。",
+            "ここでの時間をお楽しみください！",
             " ",
-            " - 開発者ノート 追加の注意として、私はあなたが望むかもしれない機能をコード化/追加することができます。"
+            " - 開発者注記。あなたが望むかもしれない機能をコード化/追加することができます。"
     };
 
     private static final String GITHUB_URL = "https://github.com/Tonierbobcat/Japanese-Community-MC-Core";
@@ -51,7 +52,7 @@ public class PlayerListener implements Listener {
 
     private static final boolean PLAY_GLOBAL_REVIVED_MESSAGE = false;
 
-    private final BossBar gameBar;
+    private final BossBar overlay;
 
     private final Map<UUID, BukkitTask> deathTasks = new HashMap<>();
 
@@ -67,12 +68,12 @@ public class PlayerListener implements Listener {
                 "@ " + DISCORD_URL
         };
 
-        gameBar = Bukkit.createBossBar(lines[0], BarColor.BLUE, BarStyle.SOLID);
+        overlay = Bukkit.createBossBar(lines[0], BarColor.BLUE, BarStyle.SOLID);
         new BukkitRunnable() {
             int index = 0;
             @Override
             public void run() {
-                gameBar.setTitle(lines[index]);
+                overlay.setTitle(lines[index]);
                 index = (index + 1) % lines.length;
             }
         }.runTaskTimer(plugin, 0L, 45L);
@@ -154,17 +155,23 @@ public class PlayerListener implements Listener {
         e.motd(motd);
     }
 
+    private static final String JOIN_MESSAGE = "§a§l+ <player>";
+    private static final String QUIT_MESSAGE = "§c§l- <player>";
+
+    @EventHandler
+    private void onQuit(PlayerQuitEvent e) {
+        e.quitMessage(Component.text(QUIT_MESSAGE.replace("<player>", e.getPlayer().getName())));
+    }
+
     @EventHandler
     private void onJoin(PlayerJoinEvent e) {
         var player = e.getPlayer();
 
+        e.joinMessage(Component.text(JOIN_MESSAGE.replace("<player>", player.getName())));
+
         handlePlayerLocale(player);
 
-        var message = String.format(Messages.getMessage(player, "welcome"), player.getName());
-
-        Common.notify(player, message);
-
-        gameBar.addPlayer(player);
+        overlay.addPlayer(player);
 
         if (player.getGameMode().equals(GameMode.SURVIVAL))
             player.setInvulnerable(false);
@@ -177,7 +184,7 @@ public class PlayerListener implements Listener {
             public void run() {
                 var lines = JapaneseMinecraft.isPlayerLanguageJapanese(player) ? JAPANESE_WELCOME_MESSAGE : ENGLISH_WELCOME_MESSAGE;
                 for(String line : lines) {
-                    player.sendMessage(line);
+                    player.sendMessage(line.replace("<player>", player.getName()));
                 }
                 player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
             }
@@ -186,10 +193,8 @@ public class PlayerListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                var eng = "This is an open source project! Check out the code, report issues, or contribute on GitHub!";
-                var jp = "これはオープンソースプロジェクトです！コードを確認し、問題を報告したり、GitHubで貢献したりしてください！";
-                var text = JapaneseMinecraft.isPlayerLanguageJapanese(player) ? jp : eng;
-                player.sendMessage(text);
+                var message = Messages.getMessage(player, "github_hint");
+                player.sendMessage(message);
                 player.sendMessage(Component.text().append(Component.text("Github:")).append(Component.text(" "))
                         .append(Component.text().append(Component.text("Japanese-Community-MC-Core", NamedTextColor.AQUA)))
                                 .clickEvent(ClickEvent.openUrl(GITHUB_URL)));
@@ -204,7 +209,6 @@ public class PlayerListener implements Listener {
         var isJapanese = local.equals(Locale.JAPANESE) || local.equals(Locale.JAPAN);
         plugin.getLocaleManager().setLanguage(player, isJapanese ? Language.JAPANESE : Language.ENGLISH);
     }
-
 
     private void playReviveEffect(Player player) {
         var maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
