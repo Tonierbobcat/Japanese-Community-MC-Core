@@ -31,23 +31,7 @@ import java.util.function.Consumer;
 
 public class PlayerListener implements Listener {
 
-    private static final String[] ENGLISH_WELCOME_MESSAGE = {
-            "Welcome, <player>, to the JP-ENG community server!",
-            "This server is a work in progress. Features may be added or changed over time.",
-            "If you have any suggestions, please use /jpmc suggest <your suggestion>",
-            "Enjoy your time here!",
-            " ",
-            " - DEV NOTE. I am able to code / add any features you may want."
-    };
 
-    private static final String[] JAPANESE_WELCOME_MESSAGE = {
-            "ようこそ、<player>さん、JP-ENGコミュニティサーバーへ！",
-            "このサーバーは進行中のプロジェクトです。機能は時間とともに追加または変更される場合があります。",
-            "ご提案がございましたら、/jpmc suggest <あなたの提案> をご利用ください。",
-            "ここでの時間をお楽しみください！",
-            " ",
-            " - 開発者注記。あなたが望むかもしれない機能をコード化/追加することができます。"
-    };
 
     private static final String GITHUB_URL = "https://github.com/Tonierbobcat/Japanese-Community-MC-Core";
     private static final String DISCORD_URL = "discord.gg/YS8ZXeAwnB";
@@ -184,7 +168,7 @@ public class PlayerListener implements Listener {
 
         List<Consumer<Player>> notifications = List.of(
                 (p) -> {
-                    var lines = JapaneseMinecraft.isPlayerLanguageJapanese(p) ? JAPANESE_WELCOME_MESSAGE : ENGLISH_WELCOME_MESSAGE;
+                    var lines = JapaneseMinecraft.isPlayerLanguageJapanese(p) ? Messages.JAPANESE_WELCOME_MESSAGE : Messages.ENGLISH_WELCOME_MESSAGE;
 
                     for(String line : lines) {
                         p.sendMessage(line.replace("<player>", p.getName()));

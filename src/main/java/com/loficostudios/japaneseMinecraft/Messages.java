@@ -6,6 +6,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Messages {
+
+    public static final String[] ENGLISH_WELCOME_MESSAGE = {
+            "Welcome, <player>, to the JP-ENG community server!",
+            "This server is a work in progress. Features may be added or changed over time.",
+            "If you have any suggestions, please use /jpmc suggest <your suggestion>",
+            "Enjoy your time here!",
+            " ",
+            " - DEV NOTE. I am able to code / add any features you may want."
+    };
+
+    public static final String[] JAPANESE_WELCOME_MESSAGE = {
+            "ようこそ、<player>さん、JP-ENGコミュニティサーバーへ！",
+            "このサーバーは進行中のプロジェクトです。機能は時間とともに追加または変更される場合があります。",
+            "ご提案がございましたら、/jpmc suggest <あなたの提案> をご利用ください。",
+            "ここでの時間をお楽しみください！",
+            " ",
+            " - 開発者注記。あなたが望むかもしれない機能をコード化/追加することができます。"
+    };
+
     private static final String WORD_USED_EN = "This word has already been used. Please try another word.";
     private static final String WORD_USED_JP = "この言葉はもう使われました。別の言葉を試してください。";
 
