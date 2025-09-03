@@ -45,6 +45,10 @@ public class PlayerListener implements Listener {
             " - 開発者ノート 追加の注意として、私はあなたが望むかもしれない機能をコード化/追加することができます。"
     };
 
+    private static final String GITHUB_URL = "https://github.com/Tonierbobcat/Japanese-Community-MC-Core";
+    private static final String DISCORD_URL = "discord.gg/YS8ZXeAwnB";
+    private static final String SERVER_IP = "jp.loficostudios.com";
+
     private static final boolean PLAY_GLOBAL_REVIVED_MESSAGE = false;
 
     private final BossBar gameBar;
@@ -58,9 +62,9 @@ public class PlayerListener implements Listener {
 
         String[] lines = {
                 "!!! JOIN NOW !!!",
-                "@ jp.loficostudios.com",
+                "@ " + SERVER_IP,
                 "!!! DISCORD !!!",
-                "@ discord.gg/YS8ZXeAwnB"
+                "@ " + DISCORD_URL
         };
 
         gameBar = Bukkit.createBossBar(lines[0], BarColor.BLUE, BarStyle.SOLID);
@@ -171,9 +175,28 @@ public class PlayerListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                sendWelcomeMessage(player);
+                var lines = JapaneseMinecraft.isPlayerLanguageJapanese(player) ? JAPANESE_WELCOME_MESSAGE : ENGLISH_WELCOME_MESSAGE;
+                for(String line : lines) {
+                    player.sendMessage(line);
+                }
+                player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
             }
         }.runTaskLater(plugin, 30L);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                var eng = "This is an open source project! Check out the code, report issues, or contribute on GitHub!";
+                var jp = "これはオープンソースプロジェクトです！コードを確認し、問題を報告したり、GitHubで貢献したりしてください！";
+                var text = JapaneseMinecraft.isPlayerLanguageJapanese(player) ? jp : eng;
+                player.sendMessage(text);
+                player.sendMessage(Component.text().append(Component.text("Github:")).append(Component.text(" "))
+                        .append(Component.text().append(Component.text("Japanese-Community-MC-Core", NamedTextColor.AQUA)))
+                                .clickEvent(ClickEvent.openUrl(GITHUB_URL)));
+
+                player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
+            }
+        }.runTaskLater(plugin, 10*20L);
     }
 
     private void handlePlayerLocale(Player player) {
@@ -182,16 +205,6 @@ public class PlayerListener implements Listener {
         plugin.getLocaleManager().setLanguage(player, isJapanese ? Language.JAPANESE : Language.ENGLISH);
     }
 
-    private void sendWelcomeMessage(Player player) {
-        var githubLink = "jp.loficostudios.com";
-        var githubLinkText = Component.text().clickEvent(ClickEvent.openUrl(githubLink));
-
-        var lines = JapaneseMinecraft.isPlayerLanguageJapanese(player) ? JAPANESE_WELCOME_MESSAGE : ENGLISH_WELCOME_MESSAGE;
-        for(String line : lines) {
-            player.sendMessage(line);
-        }
-        player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.75f);
-    }
 
     private void playReviveEffect(Player player) {
         var maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
