@@ -1,0 +1,126 @@
+package com.loficostudios.japaneseMinecraft;
+
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Collections;
+import java.util.List;
+
+public final class JapaneseMinecraft extends JavaPlugin implements CommandExecutor, TabCompleter {
+
+    private static JapaneseMinecraft instance;
+
+    private PlayerLocaleManager localeManager;
+
+    private WeatherManager weatherManager;
+
+    public JapaneseMinecraft() {
+        instance = this;
+    }
+
+    @Override
+    public void onEnable() {
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
+        this.getCommand("jpmc").setExecutor(this);
+
+        localeManager = new PlayerLocaleManager();
+        weatherManager = new WeatherManager();
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    player.sendMessage(Component.text(Messages.getMessage(player, "suggestion_hint")));
+                }
+            }
+        }.runTaskTimer(this, 0L, 120L * 60 * 5); // 5 minutes
+    }
+
+    @Override
+    public void onDisable() {
+    }
+
+    public PlayerLocaleManager getLocaleManager() {
+        return localeManager;
+    }
+
+    public WeatherManager getWeatherManager() {
+        return weatherManager;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        String[] commands = {"suggest"};
+        if (args.length > 1) {
+            if (args[0].equals("suggest")) {
+                if (sender instanceof Player player) {
+                    var suggestion = String.join(" ", args).substring(8).trim();
+                    if (suggestion.isEmpty()) {
+                        var jp = isPlayerLanguageJapanese(player);
+                        var engMsg = "Cannot submit an empty suggestion.";
+                        var jpMsg = "空の提案は送信できません。";
+                        player.sendMessage(Component.text(jp ? jpMsg : engMsg));
+                        return true;
+                    }
+
+                    var file = new File(getDataFolder(), "suggestions/" + System.currentTimeMillis() +"-" + player.getName() + ".txt");
+                    file.getParentFile().mkdirs();
+
+                    try {
+                        if (file.createNewFile()) {
+                            Files.writeString(file.toPath(), suggestion);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        var jp = isPlayerLanguageJapanese(player);
+                        var engMsg = "Failed to save your suggestion. Please try again later.";
+                        var jpMsg = "提案の保存に失敗しました。後でもう一度お試しください。";
+                        player.sendMessage(Component.text(jp ? jpMsg : engMsg));
+                        return true;
+                    }
+
+                    var jp = isPlayerLanguageJapanese(player);
+                    player.sendMessage(Component.text(jp ? "ご提案ありがとうございます！" : "Thank you for your suggestion!"));
+                    return true;
+                } else {
+                    sender.sendMessage("This command can only be used by players.");
+                    return true;
+                }
+            } else {
+                sender.sendMessage("Unknown subcommand. Available subcommands: suggest");
+                return true;
+            }
+        } else {
+            sender.sendMessage(commands);
+            return true;
+        }
+    }
+
+    @Override
+    public @NotNull List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            return List.of("suggest");
+        }
+        return Collections.emptyList();
+    }
+
+    public static boolean isPlayerLanguageJapanese(Player player) {
+        var language = instance.localeManager.getLanguage(player);
+        return language == Language.JAPANESE;
+    }
+
+    public static @NotNull NamespacedKey getNMK(String key) {
+        return new NamespacedKey(instance, key);
+    }
+}
