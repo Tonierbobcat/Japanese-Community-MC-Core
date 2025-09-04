@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -38,29 +39,29 @@ public class ChatManager implements Listener {
         var global = receiverUUID == null;
 
         if (global) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendMessage(Component.text(CHAT_FORMAT)
-                        .replaceText("<player>", sender.displayName())
-                        .replaceText("<message>", message)
-                        .replaceText("<local>", Component.text(isJapanese ? "§5JP" : "§aEN")));
-            }
+            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(formatMessage(CHAT_FORMAT, sender, null, message, JapaneseMinecraft.isPlayerLanguageJapanese(p) ? Language.JAPANESE : Language.ENGLISH)));
         } else {
             var receiver = Bukkit.getPlayer(receiverUUID);
             if (receiver != null && receiver.isOnline()) {
-                sender.sendMessage(Component.text(CHAT_FORMAT_DM_SELF)
-                        .replaceText("<receiver>", receiver.displayName())
-                        .replaceText("<message>", message)
-                        .replaceText("<local>", Component.text(isJapanese ? "§5JP" : "§aEN")));
-                receiver.sendMessage(Component.text(CHAT_FORMAT_DM_OTHER)
-                        .replaceText("<sender>", sender.displayName())
-                        .replaceText("<message>", message)
-                        .replaceText("<local>", Component.text(isJapanese ? "§5JP" : "§aEN")));
+                sender.sendMessage(formatMessage(CHAT_FORMAT_DM_SELF, sender, receiver, message, isJapanese ? Language.JAPANESE : Language.ENGLISH));
+                receiver.sendMessage(formatMessage(CHAT_FORMAT_DM_OTHER, sender, receiver, message, isJapanese ? Language.JAPANESE : Language.ENGLISH));
             } else {
                 var eng = "This player is no longer online. '/dm' to exit.";
                 var jp = "このプレイヤーはもうオンラインではありません。'/dm'で終了します。";
-                sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
+                sender.sendMessage(isJapanese ? jp : eng);
             }
         }
+    }
+
+    private Component formatMessage(String template, @NotNull Player sender, Player receiver, Component message, Language language) {
+        var comp = Component.text(template)
+                .replaceText("<message>", message)
+                .replaceText("<local>", Component.text(language.equals(Language.JAPANESE) ? "§5JP" : "§aEN"))
+                .replaceText("<sender>", sender.displayName())
+                .replaceText("<player", sender.displayName());
+        if (receiver != null)
+            comp = comp.replaceText("<receiver>", receiver.displayName());
+        return comp;
     }
 
     public boolean stopDM(Player sender) {

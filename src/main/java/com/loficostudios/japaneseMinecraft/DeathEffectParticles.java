@@ -1,4 +1,4 @@
-package com.loficostudios.japaneseMinecraft.tasks;
+package com.loficostudios.japaneseMinecraft;
 
 import org.bukkit.Color;
 import org.bukkit.Location;

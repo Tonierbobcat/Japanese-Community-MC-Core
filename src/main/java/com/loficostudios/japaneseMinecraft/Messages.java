@@ -7,23 +7,6 @@ import java.util.Map;
 
 public class Messages {
 
-    public static final String[] ENGLISH_WELCOME_MESSAGE = {
-            "Welcome, <player>, to the JP-ENG community server!",
-            "This server is a work in progress. Features may be added or changed over time.",
-            "If you have any suggestions, please use /jpmc suggest <your suggestion>",
-            "Enjoy your time here!",
-            " ",
-            " - DEV NOTE. I am able to code / add any features you may want."
-    };
-
-    public static final String[] JAPANESE_WELCOME_MESSAGE = {
-            "ようこそ、<player>さん、JP-ENGコミュニティサーバーへ！",
-            "このサーバーは進行中のプロジェクトです。機能は時間とともに追加または変更される場合があります。",
-            "ご提案がございましたら、/jpmc suggest <あなたの提案> をご利用ください。",
-            "ここでの時間をお楽しみください！",
-            " ",
-            " - 開発者注記。あなたが望むかもしれない機能をコード化/追加することができます。"
-    };
 
     private static final String WORD_USED_EN = "This word has already been used. Please try another word.";
     private static final String WORD_USED_JP = "この言葉はもう使われました。別の言葉を試してください。";
@@ -39,9 +22,6 @@ public class Messages {
 
     private static final String YOU_LOST_EXPERIENCE_EN = "You have lost all of your experience.";
     private static final String YOU_LOST_EXPERIENCE_JP = "あなたはすべての経験を失いました";
-
-    private static final String GITHUB_HINT_EN = "This is an open source project! Check out the code, report issues, or contribute on GitHub!";
-    private static final String GITHUB_HINT_JP = "これはオープンソースプロジェクトです！コードを確認したり、問題を報告したり、GitHubで貢献したりしてください！";
 
     private static final String SUGGESTION_HINT_EN = "Want something to be added to the server? Use /jpmc suggest <your suggestion>";
     private static final String SUGGESTION_HINT_JP = "サーバーに追加したいものがありますか？ /jpmc suggest <あなたの提案> を使用してください";
@@ -59,6 +39,9 @@ public class Messages {
 
     private static final String ERROR_MESSAGE = "!!!ERROR!!! Please report this to a server admin: missing message key <key>";
     private static final String ERROR_MESSAGE_JP = "サーバー管理者にこれを報告してください: メッセージキーが見つかりません <key>";
+
+    private static final String CANNOT_PVP_EN = "You cannot PvP on this server.";
+    private static final String CANNOT_PVP_JP = "このサーバーではPvPできません。";
 
     public static String getMessage(Player player, String key) {
         boolean isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(player);
@@ -81,9 +64,6 @@ public class Messages {
         messages.put("you_lost_experience_en", YOU_LOST_EXPERIENCE_EN );
         messages.put("you_lost_experience_jp", YOU_LOST_EXPERIENCE_JP);
 
-        messages.put("github_hint_en", GITHUB_HINT_EN);
-        messages.put("github_hint_jp", GITHUB_HINT_JP);
-
         messages.put("suggestion_hint_en", SUGGESTION_HINT_EN);
         messages.put("suggestion_hint_jp", SUGGESTION_HINT_JP);
 
@@ -98,6 +78,9 @@ public class Messages {
 
         messages.put("successfully_submitted_suggestion_en", SUCCESSFULLY_SUBMITTED_SUGGESTION_EN);
         messages.put("successfully_submitted_suggestion_jp", SUCCESSFULLY_SUBMITTED_SUGGESTION_JP);
+
+        messages.put("cannot_pvp_en", CANNOT_PVP_EN);
+        messages.put("cannot_pvp_jp", CANNOT_PVP_JP);
 
     }
 }
