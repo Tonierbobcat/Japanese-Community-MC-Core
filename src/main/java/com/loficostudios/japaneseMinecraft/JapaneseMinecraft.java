@@ -2,7 +2,7 @@ package com.loficostudios.japaneseMinecraft;
 
 import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
-import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriListener;
+import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriManager;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerDeathListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerListener;
@@ -47,6 +47,8 @@ public final class JapaneseMinecraft extends JavaPlugin {
 
     private ProfileManager profileManager;
 
+    private ShiritoriManager shiritoriManager;
+
     public JapaneseMinecraft() {
         instance = this;
     }
@@ -66,6 +68,7 @@ public final class JapaneseMinecraft extends JavaPlugin {
         chatManager = new ChatManager();
         notificationManager = new NotificationManager();
         profileManager = new ProfileManager(this);
+        shiritoriManager = new ShiritoriManager(this);
 
         /// Register event listeners
         registerEvents();
@@ -79,7 +82,7 @@ public final class JapaneseMinecraft extends JavaPlugin {
 
     private void registerEvents() {
         Arrays.asList(
-                new PlayerListener(this), chatManager, profileManager, new MobListener(), new PlayerDeathListener(this), new ShiritoriListener()
+                new PlayerListener(this), chatManager, profileManager, new MobListener(), new PlayerDeathListener(this)
         ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
     }
 
@@ -109,6 +112,10 @@ public final class JapaneseMinecraft extends JavaPlugin {
 
     public WeatherManager getWeatherManager() {
         return weatherManager;
+    }
+
+    public ShiritoriManager getShiritoriManager() {
+        return shiritoriManager;
     }
 
     public ChatManager getChatManager() {
