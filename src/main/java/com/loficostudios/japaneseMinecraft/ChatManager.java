@@ -1,7 +1,10 @@
 package com.loficostudios.japaneseMinecraft;
 
+import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriGame;
+import com.loficostudios.japaneseMinecraft.util.JishoAPI;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

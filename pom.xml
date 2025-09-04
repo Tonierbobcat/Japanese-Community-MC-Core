@@ -79,5 +79,10 @@
             <version>2.11.6</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.jikyo</groupId>
+            <artifactId>romaji</artifactId>
+            <version>0.0.3</version>
+        </dependency>
     </dependencies>
 </project>

@@ -2,6 +2,7 @@ package com.loficostudios.japaneseMinecraft;
 
 import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
+import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriListener;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerDeathListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerListener;
@@ -78,7 +79,7 @@ public final class JapaneseMinecraft extends JavaPlugin {
 
     private void registerEvents() {
         Arrays.asList(
-                new PlayerListener(this), chatManager, profileManager, new MobListener(), new PlayerDeathListener(this)
+                new PlayerListener(this), chatManager, profileManager, new MobListener(), new PlayerDeathListener(this), new ShiritoriListener()
         ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
     }
 

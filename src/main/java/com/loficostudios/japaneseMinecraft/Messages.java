@@ -8,12 +8,6 @@ import java.util.Map;
 public class Messages {
 
 
-    private static final String WORD_USED_EN = "This word has already been used. Please try another word.";
-    private static final String WORD_USED_JP = "この言葉はもう使われました。別の言葉を試してください。";
-
-    private static final String WORD_INVALID_EN = "Invalid word. Please try again.";
-    private static final String WORD_INVALID_JP = "無効な言葉です。もう一度試してください。";
-
     private static final String GLOBAL_PLAYER_REVIVED_EN = "%s has been revived by a mysterious garden spirit!";
     private static final String GLOBAL_PLAYER_REVIVED_JP = "%sは神秘的な庭の精霊によって復活しました！";
 
@@ -52,11 +46,6 @@ public class Messages {
 
     static {
         messages = new HashMap<>();
-        messages.put("word_used_en", WORD_USED_EN);
-        messages.put("word_used_jp", WORD_USED_JP);
-
-        messages.put("word_invalid_en", WORD_INVALID_EN);
-        messages.put("word_invalid_jp", WORD_INVALID_JP);
 
         messages.put("global_player_revived_en", GLOBAL_PLAYER_REVIVED_EN);
         messages.put("global_player_revived_jp", GLOBAL_PLAYER_REVIVED_JP);
