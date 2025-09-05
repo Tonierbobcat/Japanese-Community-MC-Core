@@ -15,7 +15,7 @@ import java.util.Map;
 /// then run Bukkit.addRecipe() to add it to the server
 
 @Deprecated()
-public interface RecipeLoader {
+public interface TypedRecipeLoader {
     @Nullable Recipe load(Map<String, Object> data);
 
 //    static @Nullable ItemStack getFromId(String id) {
