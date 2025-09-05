@@ -1,6 +1,7 @@
 package com.loficostudios.japaneseMinecraft;
 
 import com.loficostudios.forgified.paper.IPluginResources;
+import com.loficostudios.forgified.paper.recipes.RecipeLoaderRegistry;
 import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.HomeCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
@@ -63,6 +64,12 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
             placeholderAPIEnabled = true;
         } catch (ClassNotFoundException ignore) {
         }
+
+
+        /// tbh this is pretty clean
+        // DISABLED for now until I update recipe loaders in library
+//        RecipeLoaderRegistry.getBukkitRecipeLoaderRegistry()
+//                .initialize(this);
 
         /// Register items
         Items.register(this);
