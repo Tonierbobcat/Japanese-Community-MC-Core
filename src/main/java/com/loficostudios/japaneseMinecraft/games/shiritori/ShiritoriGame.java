@@ -2,17 +2,20 @@ package com.loficostudios.japaneseMinecraft.games.shiritori;
 
 import com.github.jikyo.romaji.Transliterator;
 import com.loficostudios.japaneseMinecraft.Common;
-import com.loficostudios.japaneseMinecraft.Debug;
-import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Messages;
 import com.loficostudios.japaneseMinecraft.util.JishoAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 
 public class ShiritoriGame { // PLACEHOLDER ADD LATER
 
-    private static String[] words = {
+    /// These words must be written in kana (hiragana or katakana)
+    private final static String[] DEFAULT_WORDS = {
             "ねこ",      // 猫
             "いぬ",      // 犬
             "さくら",    // 桜
@@ -40,30 +43,40 @@ public class ShiritoriGame { // PLACEHOLDER ADD LATER
             "ゆき"       // 雪
     };
 
+    private static final String PREFIX = "§8[§dShiritori§8] §r";
+
+    private static final String STARTING_MESSAGE = """
+        §a§l=== Shiritori Starting ===
+        §eThe game will last for §f{minutes} §eminute(s).
+        §eThe player with the most points at the end wins!
+        
+        §eThe first word is: §f'{word}'
+        §a§l=========================
+        """;
+
+    private static final String PLAYER_GUESSED_MESSAGE = "{player} gets a point!";
+
+    private static final int CORRECT_POINTS = 2;
+
+    private static final int INCORRECT_POINTS = 1;
+
     /// Stores the japanese reading of the used words
     private final Set<String> usedWords = new LinkedHashSet<>();
 
-    private final int gameLengthMinutes;
+    /// Conccurency is needed because multiple players can submit words at the same time
+    private final Map<UUID, Integer> scores = new ConcurrentHashMap<>();
 
-    private final Map<UUID, Integer> scores = new HashMap<>();
+    private final int gameLengthMinutes;
 
     public ShiritoriGame(int gameLengthMinutes) {
         this.gameLengthMinutes = gameLengthMinutes;
     }
 
-
     public void start() {
-        var word = words[(int) (Math.random() * words.length)];
-
-        List<String> strings = List.of(new String[] {
-                "Shiritori is starting!",
-                "The game will last for {minutes} minute(s).",
-                "The player with the most points at the end wins!",
-                "The first word is '{word}'."
-        });
-
-        Common.notifyPlayers(String.join("\n", strings).replace("{word}", word).replace("{minutes}", "" + gameLengthMinutes));
+        var word = DEFAULT_WORDS[ThreadLocalRandom.current().nextInt(DEFAULT_WORDS.length)];
         usedWords.add(word);
+
+        Common.notifyPlayers(STARTING_MESSAGE.replace("{word}", word).replace("{minutes}", "" + gameLengthMinutes));
     }
 
     /// Get the last kana of the last used word
@@ -93,31 +106,57 @@ public class ShiritoriGame { // PLACEHOLDER ADD LATER
         scores.put(player.getUniqueId(), currentScore + points);
     }
 
-    public void submitWord(Player sender, String word) {
-        var result = new JishoAPI().search(word);
-        if (result == null) {
-            sender.sendMessage(Messages.getMessage(sender, "word_invalid"));
-            return;
-        }
-        var reading = result.reading();
-        var romaji = Transliterator.transliterate(reading).getFirst();
+    private boolean matches(String[] result, String input) {
+        if (result == null || input == null) return false;
 
-        Debug.log("Result: " + result);
+        var word = result[0];
+        var reading = result[1];
+
+        // KANJI
+        if (word != null && word.equals(input)) {
+            return true;
+        }
+
+        // KANA
+        if (reading != null && reading.equals(input)) {
+            return true;
+        }
+
+        // ROMAJI
+        for (String romaji : Transliterator.transliterate(reading)) {
+            if (romaji.equalsIgnoreCase(input)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void submitWord(Player sender, String input) {
+        String[][] result = new JishoAPI()
+                .getFirstSearchResultSimple(input);
+        if (result == null || result[0].length == 0 || result[1].length == 0)
+            return;
+
+        String[] trimmedResult = new String[] { result[0][0], result[1][0], result[2][0] };
+
+        /// checks if the result is valid and matches the input
+        if (!matches(trimmedResult, input))
+            return;
+
+        var reading = trimmedResult[1];
+        var romaji = Transliterator.transliterate(reading).getFirst();
 
         ///  Check if the word ends with ん or ン
         if (reading.endsWith("ん") || reading.endsWith("ン")) {
-            var eng = "You cannot use a word that ends with 'ん'. You lost 1 point!";
-            var jp = "「ん」で終わる言葉は使えません。1ポイント失います！";
-            sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender)  ? jp : eng);
-            subtractPoints(sender, 1);
+            sendMessage(sender, "word_ends_with_n", msg -> msg.replace("{points}", "" + INCORRECT_POINTS));
+            subtractPoints(sender, ShiritoriGame.INCORRECT_POINTS);
             return;
         }
 
         if (usedWords.contains(reading)) {
-            var eng = "This word has already been used. Please try another word. You lost 1 point!";
-            var jp = "この言葉はすでに使われています。別の言葉を試してください。1ポイント失います！";
-            sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
-            subtractPoints(sender, 1);
+            sendMessage(sender, "word_already_used", msg -> msg.replace("{points}", "" + INCORRECT_POINTS));
+            subtractPoints(sender, ShiritoriGame.INCORRECT_POINTS);
             return;
         }
 
@@ -125,29 +164,29 @@ public class ShiritoriGame { // PLACEHOLDER ADD LATER
         var lastKana = getLastKana();
         var lastKanaRomaji = Transliterator.transliterate(lastKana).getFirst();
 
-        Debug.log("UsedWords: " + usedWords + " Romaji: " + romaji + ", Last Kana: " + lastKana + ", Last Kana Romaji: " + lastKanaRomaji);
         if (!romaji.startsWith(lastKanaRomaji)) {
-            var eng = "Your word must start with '" + lastKana + "' (romaji: " + lastKanaRomaji + "). You lost 1 point!";
-            var jp = "あなたの言葉は'" + lastKana + "'（ローマ字: " + lastKanaRomaji + "）で始まらなければなりません。1ポイント失います！";
-            sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
-            subtractPoints(sender, 1);
+            sendMessage(sender, "wrong_kana", msg -> msg
+                    .replace("{kana}", lastKana)
+                    .replace("{romaji}", lastKanaRomaji)
+                    .replace("{points}", "" + INCORRECT_POINTS));
+            subtractPoints(sender, ShiritoriGame.INCORRECT_POINTS);
             return;
         }
 
-        var definition = result.definition();
-        var list = List.of(
-                result.word() != null ? "Word: " + result.word() + " (" + reading + ")" : "Word: " + reading,
-                "Definition: " + definition
-        );
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            /// Passing raw result to get correct dictionary definitions
+            player.sendMessage(String.join("\n", List.of(PLAYER_GUESSED_MESSAGE, Common.getDictionaryMessageFromResult(result)))
+                    .replace("{player}", sender.getName()));
+        }
 
-        Common.notifyPlayers(sender.getName() + " gets a point!\n" + String.join("\n", list));
-        var eng = "You get 2 points!";
-        var jp = "2ポイント獲得！";
-        sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
-        addPoints(sender, 2);
+        sendMessage(sender, "word_correct", msg -> msg.replace("{points}", "" + CORRECT_POINTS));
+        addPoints(sender, CORRECT_POINTS);
 
-        Debug.log("Added word: " + reading);
         usedWords.add(reading);
+    }
+
+    private void sendMessage(Player player, String key, Function<String, String> replacer) {
+        player.sendMessage(PREFIX + replacer.apply(Messages.getMessage(player, key)));
     }
 
     public Map<UUID, Integer> getResults() {

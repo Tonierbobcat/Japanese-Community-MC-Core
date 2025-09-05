@@ -1,5 +1,6 @@
 package com.loficostudios.japaneseMinecraft.listener;
 
+import com.loficostudios.japaneseMinecraft.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.WeatherManager;
 import com.loficostudios.japaneseMinecraft.notifications.Notification;
@@ -16,12 +17,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 import java.util.Map;
@@ -49,22 +48,18 @@ public class PlayerListener implements Listener {
         };
 
         overlay = Bukkit.createBossBar(lines[0], BarColor.BLUE, BarStyle.SOLID);
-        new BukkitRunnable() {
-            int index = 0;
-            @Override
-            public void run() {
-                overlay.setTitle(lines[index]);
-                index = (index + 1) % lines.length;
+
+        int[] index = {0};
+        JapaneseMinecraft.runTaskTimer(() -> {
+            overlay.setTitle(lines[index[0]]);
+            index[0] = (index[0] + 1) % lines.length;
+        }, 0, 45);
+
+        JapaneseMinecraft.runTaskTimer(() -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                updateDisplay(player);
             }
-        }.runTaskTimer(plugin, 0L, 45L);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    updateDisplay(player);
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 2);
+        }, 0, 2);
     }
 
     @EventHandler
@@ -91,36 +86,36 @@ public class PlayerListener implements Listener {
             instance.removeModifier(JapaneseMinecraft.getNMK("death_speed_boost"));
         });
 
+        try {
+            player.getInventory().addItem(Items.createGiftBag(null, null));
+        } catch (IllegalArgumentException ignore) {
+        }
+
         // TODO Move these to a NotificationManager
-        ///
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (NOTIFICATIONS.isEmpty())
+        JapaneseMinecraft.runTaskLater(() -> {
+
+            if (NOTIFICATIONS.isEmpty())
+                return;
+
+            player.sendMessage(" ");
+
+            plugin.getNotificationManager().sendNotification(NOTIFICATIONS.getFirst(), player);
+
+            int[] index = {1};
+            JapaneseMinecraft.runTaskTimer((runnable) -> {
+
+                final int max = NOTIFICATIONS.size();
+                if (index[0] >= max) {
+                    runnable.cancel();
                     return;
+                }
 
                 player.sendMessage(" ");
+                plugin.getNotificationManager().sendNotification(NOTIFICATIONS.get(index[0]), player);
 
-                plugin.getNotificationManager().sendNotification(NOTIFICATIONS.getFirst(), player);
-
-                new BukkitRunnable() {
-                    int index = 1;
-                    final int max = NOTIFICATIONS.size();
-                    @Override
-                    public void run() {
-                        if (index >= max) {
-                            this.cancel();
-                            return;
-                        }
-
-                        player.sendMessage(" ");
-                        plugin.getNotificationManager().sendNotification(NOTIFICATIONS.get(index), player);
-
-                        index++;
-                    }
-                }.runTaskTimer(plugin, 20L*10L, 20L*10L);
-            }
-        }.runTaskLater(plugin, 30L);
+                index[0]++;
+            }, 20L*10L, 20L*10L);
+        }, 30L);
     }
 
     @EventHandler
@@ -157,7 +152,7 @@ public class PlayerListener implements Listener {
 
     static {
         String[] englishWelcomeMessage = {
-                "Welcome, %player%, to the JP-ENG community server!",
+                "Welcome, {player}, to the JP-ENG community server!",
                 "This server is a work in progress. Features may be added or changed over time.",
                 "If you have any suggestions, please use /jpmc suggest <suggestion>",
                 "Enjoy your time here!",
@@ -177,7 +172,7 @@ public class PlayerListener implements Listener {
                         String.join("\n", japaneseWelcomeMessage),
                         Notification.Type.INFO),
                 new Notification(
-                        "This is an open source project! Check out the code, report issues, or contribute on GitHub!\n<aqua>Github: <click:open_url:%github_url%>Japanese-Community-MC-Core</click>",
+                        "This is an open source project! Check out the code, report issues, or contribute on GitHub!\n<aqua>Github: <click:open_url:{github_url}>Japanese-Community-MC-Core</click>",
                         "これはオープンソースプロジェクトです！コードを確認したり、問題を報告したり、GitHubで貢献したりしてください！",
                         Notification.Type.INFO),
                 new Notification(

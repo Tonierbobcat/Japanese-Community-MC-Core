@@ -1,41 +1,25 @@
 package com.loficostudios.japaneseMinecraft.util;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.loficostudios.japaneseMinecraft.Common;
+import com.loficostudios.japaneseMinecraft.Debug;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 public class JishoAPI {
     private static final String API_URL = "https://jisho.org/api/v1/search/words?keyword=";
 
-    public @Nullable JishoSearchResult search(String query) {
-        var data = getWordData(query);
-        if (data.length == 0) {
-            return null;
-        }
+    private final Gson gson = new Gson();
 
-        var word = data[0];
-        var reading = data[1];
-        var definition = data[2];
-
-        return new JishoSearchResult(word, reading, definition);
-    }
-
-    /**
-     * @return [kana, word, definition]
-     */
-    @SuppressWarnings("unchecked")
-    private String[] getWordData(String input) {
+    public @Nullable JishoResponse search(String query) {
+        Debug.log("JishoAPI Query: " + query);
         try {
-            URL url = new URL(API_URL + input);
+            URL url = new URL(API_URL + query.replace(" ", "+"));
             HttpURLConnection connection = ((HttpURLConnection) url.openConnection());
             connection.setRequestMethod("GET");
             connection.connect();
@@ -43,8 +27,9 @@ public class JishoAPI {
             int response = connection.getResponseCode();
 
             if (response != 200) {
+                Debug.log("JishoAPI non-200 response: " + response);
                 Common.notifyAdmins("Jisho API returned non-200 response: " + response);
-                return new String[0];
+                return null;
             }
 
             StringBuilder json = new StringBuilder();
@@ -54,45 +39,39 @@ public class JishoAPI {
             }
             scanner.close();
 
-            Gson gson = new Gson();
-            Type type = new TypeToken<Map<String, Object>>() {
-            }.getType();
-
-
-            Map<String, Object> map = gson.fromJson(json.toString(), type);
-            var data = (List<Object>) map.get("data");
-            if (data.isEmpty()) {
-                return new String[0];
-            }
-
-            var firstEntry = (Map<String, Object>) data.getFirst();
-            var japaneseList = (List<Object>) firstEntry.get("japanese");
-            if (japaneseList.isEmpty()) {
-                return new String[0];
-            }
-            var firstJapanese = (Map<String, Object>) japaneseList.getFirst();
-            if (firstJapanese.isEmpty()) {
-                return new String[0];
-            }
-
-            String word = (String) firstJapanese.get("word");
-            String reading = (String) firstJapanese.get("reading");
-
-            var firstSenses = (List<Object>) firstEntry.get("senses");
-            if (firstSenses.isEmpty()) {
-                return new String[0];
-            }
-            var englishDefinitions = (List<String>) ((Map<String, Object>) firstSenses.getFirst()).get("english_definitions");
-            if (englishDefinitions.isEmpty()) {
-                return new String[0];
-            }
-
-            var definition = englishDefinitions.getFirst();
-
-            return new String[]{ word, reading, definition} ;
-        } catch (IOException e) {
+            var result = gson.fromJson(json.toString(), JishoResponse.class);
+            Debug.log("JishoAPI Response: " + (result != null ? result.toString() : "null"));
+            return result;
+        } catch (Exception e) {
+            Debug.log("Error connecting to Jisho API: " + e.getMessage());
             Common.notifyAdmins("Error connecting to Jisho API: " + e.getMessage());
-            return new String[0];
+            return null;
         }
+    }
+
+    /**
+     *
+     * @return String array of size 2: [word, reading, definitions] or null if not found
+     */
+    public String[][] getFirstSearchResultSimple(String query) {
+        var response = search(query);
+
+        if (response == null || response.getData().isEmpty()) return null;
+
+        var data = response.getData().getFirst();
+
+        List<String> words = new ArrayList<>();
+        List<String> readings = new ArrayList<>();
+        for (JishoEntry.Japanese japanese : data.getJapanese()) {
+            words.add(japanese.getWord() != null ? japanese.getWord() : "null");
+            readings.add(japanese.getReading() != null ? japanese.getReading() : "null");
+        }
+
+        List<String> definitions = new ArrayList<>();
+        for (JishoEntry.Sense sense : data.getSenses()) {
+            definitions.addAll(sense.getEnglishDefinitions());
+        }
+
+        return new String[][]{words.toArray(String[]::new), readings.toArray(String[]::new), definitions.toArray(String[]::new)};
     }
 }

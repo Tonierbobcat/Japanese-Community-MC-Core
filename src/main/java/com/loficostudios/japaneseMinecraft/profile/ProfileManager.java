@@ -17,6 +17,7 @@ public class ProfileManager implements Listener {
 
     public ProfileManager(JapaneseMinecraft plugin) {
         this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

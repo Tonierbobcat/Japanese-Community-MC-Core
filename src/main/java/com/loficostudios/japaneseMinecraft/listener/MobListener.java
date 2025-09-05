@@ -9,6 +9,9 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 public class MobListener implements Listener {
     @EventHandler
     private void onEntityExplode(EntityExplodeEvent e) {
+        if (e.getEntity() instanceof Player) {
+            return;
+        }
         e.blockList().clear();
     }
 

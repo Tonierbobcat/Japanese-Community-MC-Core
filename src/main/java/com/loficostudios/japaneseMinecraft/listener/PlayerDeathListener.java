@@ -1,8 +1,8 @@
 package com.loficostudios.japaneseMinecraft.listener;
 
+import com.loficostudios.japaneseMinecraft.DeathEffectParticles;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Messages;
-import com.loficostudios.japaneseMinecraft.DeathEffectParticles;
 import com.loficostudios.japaneseMinecraft.cooldown.Cooldown;
 import com.loficostudios.japaneseMinecraft.cooldown.SimpleCooldown;
 import org.bukkit.Bukkit;
@@ -15,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -24,7 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class PlayerDeathListener implements Listener {
-    private static final boolean PLAY_GLOBAL_REVIVED_MESSAGE = false;
+    private static final int EFFECT_DURATION_TICKS = 60;
 
     private final Map<UUID, BukkitTask> deathTasks = new HashMap<>();
 
@@ -39,32 +38,19 @@ public class PlayerDeathListener implements Listener {
     private void playReviveEffect(Player player) {
         var maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
 
-        int effectTime = 60;
-
         player.setExp(0);
         player.setLevel(0);
 
         player.setHealth(maxHealth != null ? maxHealth.getValue() : 20.0);
 
-        if (PLAY_GLOBAL_REVIVED_MESSAGE)
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.sendMessage(String.format(Messages.getMessage(p, "global_player_revived"), player.getName()));
-            }
-
-        player.sendMessage(Messages.getMessage(player, "player_revived"));
-        player.sendMessage(Messages.getMessage(player, "you_lost_experience"));
-
-        player.playSound(player, Sound.ENTITY_CAT_HURT, 0.5f, 1);
-        player.playSound(player, Sound.ITEM_TOTEM_USE, 0.4f, 1);
+        notifyPlayerOfRevive(player);
 
         var existingTask = deathTasks.get(player.getUniqueId());
         if (existingTask != null) {
             existingTask.cancel();
         }
 
-        int particleInterval = 4;
-        deathTasks.put(player.getUniqueId(), new DeathEffectParticles(player, effectTime / particleInterval)
-                .runTaskTimer(plugin, 0, particleInterval));
+        startParticleTask(player);
 
         /// Modify player states
         player.setInvulnerable(true);
@@ -79,20 +65,34 @@ public class PlayerDeathListener implements Listener {
             }
         });
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                /// Unsetting modified player states
-                player.setInvulnerable(false);
+        JapaneseMinecraft.runTaskLater(() -> resetPlayer(player), PlayerDeathListener.EFFECT_DURATION_TICKS);
+    }
 
-                Bukkit.getOnlinePlayers().forEach(p -> p.showPlayer(plugin, player));
+    private void notifyPlayerOfRevive(Player player) {
+        player.sendMessage(Messages.getMessage(player, "player_revived"));
+        player.sendMessage(Messages.getMessage(player, "you_lost_experience"));
 
-                /// Wrapping in optional to avoid writing null checks
-                Optional.ofNullable(player.getAttribute(Attribute.MOVEMENT_SPEED)).ifPresent((instance) -> {
-                    instance.removeModifier(JapaneseMinecraft.getNMK("death_speed_boost"));
-                });
-            }
-        }.runTaskLater(plugin, 60L);
+        player.playSound(player, Sound.ENTITY_CAT_HURT, 0.5f, 1);
+        player.playSound(player, Sound.ITEM_TOTEM_USE, 0.4f, 1);
+    }
+
+    private void startParticleTask(Player player) {
+        int particleInterval = 4;
+        var particles = new DeathEffectParticles(player, EFFECT_DURATION_TICKS / particleInterval);
+        deathTasks.put(player.getUniqueId(), JapaneseMinecraft.runTaskTimer(particles,
+                0, particleInterval));
+    }
+
+    private void resetPlayer(Player player) {
+        /// Unsetting modified player states
+        player.setInvulnerable(false);
+
+        Bukkit.getOnlinePlayers().forEach(p -> p.showPlayer(plugin, player));
+
+        /// Wrapping in optional to avoid writing null checks
+        Optional.ofNullable(player.getAttribute(Attribute.MOVEMENT_SPEED)).ifPresent((instance) -> {
+            instance.removeModifier(JapaneseMinecraft.getNMK("death_speed_boost"));
+        });
     }
 
     private int getLives(Player player) {

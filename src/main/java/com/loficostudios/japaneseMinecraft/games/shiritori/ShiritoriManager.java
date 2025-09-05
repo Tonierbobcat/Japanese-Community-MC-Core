@@ -7,82 +7,84 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ShiritoriManager implements Listener {
     private static final int GAME_LENGTH_MINUTES = 2;
 
+    private static final int AUTO_START_MINUTES = 25;
+
     private ShiritoriGame game;
 
-    private final JapaneseMinecraft plugin;
-
     public ShiritoriManager(JapaneseMinecraft plugin) {
-        this.plugin = plugin;
-
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                tryStartNewGame();
-            }
-        }.runTaskTimer(plugin, 20 * 60, 20 * 60 * 5); // every 5 minutes
+        JapaneseMinecraft.runTaskTimer(this::tryStartNewGame, 20 * 60, 20 * 60 * AUTO_START_MINUTES);
     }
 
     private void tryStartNewGame() {
-        if (game != null)
+        if (game != null || Bukkit.getOnlinePlayers().size() < 2)
             return;
 
         game = new ShiritoriGame(GAME_LENGTH_MINUTES);
         game.start();
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (game != null) {
-                    var tmp = game;
-                    game = null;
-
-                    var results = tmp.getResults();
-
-                    int playersToDisplay = 5;
-                    int index = 0;
-
-                    List<String> lines = new ArrayList<>();
-                    lines.add("§a§l=== Shiritori Results ===");
-                    for (Map.Entry<UUID, Integer> entry : results.entrySet()) {
-                        var player = Bukkit.getPlayer(entry.getKey());
-                        if (player == null || !player.isOnline())
-                            continue;
-                        if (index < playersToDisplay) {
-                            lines.add("§e" + (index + 1) + ". §f" + player.getName() + " §6- §e" + entry.getValue() + " point(s)");
-                            index++;
-                        } else {
-                            break;
-                        }
-                    }
-                    lines.add("§6You scored §e{points}§6 point(s)!");
-                    lines.add("§a§l=======================");
-
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.sendMessage(String.join("\n", lines).replace("{points}", "" + results.getOrDefault(player.getUniqueId(), 0)));
-                    }
-                }
-            }
-        }.runTaskLater(plugin, 20 * 60 * 2); // 2 minutes
+        JapaneseMinecraft.runTaskLater(this::endGame, 20 * 60 * 2); //
     }
 
-    @EventHandler
-    private void onJoin(PlayerJoinEvent e) {
-        tryStartNewGame(); // DEBUG
+    private void endGame() {
+        if (game != null) {
+            var tmp = game;
+            game = null;
+
+            var results = tmp.getResults();
+
+            var message = getResultsMessage(results);
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(message.replace("{points}", "" + results.getOrDefault(player.getUniqueId(), 0)));
+            }
+        }
+    }
+
+    private String getResultsMessage(Map<UUID, Integer> results) {
+        int playersToDisplay = 5;
+        int index = 0;
+        List<String> lines = new ArrayList<>();
+        lines.add("§a§l=== Shiritori Results ===");
+        for (Map.Entry<UUID, Integer> entry : results.entrySet()) {
+            var player = Bukkit.getPlayer(entry.getKey());
+            if (player == null || !player.isOnline())
+                continue;
+            if (index < playersToDisplay) {
+                lines.add("§e{rank}. §f{name} §6- §e{points} point(s)"
+                        .replace("{rank}", "" + (index + 1))
+                        .replace("{name}", player.getName())
+                        .replace("{points}", "" + entry.getValue()));
+                index++;
+            } else {
+                break;
+            }
+        }
+        lines.add("§6You scored §e{points}§6 point(s)!");
+        lines.add("§a§l=====================");
+
+        return String.join("\n", lines);
     }
 
     @EventHandler
     private void onChat(AsyncChatEvent e) {
-        var message = PlainTextComponentSerializer.plainText().serialize(e.message());
-        game.submitWord(e.getPlayer(), message);
+        if (game == null)
+            return;
+
+        /// run it off the thread that called the event
+        JapaneseMinecraft.runTaskAsynchronously(() -> {
+            var message = PlainTextComponentSerializer.plainText().serialize(e.message());
+            game.submitWord(e.getPlayer(), message);
+        });
     }
 }

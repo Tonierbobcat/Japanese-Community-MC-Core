@@ -37,6 +37,19 @@ public class Messages {
     private static final String CANNOT_PVP_EN = "You cannot PvP on this server.";
     private static final String CANNOT_PVP_JP = "このサーバーではPvPできません。";
 
+    /// Shiritori game messages
+    private static final String CANNOT_USE_WORD_ENDING_IN_N_EN = "You cannot use a word that ends with 'ん'. You lost {points} point(s)!";
+    private static final String CANNOT_USE_WORD_ENDING_IN_N_JP = "「ん」で終わる言葉は使えません。{points}ポイント失います！";
+
+    private static final String CANNOT_USE_WORD_STARTING_IN_WRONG_KANA_EN = "Your word must start with '{kana}' (romaji: {romaji}). You lost {points} point(s)!";
+    private static final String CANNOT_USE_WORD_STARTING_IN_WRONG_KANA_JP = "あなたの言葉は'{kana}'（ローマ字: {romaji}）で始まらなければなりません。{points}ポイント失います！";
+
+    private static final String ALREADY_USED_WORD_EN = "This word has already been used. Please try another word. You lost {points} point(s)!";
+    private static final String ALREADY_USED_WORD_JP = "この言葉はすでに使われています。別の言葉を試してください。{points}ポイント失います！";
+
+    private static final String WORD_CORRECT_EN = "You get {points} point(s)!";
+    private static final String WORD_CORRECT_JP = "{points}ポイント獲得！";
+
     public static String getMessage(Player player, String key) {
         boolean isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(player);
         key = key + (isJapanese ? "_jp" : "_en");
@@ -70,6 +83,19 @@ public class Messages {
 
         messages.put("cannot_pvp_en", CANNOT_PVP_EN);
         messages.put("cannot_pvp_jp", CANNOT_PVP_JP);
+
+
+        messages.put("word_ends_with_n_en", CANNOT_USE_WORD_ENDING_IN_N_EN);
+        messages.put("word_ends_with_n_jp", CANNOT_USE_WORD_ENDING_IN_N_JP);
+
+        messages.put("word_already_used_en", ALREADY_USED_WORD_EN);
+        messages.put("word_already_used_jp", ALREADY_USED_WORD_JP);
+
+        messages.put("wrong_kana_en", CANNOT_USE_WORD_STARTING_IN_WRONG_KANA_EN);
+        messages.put("wrong_kana_jp", CANNOT_USE_WORD_STARTING_IN_WRONG_KANA_JP);
+
+        messages.put("word_correct_en", WORD_CORRECT_EN);
+        messages.put("word_correct_jp", WORD_CORRECT_JP);
 
     }
 }

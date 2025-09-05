@@ -1,6 +1,7 @@
 package com.loficostudios.japaneseMinecraft;
 
 import com.loficostudios.japaneseMinecraft.commands.DMCommand;
+import com.loficostudios.japaneseMinecraft.commands.HomeCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriManager;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
@@ -17,13 +18,13 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 public final class JapaneseMinecraft extends JavaPlugin {
 
@@ -53,6 +54,7 @@ public final class JapaneseMinecraft extends JavaPlugin {
         instance = this;
     }
 
+
     @Override
     public void onEnable() {
 
@@ -65,7 +67,7 @@ public final class JapaneseMinecraft extends JavaPlugin {
 
         /// Initializes managers
         weatherManager = new WeatherManager();
-        chatManager = new ChatManager();
+        chatManager = new ChatManager(this);
         notificationManager = new NotificationManager();
         profileManager = new ProfileManager(this);
         shiritoriManager = new ShiritoriManager(this);
@@ -82,26 +84,24 @@ public final class JapaneseMinecraft extends JavaPlugin {
 
     private void registerEvents() {
         Arrays.asList(
-                new PlayerListener(this), chatManager, profileManager, new MobListener(), new PlayerDeathListener(this)
+                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this)
         ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
     }
 
     private void startAnnouncementTask() {
         /// Every 5 minutes, notify players about /jpmc suggest
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(Component.text(Messages.getMessage(player, "suggestion_hint")));
-                }
+        runTaskTimer(() -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(Component.text(Messages.getMessage(player, "suggestion_hint")));
             }
-        }.runTaskTimer(this, 0L, 120L * 60 * 5); // 5 minutes
+        }, 0L, 120L * 60 * 5); // 5 minutes
     }
 
     private void registerCommands() {
         Map.of(
                 "jpmc", new JPMCCommand(this),
-                "dm", new DMCommand(chatManager)
+                "dm", new DMCommand(chatManager),
+                "home", new HomeCommand()
         ).forEach((id, executor) -> Optional.ofNullable(this.getCommand(id))
                 .ifPresentOrElse(command -> command.setExecutor(executor), () -> Debug.log("Failed to register command: " + id)));
     }
@@ -143,13 +143,18 @@ public final class JapaneseMinecraft extends JavaPlugin {
         var mm = MiniMessage.miniMessage();
 
         /// handle internal placeholders first
-        List<Function<String, String>> internalPlaceholders = List.of(
-                (t) -> t.replace("%github_url%", GITHUB_URL),
-                (t) -> t.replace("%player%", player.getName())
-        );
+        String[][] internal = {
+                {"github_url", SERVER_IP},
+                {"player", player.getName()}
+        };
 
-        for (Function<String, String> internalPlaceholder : internalPlaceholders) {
-            text = internalPlaceholder.apply(text);
+        final char inner = '{';
+        final char outer = '}';
+
+        for (String[] strings : internal) {
+            text = text.replace(
+                    inner + strings[0] + outer, strings[1]
+            );
         }
 
         /// handle external placeholders
@@ -162,6 +167,47 @@ public final class JapaneseMinecraft extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             return Component.text(text);
+        }
+    }
+
+    public static BukkitTask runTaskTimer(Runnable runnable, long delay, long ticks) {
+        if (runnable instanceof BukkitRunnable) {
+            return ((BukkitRunnable) runnable).runTaskTimer(instance, delay, ticks);
+        } else {
+            return instance.getServer().getScheduler().runTaskTimer(instance, runnable, delay, ticks);
+        }
+    }
+
+    public static BukkitTask runTaskTimer(Consumer<BukkitRunnable> runnable, long delay, long ticks) {
+        return new BukkitRunnable() {
+            @Override
+            public void run() {
+                runnable.accept(this);
+            }
+        }.runTaskTimer(instance, delay, ticks);
+    }
+
+    public static BukkitTask runTask(Runnable runnable) {
+        if (runnable instanceof BukkitRunnable) {
+            return ((BukkitRunnable) runnable).runTask(instance);
+        } else {
+            return instance.getServer().getScheduler().runTask(instance, runnable);
+        }
+    }
+
+    public static BukkitTask runTaskLater(Runnable runnable , long delay) {
+        if (runnable instanceof BukkitRunnable) {
+            return ((BukkitRunnable) runnable).runTaskLater(instance, delay);
+        } else {
+            return instance.getServer().getScheduler().runTaskLater(instance, runnable, delay);
+        }
+    }
+
+    public static BukkitTask runTaskAsynchronously(Runnable runnable) {
+        if (runnable instanceof BukkitRunnable) {
+            return ((BukkitRunnable) runnable).runTaskAsynchronously(instance);
+        } else {
+            return instance.getServer().getScheduler().runTaskAsynchronously(instance, runnable);
         }
     }
 }

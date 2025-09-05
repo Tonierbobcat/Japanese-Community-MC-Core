@@ -6,3 +6,4 @@ softdepend: ["PlaceholderAPI"]
 commands:
   jpmc:
   dm:
+  home:

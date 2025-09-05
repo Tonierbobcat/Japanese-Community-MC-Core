@@ -27,35 +27,28 @@ public class DMCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length != 1) {
-            var dm = chatManager.getDM(sender);
-            if (chatManager.stopDM(sender)) {
-                assert dm != null;
-                var eng = "You have stopped messaging " + dm + ".";
-                var jp = dm + "へのDMを終了しました。";
-                sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
-            } else {
-                var eng = "You are not currently not messaging anyone.";
-                var jp = "現在、DMを送っている相手はいません。";
-                sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
-            }
-
+            endDM(sender);
             return true;
         }
 
-
         var targetPlayer = sender.getServer().getPlayerExact(args[0]);
+        startDM(sender, targetPlayer);
+        return true;
+    }
+
+    private void startDM(Player sender, Player targetPlayer) {
         if (targetPlayer == null || !targetPlayer.isOnline()) {
             var eng = "Player not found or not online.";
             var jp = "プレイヤーが見つからないか、オンラインではありません。";
             sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
-            return true;
+            return;
         }
 
         if (targetPlayer.getUniqueId().equals(sender.getUniqueId())) {
             var eng = "You cannot DM yourself.";
             var jp = "自分自身にDMを送ることはできません。";
             sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
-            return true;
+            return;
         }
 
         chatManager.startDM(sender, targetPlayer);
@@ -63,8 +56,20 @@ public class DMCommand implements CommandExecutor, TabCompleter {
         var eng = "You are now in a direct messaging " + targetPlayer.getName() + ". Type /dm to stop.";
         var jp = targetPlayer.getName() + "にDMを送っています。終了するには/dmと入力してください。";
         sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
+    }
 
-        return false;
+    private void endDM(Player sender) {
+        var dm = chatManager.getDM(sender);
+        if (chatManager.stopDM(sender)) {
+            assert dm != null;
+            var eng = "You have stopped messaging " + dm + ".";
+            var jp = dm + "へのDMを終了しました。";
+            sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
+        } else {
+            var eng = "You are not currently not messaging anyone.";
+            var jp = "現在、DMを送っている相手はいません。";
+            sender.sendMessage(JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng);
+        }
     }
 
     @Override

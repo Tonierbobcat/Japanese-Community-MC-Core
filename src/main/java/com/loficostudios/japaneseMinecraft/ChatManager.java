@@ -1,10 +1,7 @@
 package com.loficostudios.japaneseMinecraft;
 
-import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriGame;
-import com.loficostudios.japaneseMinecraft.util.JishoAPI;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,6 +21,10 @@ public class ChatManager implements Listener {
     private static final String CHAT_FORMAT = "§8[<local>§8] §f<player>: §r<message>";
     private static final String CHAT_FORMAT_DM_SELF = "§f[§6DM§f] -> <receiver> §8[<local>§8] §f(you): §r<message>";
     private static final String CHAT_FORMAT_DM_OTHER = "§f[§6DM§f] -> §8[<local>§8] §f<sender>: §r<message>";
+
+    public ChatManager(JapaneseMinecraft plugin) {
+        Bukkit.getPluginManager().registerEvents(this, plugin);
+    }
 
     public void startDM(Player sender, Player receiver) {
         dm.put(sender.getUniqueId(), receiver.getUniqueId());
@@ -43,7 +43,7 @@ public class ChatManager implements Listener {
         var global = receiverUUID == null;
 
         if (global) {
-            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(formatMessage(CHAT_FORMAT, sender, null, message, JapaneseMinecraft.isPlayerLanguageJapanese(p) ? Language.JAPANESE : Language.ENGLISH)));
+            Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage(formatMessage(CHAT_FORMAT, sender, p, message, isJapanese ? Language.JAPANESE : Language.ENGLISH)));
         } else {
             var receiver = Bukkit.getPlayer(receiverUUID);
             if (receiver != null && receiver.isOnline()) {
@@ -62,7 +62,7 @@ public class ChatManager implements Listener {
                 .replaceText("<message>", message)
                 .replaceText("<local>", Component.text(language.equals(Language.JAPANESE) ? "§5JP" : "§aEN"))
                 .replaceText("<sender>", sender.displayName())
-                .replaceText("<player", sender.displayName());
+                .replaceText("<player>", sender.displayName());
         if (receiver != null)
             comp = comp.replaceText("<receiver>", receiver.displayName());
         return comp;
