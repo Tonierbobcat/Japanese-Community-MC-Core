@@ -17,7 +17,7 @@ public class Items {
 }
 ```
 
-...and then add it to the items folder [Items](src/main/resources/items)
+...and then add it to the items folder [Items](src/main/resources/assets/items)
 
 `flower_sword.json`
 ```json
