@@ -140,10 +140,6 @@ public final class JapaneseMinecraft extends JavaPlugin {
         return instance.profileManager.getProfile(player);
     }
 
-    public static @NotNull NamespacedKey getNMK(String key) {
-        return new NamespacedKey(instance, key);
-    }
-
     public static Component parseText(Player player, String text) {
         var mm = MiniMessage.miniMessage();
 

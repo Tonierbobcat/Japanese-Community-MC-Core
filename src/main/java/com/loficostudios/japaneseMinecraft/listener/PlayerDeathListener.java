@@ -6,6 +6,8 @@ import com.loficostudios.japaneseMinecraft.Messages;
 import com.loficostudios.japaneseMinecraft.cooldown.Cooldown;
 import com.loficostudios.japaneseMinecraft.cooldown.SimpleCooldown;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -14,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -30,8 +33,11 @@ public class PlayerDeathListener implements Listener {
     private final JapaneseMinecraft plugin;
 
     private final Cooldown cannotPvpMessageCooldown = new SimpleCooldown(2*1000);
-    
+
+    private final NamespacedKey deathSpeedBoostKey;
+
     public PlayerDeathListener(JapaneseMinecraft plugin) {
+        this.deathSpeedBoostKey = new NamespacedKey(plugin, "death_speed_boost");
         this.plugin = plugin;
     }
 
@@ -60,7 +66,7 @@ public class PlayerDeathListener implements Listener {
         /// Wrapping in optional to avoid writing null checks
         Optional.ofNullable(player.getAttribute(Attribute.MOVEMENT_SPEED)).ifPresent((instance) -> {
             try {
-                instance.addModifier(new AttributeModifier(JapaneseMinecraft.getNMK("death_speed_boost"), 0.8, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                instance.addModifier(new AttributeModifier(deathSpeedBoostKey, 0.8, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
             } catch (IllegalArgumentException ignored) {
             }
         });
@@ -91,7 +97,7 @@ public class PlayerDeathListener implements Listener {
 
         /// Wrapping in optional to avoid writing null checks
         Optional.ofNullable(player.getAttribute(Attribute.MOVEMENT_SPEED)).ifPresent((instance) -> {
-            instance.removeModifier(JapaneseMinecraft.getNMK("death_speed_boost"));
+            instance.removeModifier(deathSpeedBoostKey);
         });
     }
 
@@ -114,6 +120,18 @@ public class PlayerDeathListener implements Listener {
     @EventHandler
     private void onRespawn(PlayerRespawnEvent e) {
         setLives(e.getPlayer(), 3);
+    }
+
+    @EventHandler
+    private void onJoin(PlayerJoinEvent e) {
+        var player = e.getPlayer();
+
+        // revert player state in case of a crash while in revive state
+        if (player.getGameMode().equals(GameMode.SURVIVAL))
+            player.setInvulnerable(false);
+        Optional.ofNullable(player.getAttribute(Attribute.MOVEMENT_SPEED)).ifPresent((instance) -> {
+            instance.removeModifier(deathSpeedBoostKey);
+        });
     }
 
     @EventHandler

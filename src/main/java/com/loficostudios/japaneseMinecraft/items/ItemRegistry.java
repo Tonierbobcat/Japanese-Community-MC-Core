@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -19,16 +20,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.loficostudios.japaneseMinecraft.JapaneseMinecraft.*;
-
 @SuppressWarnings("UnstableApiUsage")
 public class ItemRegistry {
+
+    private static NamespacedKey itemKey;
 
     private final Map<String, JItem> registered = new HashMap<>();
 
     private Map<String, Map<String, Object>> itemsMap;
 
     public void initialize(JapaneseMinecraft plugin) {
+        itemKey = new NamespacedKey(plugin, "items");
+
         File json = new File(plugin.getDataFolder(), "items.json");
 
         /// Always save a fresh copy of the items.json to ensure its up to date
@@ -131,14 +134,14 @@ public class ItemRegistry {
 
     private void setItemId(ItemMeta meta, JItem item) {
         var id = item.getId();
-        meta.getPersistentDataContainer().set(getNMK("items"), PersistentDataType.STRING, id);
+        meta.getPersistentDataContainer().set(itemKey, PersistentDataType.STRING, id);
     }
 
     /// This shouldnt be static. This is a placeholder for now
     public static String getItemId(ItemStack item) {
         var meta = item.getItemMeta();
         if (meta != null) {
-            return meta.getPersistentDataContainer().get(getNMK("items"), PersistentDataType.STRING);
+            return meta.getPersistentDataContainer().get(itemKey, PersistentDataType.STRING);
         }
         return null;
     }

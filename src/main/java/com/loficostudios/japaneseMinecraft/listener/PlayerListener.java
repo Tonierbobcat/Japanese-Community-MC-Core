@@ -80,12 +80,6 @@ public class PlayerListener implements Listener {
 
         overlay.addPlayer(player);
 
-        if (player.getGameMode().equals(GameMode.SURVIVAL))
-            player.setInvulnerable(false);
-        Optional.ofNullable(player.getAttribute(Attribute.MOVEMENT_SPEED)).ifPresent((instance) -> {
-            instance.removeModifier(JapaneseMinecraft.getNMK("death_speed_boost"));
-        });
-
         // TODO Move these to a NotificationManager
         JapaneseMinecraft.runTaskLater(() -> {
 

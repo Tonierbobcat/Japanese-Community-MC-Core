@@ -4,6 +4,8 @@ package com.loficostudios.japaneseMinecraft.items;
 
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 
+import java.util.Collection;
+
 /**
  * The idea is that this class is the definition of all the custom items and custom implementation can be added through listeners
  * You can use JItem::isItem(ItemStack) to check if an item is a specific custom item
