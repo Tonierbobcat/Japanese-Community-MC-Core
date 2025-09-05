@@ -58,7 +58,7 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                     lang(sender, isJapanese);
                     return true;
                 }
-                case "assets/items" -> {
+                case "items" -> {
                     if (!sender.isOp()) {
                         sender.sendMessage("You do not have permission to use this command.");
                         return true;
@@ -94,11 +94,11 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
     @Override
     public @NotNull List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return List.of("suggest", "lookup", "lang", "assets/items");
+            return List.of("suggest", "lookup", "lang", "items");
         } else if (args.length == 2) {
             if (args[0].equals("lang")) {
                 return List.of("en", "jp");
-            } else if (args[0].equals("assets/items")) {
+            } else if (args[0].equals("items")) {
                 if (!sender.isOp()) {
                     return Collections.emptyList();
                 }
