@@ -1,17 +1,16 @@
 package com.loficostudios.japaneseMinecraft;
 
+import com.loficostudios.forgified.paper.IPluginResources;
 import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.HomeCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriManager;
-import com.loficostudios.japaneseMinecraft.items.Items;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerDeathListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerListener;
 import com.loficostudios.japaneseMinecraft.notifications.NotificationManager;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.profile.ProfileManager;
-import com.loficostudios.japaneseMinecraft.util.IPluginResources;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;

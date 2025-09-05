@@ -1,11 +1,7 @@
 package com.loficostudios.japaneseMinecraft.commands;
 
-import com.loficostudios.japaneseMinecraft.Common;
-import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
-import com.loficostudios.japaneseMinecraft.Language;
-import com.loficostudios.japaneseMinecraft.Messages;
-import com.loficostudios.japaneseMinecraft.items.Items;
-import com.loficostudios.japaneseMinecraft.items.JItem;
+import com.loficostudios.forgified.paper.JItem;
+import com.loficostudios.japaneseMinecraft.*;
 import com.loficostudios.japaneseMinecraft.util.JishoAPI;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;

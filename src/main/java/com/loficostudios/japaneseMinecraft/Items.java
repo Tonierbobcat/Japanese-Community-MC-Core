@@ -1,8 +1,10 @@
-package com.loficostudios.japaneseMinecraft.items;
+package com.loficostudios.japaneseMinecraft;
 
 /// Feel free to translate these docs to Japanese for yourself in order to understand them better
 
-import com.loficostudios.japaneseMinecraft.util.IPluginResources;
+import com.loficostudios.forgified.paper.IPluginResources;
+import com.loficostudios.forgified.paper.ItemRegistry;
+import com.loficostudios.forgified.paper.JItem;
 
 /**
  * The idea is that this class is the definition of all the custom items and custom implementation can be added through listeners
