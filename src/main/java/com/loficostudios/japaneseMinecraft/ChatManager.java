@@ -35,6 +35,7 @@ public class ChatManager implements Listener {
         e.setCancelled(true);
 
         var sender = e.getPlayer();
+
         var message = e.message();
 
         var isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(sender);

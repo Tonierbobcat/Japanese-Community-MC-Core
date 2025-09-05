@@ -86,11 +86,6 @@ public class PlayerListener implements Listener {
             instance.removeModifier(JapaneseMinecraft.getNMK("death_speed_boost"));
         });
 
-        try {
-            player.getInventory().addItem(Items.createGiftBag(null, null));
-        } catch (IllegalArgumentException ignore) {
-        }
-
         // TODO Move these to a NotificationManager
         JapaneseMinecraft.runTaskLater(() -> {
 

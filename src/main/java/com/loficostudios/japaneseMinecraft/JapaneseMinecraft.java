@@ -4,6 +4,7 @@ import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.HomeCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriManager;
+import com.loficostudios.japaneseMinecraft.items.Items;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerDeathListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerListener;
@@ -21,6 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -54,7 +56,6 @@ public final class JapaneseMinecraft extends JavaPlugin {
         instance = this;
     }
 
-
     @Override
     public void onEnable() {
 
@@ -64,6 +65,9 @@ public final class JapaneseMinecraft extends JavaPlugin {
             placeholderAPIEnabled = true;
         } catch (ClassNotFoundException ignore) {
         }
+
+        /// Register items
+        Items.register(this);
 
         /// Initializes managers
         weatherManager = new WeatherManager();
