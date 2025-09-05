@@ -2,9 +2,7 @@ package com.loficostudios.japaneseMinecraft.items;
 
 /// Feel free to translate these docs to Japanese for yourself in order to understand them better
 
-import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
-
-import java.util.Collection;
+import com.loficostudios.japaneseMinecraft.util.IPluginResources;
 
 /**
  * The idea is that this class is the definition of all the custom items and custom implementation can be added through listeners
@@ -21,7 +19,7 @@ public class Items {
     public static final JItem GIFT_BAG = ITEMS.create("gift_bag");
 
     /// Called JavaPlugin.onEnable()
-    public static void register(JapaneseMinecraft plugin) {
-        ITEMS.initialize(plugin);
+    public static void register(IPluginResources resources) {
+        ITEMS.initialize(resources);
     }
 }

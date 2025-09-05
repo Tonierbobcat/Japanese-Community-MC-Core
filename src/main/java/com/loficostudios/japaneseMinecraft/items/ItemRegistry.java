@@ -2,7 +2,8 @@ package com.loficostudios.japaneseMinecraft.items;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import com.loficostudios.japaneseMinecraft.util.FileUtils;
+import com.loficostudios.japaneseMinecraft.util.IPluginResources;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.lang3.Validate;
@@ -18,34 +19,46 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
 
+// TODO add method for registering an item with JItem directly
+// TODO maybe?? register(JItem item) {var id = item.getId(); ...}
+/**
+ * Registry for JItem.
+ * This is responsible for loading item data from json files and providing methods to create JItem instances.
+ */
 @SuppressWarnings("UnstableApiUsage")
 public class ItemRegistry {
 
+    /// store itemKey as static for utility methods
     private static NamespacedKey itemKey;
 
     private final Map<String, JItem> registered = new HashMap<>();
 
-    private Map<String, Map<String, Object>> itemsMap;
+    private final Map<String, Map<String, Object>> itemsMap = new HashMap<>();
 
-    public void initialize(JapaneseMinecraft plugin) {
-        itemKey = new NamespacedKey(plugin, "items");
+    public void initialize(IPluginResources resources) {
+        itemKey = new NamespacedKey(resources.namespace(), "items");
 
-        File json = new File(plugin.getDataFolder(), "items.json");
 
-        /// Always save a fresh copy of the items.json to ensure its up to date
-        plugin.saveResource("items.json", true);
+        FileUtils.extractDataFolderAndUpdate(resources, "items", (file) -> {
+            /// Load items.json
+            /// which has data for the model and material
+            var id = file.getName().replace(".json", "");
+            loadJson(id, file);
+        });
+    }
 
+    private void loadJson(String id, File json) {
         Gson gson = new Gson();
-        Type type = new TypeToken<Map<String, Map<String, Object>>>() {}.getType();
+        Type type = new TypeToken<Map<String, Object>>() {}.getType();
 
         try (FileReader reader = new FileReader(json)) {
-            itemsMap = gson.fromJson(reader, type);
+            itemsMap.put(id, gson.fromJson(reader, type));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to read items.json", e);
+            throw new RuntimeException("Failed to read " + id + ".json", e);
         }
     }
 
-
+    /// Create the item with an itemstack consumer for adding components
     public JItem create(String id, Consumer<ItemStack> item) {
         Validate.isTrue(!registered.containsKey(id), "Item with id " + id + " is already registered");
         var i = new JItem(id, (jitem) -> {
@@ -103,7 +116,12 @@ public class ItemRegistry {
 
         /// custom model data will work on geyser
         /// however the resource pack must be converted to bedrock first
-        meta.getCustomModelDataComponent().setFloats(List.of((float)getModel(item)));
+
+        // check if model data exists
+        var model = getModel(item);
+        if (model != -1) {
+            meta.getCustomModelDataComponent().setFloats(List.of((float)model));
+        }
 
         /// stores the item id in the itemstacks persistent data container
         setItemId(meta, item);
@@ -112,15 +130,21 @@ public class ItemRegistry {
         return itemStack;
     }
 
+    /// get the custom model data from map.
+    /**
+     *
+     * @return -1 if no model data is found
+     */
     private int getModel(JItem item) {
         var id = item.getId();
         Map<String, Object> data = itemsMap.get(id);
         if (data != null && data.get("model") instanceof Number num) {
             return num.intValue();
         }
-        return 0;
+        return -1;
     }
 
+    /// get the custom model data from map. defaults to 0
     private Material getMaterial(JItem item) {
         var id = item.getId();
         Map<String, Object> data = itemsMap.get(id);

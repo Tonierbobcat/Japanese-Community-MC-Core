@@ -11,16 +11,15 @@ import com.loficostudios.japaneseMinecraft.listener.PlayerListener;
 import com.loficostudios.japaneseMinecraft.notifications.NotificationManager;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.profile.ProfileManager;
+import com.loficostudios.japaneseMinecraft.util.IPluginResources;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Arrays;
@@ -28,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public final class JapaneseMinecraft extends JavaPlugin {
+public final class JapaneseMinecraft extends JavaPlugin implements IPluginResources {
 
     /// DO NOT CHANGE THESE VALUES
     public static final String GITHUB_URL = "https://github.com/Tonierbobcat/Japanese-Community-MC-Core";
@@ -210,5 +209,10 @@ public final class JapaneseMinecraft extends JavaPlugin {
         } else {
             return instance.getServer().getScheduler().runTaskAsynchronously(instance, runnable);
         }
+    }
+
+    @Override
+    public File getJarFile() {
+        return getFile();
     }
 }
