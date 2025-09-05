@@ -1,6 +1,6 @@
 package com.loficostudios.japaneseMinecraft.items.recipe;
 
-import org.bukkit.inventory.Recipe;
+import com.loficostudios.japaneseMinecraft.util.IPluginResources;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -14,9 +14,10 @@ import java.util.Map;
 /// for example if it's a shapeless recipe, use ShapelessRecipeLoader to load it
 /// then run Bukkit.addRecipe() to add it to the server
 
-@Deprecated()
-public interface TypedRecipeLoader {
-    @Nullable Recipe load(Map<String, Object> data);
+/// You can create custom recipe loaders
+
+public interface RecipeLoader<T> {
+    @Nullable T load(IPluginResources resources, Map<String, Object> data);
 
 //    static @Nullable ItemStack getFromId(String id) {
 //        var split = id.split(":");
