@@ -19,12 +19,27 @@ public class Items {
 
 ...and then add it to the items folder [Items](src/main/resources/items)
 
-## example
-
 `flower_sword.json`
 ```json
 {
     "material": "WOODEN_SWORD",
     "model": 0
+}
+```
+
+## Example:
+
+```java
+
+public class Items {
+    public static final JItem EXAMPLE_ITEM = ITEMS.create("example_item");
+}
+```
+
+`example_item.json`
+```json
+{
+    "material": "BEDROCK",
+    "model": 6970
 }
 ```
