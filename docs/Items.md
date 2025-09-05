@@ -1,4 +1,4 @@
-How to create item
+# How to create item
 
 define it it in this class
 in [Items.java](src/main/java/com/loficostudios/japaneseMinecraft/items/Items.java)
