@@ -5,7 +5,11 @@
 - Build this first [ForgifiedPaper](https://github.com/Tonierbobcat/ForgifiedPaper)
 - Double-check pom.xml
 
+# Info
+
 TRANSLATION NEEDED
 Feel free to fix translations in [Messages.java](src/main/java/com/loficostudios/japaneseMinecraft/Messages.java)
+
+# Docs
 
 For instructions on creating custom items, see [Custom Items Guide](docs/Items.md).
