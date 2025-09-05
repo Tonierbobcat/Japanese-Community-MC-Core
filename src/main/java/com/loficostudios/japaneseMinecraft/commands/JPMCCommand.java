@@ -4,6 +4,9 @@ import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Language;
 import com.loficostudios.japaneseMinecraft.Messages;
+import com.loficostudios.japaneseMinecraft.items.ItemRegistry;
+import com.loficostudios.japaneseMinecraft.items.Items;
+import com.loficostudios.japaneseMinecraft.items.JItem;
 import com.loficostudios.japaneseMinecraft.util.JishoAPI;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -60,6 +63,28 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                     lang(sender, isJapanese);
                     return true;
                 }
+                case "items" -> {
+                    if (!sender.isOp()) {
+                        sender.sendMessage("You do not have permission to use this command.");
+                        return true;
+                    }
+
+                    if (args.length != 2) {
+                        sender.sendMessage("Usage: /jpmc items <id>");
+                        return true;
+                    }
+
+                    var id = args[1];
+
+                    JItem item = Items.ITEMS.getById(id);
+                    if (item == null) {
+                        sender.sendMessage("Item not found.");
+                        return true;
+                    }
+
+                    sender.getInventory().addItem(item.getItemStack(1));
+                    return true;
+                }
                 default -> {
                     sender.sendMessage("Unknown Command.");
                     return true;
@@ -74,9 +99,16 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
     @Override
     public @NotNull List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return List.of("suggest", "lookup", "lang");
-        } else if (args.length == 2 && args[0].equals("lang")) {
-            return List.of("en", "jp");
+            return List.of("suggest", "lookup", "lang", "items");
+        } else if (args.length == 2) {
+            if (args[0].equals("lang")) {
+                return List.of("en", "jp");
+            } else if (args[0].equals("items")) {
+                if (!sender.isOp()) {
+                    return Collections.emptyList();
+                }
+                return Items.ITEMS.getRegistered().stream().map(JItem::getId).toList();
+            }
         }
         return Collections.emptyList();
     }

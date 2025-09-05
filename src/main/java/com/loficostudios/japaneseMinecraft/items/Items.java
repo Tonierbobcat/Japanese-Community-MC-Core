@@ -12,7 +12,7 @@ import java.util.Collection;
  */
 public class Items {
 
-    private static final ItemRegistry ITEMS = new ItemRegistry();
+    public static final ItemRegistry ITEMS = new ItemRegistry();
 
     /// DEFINE ITEMS
     ///

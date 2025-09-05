@@ -15,9 +15,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -144,5 +142,17 @@ public class ItemRegistry {
             return meta.getPersistentDataContainer().get(itemKey, PersistentDataType.STRING);
         }
         return null;
+    }
+
+    /**
+     *
+     * @return An unmodifiable collection of registered items
+     */
+    public Collection<JItem> getRegistered() {
+        return Collections.unmodifiableCollection(registered.values());
+    }
+
+    public JItem getById(String id) {
+        return registered.get(id);
     }
 }

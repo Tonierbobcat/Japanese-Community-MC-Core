@@ -147,7 +147,7 @@ public class PlayerListener implements Listener {
                 "Enjoy your time here!",
         };
         String[] japaneseWelcomeMessage = {
-                "ようこそ、%player%さん、JP-ENGコミュニティサーバーへ！",
+                "ようこそ、{player}さん、JP-ENGコミュニティサーバーへ！",
                 "このサーバーは進行中のプロジェクトです。機能は時間とともに追加または変更される場合があります。",
                 "ご提案がございましたら、/jpmc suggest <提案> をご利用ください。",
                 "ここでの時間をお楽しみください！",
