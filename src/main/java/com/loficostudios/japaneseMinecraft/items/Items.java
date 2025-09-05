@@ -1,8 +1,7 @@
-package com.loficostudios.japaneseMinecraft;
+package com.loficostudios.japaneseMinecraft.items;
 
-import io.papermc.paper.datacomponent.item.CustomModelData;
+import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,6 +17,8 @@ import java.util.function.Consumer;
 
 /// TODO THIS NEEDS TO BE WORKED ON. INCLUDED IN CLASS ITEM CREATION UTILS
 /// ITEM NAMES WILL REMAIN IN ENGLISH FOR SIMPLICITY
+
+/// Feel free to translate these docs to Japanese for youself in order to understand them better
 
 /**
  * The idea is that this class is the definition of all the custom items and custom implementation can be added through listeners
@@ -72,10 +73,20 @@ public class Items {
             itemMeta.getPersistentDataContainer().set(JapaneseMinecraft.getNMK("items"), PersistentDataType.STRING, id);
             itemMeta.displayName(Component.text(name).decoration(TextDecoration.ITALIC, false));
             itemMeta.lore(description.stream().map(s -> Component.text(s).decoration(TextDecoration.ITALIC, false)).toList());
+
+            /// We call the consumer last
             meta.accept(itemMeta);
             item.setItemMeta(itemMeta);
         }
         return item;
+    }
+
+    public static String getItemId(ItemStack item) {
+        var meta = item.getItemMeta();
+        if (meta != null) {
+            return meta.getPersistentDataContainer().get(JapaneseMinecraft.getNMK("items"), PersistentDataType.STRING);
+        }
+        return null;
     }
 
     /// I prefer you create a custom class for each item with a MyCustomItem::Build() method to keep things organized

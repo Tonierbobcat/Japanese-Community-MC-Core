@@ -80,6 +80,7 @@ public final class JapaneseMinecraft extends JavaPlugin {
 
         /// Start announcement task
         startAnnouncementTask();
+
     }
 
     private void registerEvents() {

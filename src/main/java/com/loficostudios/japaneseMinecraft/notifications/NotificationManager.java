@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class NotificationManager {
 
+    /// mapping types to prefixes
     private static final Map<Notification.Type, String> TYPE_PREFIX = Map.of(
         Notification.Type.BOUNTY, "§8[§eBounty§8] ",
         Notification.Type.ANNOUNCEMENT, "§8[§aAnnouncement§8] ",

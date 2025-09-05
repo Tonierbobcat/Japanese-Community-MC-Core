@@ -1,6 +1,6 @@
 package com.loficostudios.japaneseMinecraft.listener;
 
-import com.loficostudios.japaneseMinecraft.Items;
+import com.loficostudios.japaneseMinecraft.items.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.WeatherManager;
 import com.loficostudios.japaneseMinecraft.notifications.Notification;

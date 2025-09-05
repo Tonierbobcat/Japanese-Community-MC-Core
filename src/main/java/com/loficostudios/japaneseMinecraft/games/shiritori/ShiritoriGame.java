@@ -80,7 +80,7 @@ public class ShiritoriGame { // PLACEHOLDER ADD LATER
     }
 
     /// Get the last kana of the last used word
-    private String getLastKana() {
+    private String getLastKana() { // todo this method needs to be double checked by somebody more literate in japanese
         String word = usedWords.stream().reduce((first, second) -> second).orElse("");
         if (word.isEmpty()) return "";
 
@@ -96,6 +96,8 @@ public class ShiritoriGame { // PLACEHOLDER ADD LATER
         return String.valueOf(lastChar);
     }
 
+    /// Methods for adding and subtracting points.
+
     private void subtractPoints(Player player, int points) {
         var currentScore = scores.getOrDefault(player.getUniqueId(), 0);
         scores.put(player.getUniqueId(), Math.max(0, currentScore - points));
@@ -106,6 +108,12 @@ public class ShiritoriGame { // PLACEHOLDER ADD LATER
         scores.put(player.getUniqueId(), currentScore + points);
     }
 
+    /*
+    TODO this method needs to be fixed. This needs to pass in the JishoAPI Response and then if the players input matches
+    the word then return the String[{word[], reading[], definition[]}]
+    */
+    /// Practically checks if the player typed in the correct word
+    /// Although the jisho api may pull up results. the input must match exactly in order for it to be a valid guess
     private boolean matches(String[] result, String input) {
         if (result == null || input == null) return false;
 
