@@ -1,7 +1,7 @@
 # How to create item
 
-define it it in this class
-in [Items.java](src/main/java/com/loficostudios/japaneseMinecraft/items/Items.java)
+Define it it in this class
+in [Items.java](src/main/java/com/loficostudios/japaneseMinecraft/items/Items.java)...
 
 ```java
 package com.loficostudios.japaneseMinecraft.items;
@@ -17,19 +17,14 @@ public class Items {
 }
 ```
 
-and then add it to the items
+...and then add it to the items folder [Items](src/main/resources/items)
 
-[items.json](src/main/resources/items.json)
+## example
 
+`flower_sword.json`
 ```json
 {
-  "flower_sword": {
     "material": "WOODEN_SWORD",
     "model": 0
-  },
-  "gift_bag": {
-    "material": "BUNDLE",
-    "model": 1
-  }
 }
 ```
