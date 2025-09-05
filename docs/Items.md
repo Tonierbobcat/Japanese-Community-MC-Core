@@ -27,6 +27,8 @@ public class Items {
 }
 ```
 
+You can find a list of materials [HERE](https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html)
+
 ## Example:
 
 ```java
