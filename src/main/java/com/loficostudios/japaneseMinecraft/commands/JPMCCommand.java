@@ -4,7 +4,6 @@ import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Language;
 import com.loficostudios.japaneseMinecraft.Messages;
-import com.loficostudios.japaneseMinecraft.items.ItemRegistry;
 import com.loficostudios.japaneseMinecraft.items.Items;
 import com.loficostudios.japaneseMinecraft.items.JItem;
 import com.loficostudios.japaneseMinecraft.util.JishoAPI;

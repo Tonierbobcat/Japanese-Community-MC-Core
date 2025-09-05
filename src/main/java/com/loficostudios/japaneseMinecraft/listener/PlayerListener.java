@@ -1,14 +1,11 @@
 package com.loficostudios.japaneseMinecraft.listener;
 
-import com.loficostudios.japaneseMinecraft.items.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.WeatherManager;
 import com.loficostudios.japaneseMinecraft.notifications.Notification;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -24,7 +21,6 @@ import org.bukkit.event.server.ServerListPingEvent;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class PlayerListener implements Listener {
 
