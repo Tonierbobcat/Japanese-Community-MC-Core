@@ -1,4 +1,7 @@
 {
   "material": "WOODEN_SWORD",
-  "model": 0
+  "model": 0,
+  "description": [
+    "§r§fA sword made of flowers. It smells nice."
+  ]
 }
