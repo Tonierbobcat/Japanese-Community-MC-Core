@@ -10,6 +10,7 @@ import com.loficostudios.japaneseMinecraft.listener.MobListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerDeathListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerListener;
 import com.loficostudios.japaneseMinecraft.notifications.NotificationManager;
+import com.loficostudios.japaneseMinecraft.pokemon.MonsterBallListener;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.profile.ProfileManager;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -94,7 +95,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private void registerEvents() {
         Arrays.asList(
-                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this)
+                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this), new MonsterBallListener()
         ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
     }
 

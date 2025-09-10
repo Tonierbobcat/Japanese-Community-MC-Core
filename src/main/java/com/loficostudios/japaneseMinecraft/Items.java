@@ -7,27 +7,62 @@ import com.loficostudios.forgified.paper.items.JItem;
 import com.loficostudios.forgified.paper.items.SwordItem;
 import com.loficostudios.forgified.paper.items.armor.ArmorItem;
 import com.loficostudios.forgified.paper.items.armor.ArmorMaterial;
+import com.loficostudios.japaneseMinecraft.pokemon.MonsterBall;
 import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.CustomModelData;
-import org.bukkit.Bukkit;
+import io.papermc.paper.datacomponent.item.BlocksAttacks;
+import io.papermc.paper.datacomponent.item.Consumable;
+import io.papermc.paper.datacomponent.item.FoodProperties;
+import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Items {
     public static final ItemRegistry ITEMS = new ItemRegistry();
 
-    public static final JItem FLOWER_SWORD = ITEMS.create("flower_sword", () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, new JItem.Properties()
-            .custom(item -> {
-                item.setData(DataComponentTypes.ITEM_MODEL, NamespacedKey.minecraft("flower_sword"));
-            })));
+    public static final JItem FLOWER_SWORD = ITEMS.create("flower_sword",
+            () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, new JItem.Properties()
+                    .custom((item) -> {
+                        item.setData(DataComponentTypes.BLOCKS_ATTACKS, BlocksAttacks.blocksAttacks()
+                                .blockSound(Sound.ENCHANT_THORNS_HIT.getKey()).build());
+                    })));
 
     public static final JItem FLOWER_BOW = ITEMS.create("flower_bow", FlowerBow::new);
 
-    public static final JItem FLOWER_HELMET = ITEMS.create("flower_helmet", () -> new ArmorItem(EquipmentSlot.HEAD, ArmorMaterials.FLOWER));
+    public static final JItem FLOWER_HELMET = ITEMS.create("flower_helmet",
+            () -> new ArmorItem(EquipmentSlot.HEAD, ArmorMaterials.FLOWER));
+
+    public static final JItem KEBAB = ITEMS.create("kebab", () -> new JItem(Material.COOKED_BEEF, new JItem.Properties()
+            .food(FoodProperties.food()
+                    .nutrition(10)
+                    .saturation(10)
+                    .build())
+            .model()));
+
+    public static final JItem RAW_CRAB = ITEMS.create("raw_crab", () -> new JItem(Material.COD, new JItem.Properties()
+            .food(FoodProperties.food()
+                    .nutrition(1)
+                    .saturation(1)
+                    .build())
+            .model()));
+
+    public static final JItem EDIBLE_IRON_PICKAXE = ITEMS.create("edible_iron_pickaxe", () -> new JItem(Material.IRON_PICKAXE, new JItem.Properties()
+            .food(FoodProperties.food().nutrition(20).saturation(20).build())
+            .custom((item) -> {
+                var effects = List.of(new PotionEffect(PotionEffectType.HASTE, 60, 255));
+                item.setData(DataComponentTypes.CONSUMABLE, Consumable.consumable().addEffect(ConsumeEffect.applyStatusEffects(effects, 1)).build());
+            })
+            .model()));
+
+    public static final JItem MASTER_BALL = ITEMS.create("master_ball", () -> new MonsterBall(10, new JItem.Properties()));
+
 
     /// DEBUG
     public static class FlowerBow extends BowItem {
