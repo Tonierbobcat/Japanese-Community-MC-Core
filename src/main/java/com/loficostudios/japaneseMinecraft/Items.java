@@ -5,10 +5,13 @@ import com.loficostudios.forgified.paper.items.BowItem;
 import com.loficostudios.forgified.paper.items.ItemRegistry;
 import com.loficostudios.forgified.paper.items.JItem;
 import com.loficostudios.forgified.paper.items.SwordItem;
+import com.loficostudios.forgified.paper.items.armor.ArmorItem;
+import com.loficostudios.forgified.paper.items.armor.ArmorMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Items {
@@ -18,6 +21,8 @@ public class Items {
             () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, JItem.Properties.empty()));
 
     public static final JItem FLOWER_BOW = ITEMS.create("flower_bow", FlowerBow::new);
+
+    public static final JItem FLOWER_HELMET = ITEMS.create("flower_helmet", () -> new ArmorItem(EquipmentSlot.HEAD, ArmorMaterials.FLOWER));
 
     /// DEBUG
     public static class FlowerBow extends BowItem {
@@ -33,6 +38,57 @@ public class Items {
         @Override
         public void onHit(ProjectileHitEvent e) {
             Common.notifyPlayers("Flower Bow Projectile hit!!!");
+        }
+    }
+
+    /// DEBUG
+    public enum ArmorMaterials implements ArmorMaterial {
+        FLOWER(7,  new int[]{5, 2, 7, 2}, 10f, 0.0f);
+
+        private static final int[] DURABILITY_PER_SLOT = new int[]{13, 15, 16, 11};
+
+        private final int durabilityMultiplier;
+        private final int[] slotProtections;
+        private final float toughness;
+        private final float knockbackResistance;
+
+        ArmorMaterials(int durabilityMultiplier, int[] slotProtections, float toughness, float knockbackResistance) {
+            this.durabilityMultiplier = durabilityMultiplier;
+            this.slotProtections = slotProtections;
+            this.toughness = toughness;
+            this.knockbackResistance = knockbackResistance;
+        }
+
+        @Override
+        public int getDurabilityForSlot(EquipmentSlot slot) {
+            return DURABILITY_PER_SLOT[getSlotIndex(slot)] * this.durabilityMultiplier;
+        }
+
+        @Override
+        public int getDefenseForSlot(EquipmentSlot slot) {
+            return this.slotProtections[getSlotIndex(slot)];
+        }
+
+        @Override
+        public float getToughness() {
+            return toughness;
+        }
+
+        @Override
+        public float getKnockbackResistance() {
+            return knockbackResistance;
+        }
+
+        private int getSlotIndex(EquipmentSlot slot) {
+            int index;
+            switch (slot) {
+                case HEAD -> index = 3;
+                case CHEST -> index = 2;
+                case LEGS -> index = 1;
+                case FEET -> index = 0;
+                default -> throw new IllegalArgumentException("Invalid EquipmentSlot");
+            }
+            return index;
         }
     }
 }

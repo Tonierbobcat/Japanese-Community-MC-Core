@@ -1,7 +1,7 @@
 package com.loficostudios.japaneseMinecraft;
 
 import com.loficostudios.forgified.paper.IPluginResources;
-import com.loficostudios.forgified.paper.recipes.RecipeLoaderRegistry;
+import com.loficostudios.forgified.paper.utils.ResourceLoadingUtils;
 import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.HomeCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
@@ -17,7 +17,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -72,6 +71,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         // DISABLED for now until I update recipe loaders in library
 //        RecipeLoaderRegistry.getBukkitRecipeLoaderRegistry()
 //                .initialize(this);
+
+        ResourceLoadingUtils.generateResourcePack(this);
 
         /// Initializes managers
         weatherManager = new WeatherManager();
