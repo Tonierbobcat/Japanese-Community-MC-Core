@@ -77,7 +77,7 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
-                    sender.getInventory().addItem(item.getItemStack(1));
+                    sender.getInventory().addItem(Items.ITEMS.createItemStack(item));
                     return true;
                 }
                 default -> {

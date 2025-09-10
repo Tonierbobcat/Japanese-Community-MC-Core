@@ -66,14 +66,12 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         } catch (ClassNotFoundException ignore) {
         }
 
+        Items.ITEMS.initialize(this);
 
         /// tbh this is pretty clean
         // DISABLED for now until I update recipe loaders in library
 //        RecipeLoaderRegistry.getBukkitRecipeLoaderRegistry()
 //                .initialize(this);
-
-        /// Register items
-        Items.ITEMS.register(this);
 
         /// Initializes managers
         weatherManager = new WeatherManager();
