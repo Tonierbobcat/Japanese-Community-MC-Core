@@ -17,6 +17,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -72,7 +73,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 //                .initialize(this);
 
         /// Register items
-        Items.register(this);
+        Items.ITEMS.register(this);
 
         /// Initializes managers
         weatherManager = new WeatherManager();
