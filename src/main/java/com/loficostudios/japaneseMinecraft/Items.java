@@ -7,8 +7,11 @@ import com.loficostudios.forgified.paper.items.JItem;
 import com.loficostudios.forgified.paper.items.SwordItem;
 import com.loficostudios.forgified.paper.items.armor.ArmorItem;
 import com.loficostudios.forgified.paper.items.armor.ArmorMaterial;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.CustomModelData;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -17,8 +20,10 @@ import org.bukkit.inventory.EquipmentSlot;
 public class Items {
     public static final ItemRegistry ITEMS = new ItemRegistry();
 
-    public static final JItem FLOWER_SWORD = ITEMS.create("flower_sword",
-            () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, JItem.Properties.empty()));
+    public static final JItem FLOWER_SWORD = ITEMS.create("flower_sword", () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, new JItem.Properties()
+            .custom(item -> {
+                item.setData(DataComponentTypes.ITEM_MODEL, NamespacedKey.minecraft("flower_sword"));
+            })));
 
     public static final JItem FLOWER_BOW = ITEMS.create("flower_bow", FlowerBow::new);
 
