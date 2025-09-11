@@ -224,7 +224,8 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
     @EventHandler
     private void onInteract(PlayerInteractAtEntityEvent e) {
-        var item = e.getPlayer().getInventory().getItem(e.getHand());
+        var player = e.getPlayer();
+        var item = player.getInventory().getItem(e.getHand());
         if (Items.isItem(item, Items.LEVEL_CANDY)) {
             var entity = e.getRightClicked();
             if (!(entity instanceof LivingEntity))
@@ -232,18 +233,26 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
             if (!SPAWN_EGGS.containsKey(entity.getType()))
                 return;
             var wrapped = new MonsterWrapper(plugin, ((LivingEntity) entity));
+
+            /// Check if it is owned by the player first
+            if (wrapped.getOwner() == null || wrapped.getOwner().equals(player.getName())) {
+                var eng = "You do not own this Creature!";
+                player.sendMessage(eng);
+                return;
+            }
+
             var level = wrapped.getLevel();
             if (level == null)
                 return;
             if (level >= MAX_LEVEL) {
                 var eng = "This Creature is already at max level!";
-                e.getPlayer().sendMessage(eng);
+                player.sendMessage(eng);
             }
 
             wrapped.setLevel(wrapped.getLevel() + 1);
-            e.getPlayer().playSound(entity.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
+            player.playSound(entity.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
             var eng = "Leveled up this Creature!";
-            e.getPlayer().sendMessage(eng);
+            player.sendMessage(eng);
         }
     }
 
