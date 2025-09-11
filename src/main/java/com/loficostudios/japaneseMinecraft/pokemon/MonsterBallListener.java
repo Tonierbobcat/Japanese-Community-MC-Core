@@ -92,17 +92,17 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
         if (mainBall != null) {
             Debug.log( "MainHand Type: " + mainHand.getType() +" MainHand has ItemMeta: " + mainHand.hasItemMeta());
-            monsterBalls.put(projectile.getUniqueId(), new BallThrow(mainBall, player, mainHand));
+            monsterBalls.put(projectile.getUniqueId(), new BallThrow(mainBall, player));
         }
         if (offBall != null) {
             Debug.log( "OffHand Type: " + offHand.getType() +" OffHand has ItemMeta: " + offHand.hasItemMeta());
-            monsterBalls.put(projectile.getUniqueId(), new BallThrow(offBall, player, offHand));
+            monsterBalls.put(projectile.getUniqueId(), new BallThrow(offBall, player));
         }
 
         Debug.log("Projectile in map: " + monsterBalls.containsKey(projectile.getUniqueId()));
     }
 
-    private record BallThrow(MonsterBall ball, Player whoThrow, ItemStack stack) {
+    private record BallThrow(MonsterBall ball, Player whoThrow) {
     }
 
     @EventHandler
@@ -328,7 +328,8 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 //        meta.displayName(Component.text("Captured " + entityName)
 //                .decoration(TextDecoration.ITALIC, false));
 
-        var stack = throwData.stack();
+        /// Create a fresh instance of the item
+        var stack = Items.ITEMS.createItemStack(throwData.ball);
         var throwMeta = stack.getItemMeta();
         if (throwMeta != null) {
             meta.displayName(throwMeta.displayName());
