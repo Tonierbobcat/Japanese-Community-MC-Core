@@ -1,5 +1,6 @@
 package com.loficostudios.japaneseMinecraft.notifications;
 
+import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -10,9 +11,9 @@ public class NotificationManager {
 
     /// mapping types to prefixes
     private static final Map<Notification.Type, String> TYPE_PREFIX = Map.of(
-        Notification.Type.BOUNTY, "§8[§eBounty§8] ",
-        Notification.Type.ANNOUNCEMENT, "§8[§aAnnouncement§8] ",
-        Notification.Type.ALERT, "§8[§cAlert§8] ",
+        Notification.Type.BOUNTY, Common.createMessagePrefix("Bounty", "§e"),
+        Notification.Type.ANNOUNCEMENT, Common.createMessagePrefix("Announcement", "§a"),
+        Notification.Type.ALERT, Common.createMessagePrefix("Alert", "§c"),
         Notification.Type.INFO, ""
     );
 

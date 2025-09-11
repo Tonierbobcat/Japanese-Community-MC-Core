@@ -17,6 +17,7 @@ import java.util.List;
 /// for now we can only play and stop songs
 public class SpicifyCommand implements CommandExecutor, TabCompleter {
     private final JapaneseMinecraft plugin;
+    private static final String PREFIX = Common.createMessagePrefix("Spicify", "§6");
 
     public SpicifyCommand(JapaneseMinecraft plugin) {
         this.plugin = plugin;
@@ -40,19 +41,19 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
             case "play" -> {
                 if (args.length > 2 || args[1].isEmpty()) {
                     var eng = "You must enter a valid song";
-                    sender.sendMessage(eng);
+                    sender.sendMessage(PREFIX + eng);
                 }
                 var key = args[1];
                 musicWrapper.playSong(key, sender);
-                var eng = "Now playing {song}...";
-                sender.sendMessage(eng.replace("{song}", Common.formatEnumName(key)));
+                var eng = "Now playing §6{song}§r...";
+                sender.sendMessage(PREFIX + eng.replace("{song}", Common.formatEnumName(key)));
             }
             case "stop" -> {
                 var wasListening = NoteBlockAPIWrapper.isListening(sender);
                 musicWrapper.stopSong(sender);
                 var eng0 = "Stopped listening...";
                 var eng1 = "You were not listening to anything";
-                sender.sendMessage(wasListening ?  eng0: eng1);
+                sender.sendMessage(PREFIX + (wasListening ?  eng0: eng1));
             }
         }
         return true;
