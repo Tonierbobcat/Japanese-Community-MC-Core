@@ -2,6 +2,7 @@ package com.loficostudios.japaneseMinecraft.commands;
 
 import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import com.loficostudios.japaneseMinecraft.Messages;
 import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -40,20 +41,19 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
         switch (args[0]) {
             case "play" -> {
                 if (args.length > 2 || args[1].isEmpty()) {
-                    var eng = "You must enter a valid song";
-                    sender.sendMessage(PREFIX + eng);
+                    sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id"));
                 }
                 var key = args[1];
                 musicWrapper.playSong(key, sender);
-                var eng = "Now playing §6{song}§r...";
-                sender.sendMessage(PREFIX + eng.replace("{song}", Common.formatEnumName(key)));
+                sender.sendMessage(PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", Common.formatEnumName(key)));
             }
             case "stop" -> {
                 var wasListening = NoteBlockAPIWrapper.isListening(sender);
                 musicWrapper.stopSong(sender);
-                var eng0 = "Stopped listening...";
-                var eng1 = "You were not listening to anything";
-                sender.sendMessage(PREFIX + (wasListening ?  eng0: eng1));
+
+                sender.sendMessage(PREFIX + (wasListening
+                        ? Messages.getMessage(sender, "stopped_listening")
+                        : Messages.getMessage(sender, "not_listening_to_anything")));
             }
         }
         return true;

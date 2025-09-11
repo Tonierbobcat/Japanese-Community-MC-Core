@@ -75,6 +75,21 @@ public class Messages {
     private static final String ITEM_LEVEL_CANDY_LEVELUP_EN = "Leveled up this Creature!";
     //TODO JAPANESE
 
+    /// Spicify
+    private static final String STOPPED_LISTENING_EN = "Stopped listening...";
+    //TODO JAPANESE
+
+    private static final String NOT_LISTENING_TO_ANYTHING_EN = "You were not listening to anything";
+    //TODO JAPANESE
+
+    /// Ideally I do not want color codes in messages
+    private static final String NOW_PLAYING_EN = "Now Playing §6{song}§r...";
+    //TODO JAPANESE
+
+    private static final String MUST_ENTER_VALID_SONG_ID_EN = "You must enter a valid song. {key} If you think this a mistake please contact admins";
+    //TODO JAPANESE
+
+
     public static String getMessage(Player player, String key) {
         boolean isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(player);
         key = key + (isJapanese ? "_jp" : "_en");
@@ -84,6 +99,19 @@ public class Messages {
 
     static {
         messages = new HashMap<>();
+
+        messages.put("stopped_listening_en", STOPPED_LISTENING_EN);
+        //TODO JAPANESE
+
+        messages.put("not_listening_to_anything_en", NOT_LISTENING_TO_ANYTHING_EN);
+        //TODO JAPANESE
+
+        messages.put("now_playing_en", NOW_PLAYING_EN);
+        //TODO JAPANESE
+
+        messages.put("must_enter_valid_song_id_en", MUST_ENTER_VALID_SONG_ID_EN);
+        //TODO JAPANESE
+
 
         messages.put("item_level_candy_not_owned_en", ITEM_LEVEL_CANDY_NOT_OWNED_EN);
         //TODO JAPANESE
