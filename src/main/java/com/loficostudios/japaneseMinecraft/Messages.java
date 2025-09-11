@@ -50,6 +50,31 @@ public class Messages {
     private static final String WORD_CORRECT_EN = "You get {points} point(s)!";
     private static final String WORD_CORRECT_JP = "{points}ポイント獲得！";
 
+    /// Monster Pal System
+    private static final String CANNOT_CATCH_OTHERS_CREATURES_EN = "You cannot catch other people's Creatures";
+    //TODO JAPANESE
+
+    private static final String RETRIEVED_CREATURE_EN = "You retrieved your level {level} {name}";
+    //TODO JAPANESE
+
+    private static final String CREATURE_CAUGHT_EN = "You caught a level {level} {name}";
+    //TODO JAPANESE
+
+    private static final String FAILED_CATCH_EN = "You failed to catch this MON. {probability}%";
+    //TODO JAPANESE
+
+    private static final String UNCATCHABLE_CREATURE_EN = "Cannot catch this MON";
+    //TODO JAPANESE
+
+    private static final String ITEM_LEVEL_CANDY_NOT_OWNED_EN = "You do not own this Creature!";
+    //TODO JAPANESE
+
+    private static final String ITEM_LEVEL_CANDY_MAX_LEVEL_EN = "This Creature is already at max level!";
+    //TODO JAPANESE
+
+    private static final String ITEM_LEVEL_CANDY_LEVELUP_EN = "Leveled up this Creature!";
+    //TODO JAPANESE
+
     public static String getMessage(Player player, String key) {
         boolean isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(player);
         key = key + (isJapanese ? "_jp" : "_en");
@@ -59,6 +84,30 @@ public class Messages {
 
     static {
         messages = new HashMap<>();
+
+        messages.put("item_level_candy_not_owned_en", ITEM_LEVEL_CANDY_NOT_OWNED_EN);
+        //TODO JAPANESE
+
+        messages.put("item_level_candy_max_level_en", ITEM_LEVEL_CANDY_MAX_LEVEL_EN);
+        //TODO JAPANESE
+
+        messages.put("item_level_candy_levelup_en", ITEM_LEVEL_CANDY_LEVELUP_EN);
+        //TODO JAPANESE
+
+        messages.put("uncatchable_creature_en", UNCATCHABLE_CREATURE_EN);
+        //TODO JAPANESE
+
+        messages.put("failed_catch_en", FAILED_CATCH_EN);
+        //TODO JAPANESE
+
+        messages.put("creature_caught_en", CREATURE_CAUGHT_EN);
+        //TODO JAPANESE
+
+        messages.put("retrieved_creature_en", RETRIEVED_CREATURE_EN);
+        //TODO JAPANESE
+
+        messages.put("cannot_catch_others_creatures_en", CANNOT_CATCH_OTHERS_CREATURES_EN);
+        //TODO JAPANESE
 
         messages.put("global_player_revived_en", GLOBAL_PLAYER_REVIVED_EN);
         messages.put("global_player_revived_jp", GLOBAL_PLAYER_REVIVED_JP);

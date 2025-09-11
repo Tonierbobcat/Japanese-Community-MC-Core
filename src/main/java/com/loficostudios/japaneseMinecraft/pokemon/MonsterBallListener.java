@@ -1,9 +1,6 @@
 package com.loficostudios.japaneseMinecraft.pokemon;
 
-import com.loficostudios.japaneseMinecraft.Common;
-import com.loficostudios.japaneseMinecraft.Debug;
-import com.loficostudios.japaneseMinecraft.Items;
-import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import com.loficostudios.japaneseMinecraft.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -102,7 +99,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         Debug.log("Projectile in map: " + monsterBalls.containsKey(projectile.getUniqueId()));
     }
 
-    private record BallThrow(MonsterBall ball, Player whoThrow) {
+    private record BallThrow(MonsterBall ball, Player whoThrew) {
     }
 
     @EventHandler
@@ -129,7 +126,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
     }
 
     private void initializeCatch(BallThrow throwData, MonsterWrapper entity) {
-        var whoCaught = throwData.whoThrow();
+        var whoCaught = throwData.whoThrew();
         String originalOwner = entity.getOriginalOwner();
         if (originalOwner == null) {
             entity.setOriginalOwner(whoCaught);
@@ -159,7 +156,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         var throwData = monsterBalls.remove(projectile.getUniqueId());
         if (throwData == null)
             return;
-
+        Player whoThrew = throwData.whoThrew();;
         if (!(hit instanceof LivingEntity) || hit instanceof Player) {
             spawnBallOnProjectile(throwData, projectile);
             return;
@@ -167,7 +164,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
         var spawn = getSpawnEggMaterial(hit.getType());
         if (spawn == null) {
-            notifyPlayerOfInvalidCatch(throwData.whoThrow());
+            notifyPlayerOfInvalidCatch(whoThrew);
             spawnBallOnProjectile(throwData, projectile);
             return;
         }
@@ -180,17 +177,28 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         /// Tell the thrower that this creature cannot be capture if entity has no level
         /// Useful for server entities
         if (entityLevel == null) {
-            notifyPlayerOfInvalidCatch(throwData.whoThrow());
+            notifyPlayerOfInvalidCatch(whoThrew);
             spawnBallOnProjectile(throwData, projectile);
             return;
         }
         var entityName = Common.formatEnumName(hit.getType());
 
         /// No need to recalculate catch chances if the pokemon has already been caught
-        var isCurrentOwner = throwData.whoThrow().getName().equals(Objects.requireNonNullElse(wrapped.getOwner(), ""));
+        var isCurrentOwner = whoThrew.getName().equals(Objects.requireNonNullElse(wrapped.getOwner(), ""));
+        var isOwned = wrapped.getOwner() != null;
         if (isCurrentOwner) {
             handleMonsterBallEnter(throwData, wrapped, entityLevel, spawn);
-            throwData.whoThrow().sendMessage("You retrieved your level " + entityLevel + " " + entityName);
+            var message = Messages.getMessage(whoThrew, "retrieved_creature");
+            whoThrew.sendMessage(message
+                    .replace("{level}", "" + entityLevel)
+                    .replace("{name}", entityName));
+            return;
+
+        ///if is owned but player catching is not owner
+        } else if (isOwned) {
+            var message = Messages.getMessage(whoThrew, "cannot_catch_others_creatures_en");
+            whoThrew.sendMessage(message);
+            spawnBallOnProjectile(throwData, projectile);
             return;
         }
 
@@ -210,7 +218,8 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
         boolean success = rand.nextDouble() < probability;
         if (!success) {
-            notifyPlayerOfFailedCatch(throwData.whoThrow(), probability, ((LivingEntity) hit).getHealth(), maxHealth);
+            var message = Messages.getMessage(whoThrew, "failed_catch");
+            whoThrew.sendMessage(message.replace("{probability}", "" + ((probability * 100))));
             return;
         }
 
@@ -219,7 +228,10 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
         handleMonsterBallEnter(throwData, wrapped, entityLevel, spawn);
 
-        throwData.whoThrow().sendMessage("You caught a level " + entityLevel + " " + entityName);
+        var message = Messages.getMessage(whoThrew, "creature_caught");
+        whoThrew.sendMessage(message
+                .replace("{level}", "" + entityLevel)
+                .replace("{name}", entityName));
     }
 
     @EventHandler
@@ -235,9 +247,8 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
             var wrapped = new MonsterWrapper(plugin, ((LivingEntity) entity));
 
             /// Check if it is owned by the player first
-            if (wrapped.getOwner() == null || wrapped.getOwner().equals(player.getName())) {
-                var eng = "You do not own this Creature!";
-                player.sendMessage(eng);
+            if (wrapped.getOwner() == null || !wrapped.getOwner().equals(player.getName())) {
+                player.sendMessage(Messages.getMessage(player, "item_level_candy_not_owned"));
                 return;
             }
 
@@ -245,14 +256,13 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
             if (level == null)
                 return;
             if (level >= MAX_LEVEL) {
-                var eng = "This Creature is already at max level!";
-                player.sendMessage(eng);
+                player.sendMessage(Messages.getMessage(player, "item_level_candy_max_level"));
             }
 
+            item.setAmount(item.getAmount() - 1);
             wrapped.setLevel(wrapped.getLevel() + 1);
             player.playSound(entity.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-            var eng = "Leveled up this Creature!";
-            player.sendMessage(eng);
+            player.sendMessage(Messages.getMessage(player, "item_level_candy_levelup_en"));
         }
     }
 
@@ -271,7 +281,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         var snapshot = wrapped.getEntity().createSnapshot();
         if (snapshot == null) {
             Debug.log("COULD NOT CREATE ENTITY SNAPSHOT");
-            notifyPlayerOfInvalidCatch(throwData.whoThrow());
+            notifyPlayerOfInvalidCatch(throwData.whoThrew());
             return;
         }
 
@@ -305,12 +315,8 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         projectile.getWorld().dropItem(projectile.getLocation(), Items.ITEMS.createItemStack(jitem));
     }
 
-    private void notifyPlayerOfFailedCatch(Player player, double probability, double currentHealth, double maxHealth) {
-        player.sendMessage("You failed to catch this MON. " + (probability * 100) + "% " + currentHealth + "/" + maxHealth + "HP");
-    }
-
     private void notifyPlayerOfInvalidCatch(Player player) {
-        player.sendMessage("Cannot catch this MON");
+        player.sendMessage(Messages.getMessage(player, "uncatchable_creature"));
     }
 
     private Material getSpawnEggMaterial(EntityType type) {
@@ -347,7 +353,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         /// Formated date yyyy/MM/dd HH:mm
         meta.lore(List.of(
                 Component.text("§fLevel: " + level), //surround with objects.requireNonNull
-                Component.text("§aCaught by " + throwData.whoThrow().getName()),
+                Component.text("§aCaught by " + throwData.whoThrew().getName()),
                 Component.text("§7Date: " + formatted)
         ));
 
