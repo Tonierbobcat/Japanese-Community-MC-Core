@@ -83,6 +83,7 @@ public class PlayerProfile {
     public void save() {
         config.set("lives", lives);
         config.set("language", language.name());
+        config.set("moeny", money);
         try {
             config.save(file);
         } catch (IOException e) {
