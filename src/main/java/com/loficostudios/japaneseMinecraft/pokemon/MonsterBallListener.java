@@ -27,6 +27,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+// TODO move some functionality to seperate classes
+// TODO ADD TOP LEVEL DOCS
+/// This class is the manager for monsterballs
 public class MonsterBallListener implements Listener {
 
     private final int MAX_LEVEL = 99;
@@ -55,7 +58,6 @@ public class MonsterBallListener implements Listener {
         }, 0, 10);
     }
 
-
     private void updateEntityName(Entity entity) {
         var wrapped = new MonsterWrapper(plugin, ((LivingEntity) entity));
         var owner = wrapped.getOwner();
@@ -67,7 +69,7 @@ public class MonsterBallListener implements Listener {
             wrapped.setLevel(level);
         }
 
-        var name = getEntityName(entity.getType());
+        var name = getEntityTypeFormatted(entity.getType());
         if (hasOwner) {
             entity.customName(Component.text(owner + "'s " + "Lvl " + level + " | " + name));
         } else {
@@ -156,14 +158,14 @@ public class MonsterBallListener implements Listener {
             return;
 
         if (!(hit instanceof LivingEntity) || hit instanceof Player) {
-            dropBall(throwData, projectile);
+            spawnBallOnProjectile(throwData, projectile);
             return;
         }
 
         var spawn = getSpawnEggMaterial(hit.getType());
         if (spawn == null) {
             notifyPlayerOfInvalidCatch(throwData.whoThrow());
-            dropBall(throwData, projectile);
+            spawnBallOnProjectile(throwData, projectile);
             return;
         }
 
@@ -176,14 +178,15 @@ public class MonsterBallListener implements Listener {
         /// Useful for server entities
         if (entityLevel == null) {
             notifyPlayerOfInvalidCatch(throwData.whoThrow());
-            dropBall(throwData, projectile);
+            spawnBallOnProjectile(throwData, projectile);
             return;
         }
-        var entityName = getEntityName(hit.getType());
+        var entityName = getEntityTypeFormatted(hit.getType());
 
         /// No need to recalculate catch chances if the pokemon has already been caught
         var isCurrentOwner = throwData.whoThrow().getName().equals(Objects.requireNonNullElse(wrapped.getOwner(), ""));
         if (isCurrentOwner) {
+            handleMonsterBallEnter(throwData, wrapped, entityLevel, entityName, spawn);
             throwData.whoThrow().sendMessage("You retrieved your " + entityLevel + " " + entityName);
             return;
         }
@@ -208,29 +211,40 @@ public class MonsterBallListener implements Listener {
             return;
         }
 
-        var loc = hit.getLocation();
-
+        /// InitializeCatch before entering the pokeball
         initializeCatch(throwData, wrapped);
 
+        handleMonsterBallEnter(throwData, wrapped, entityLevel, entityName, spawn);
+    }
+
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void handleMonsterBallEnter(BallThrow throwData, MonsterWrapper wrapped, int level, String name, Material spawn) {
+        var loc = wrapped.getLocation();
+
         /// For whatever reason. date is null
+        /// Date should not be null when catching a pokemon for the first time, and
+        /// it should not be null when retrieving a pokemon.
         var date = wrapped.getDateCaught();
         if (date == null)
             wrapped.setDateCaught(System.currentTimeMillis());
         date = Objects.requireNonNull(wrapped.getDateCaught());
 
-        var snapshot = hit.createSnapshot();
+        var snapshot = wrapped.getEntity().createSnapshot();
         if (snapshot == null) {
             Debug.log("COULD NOT CREATE ENTITY SNAPSHOT");
             notifyPlayerOfInvalidCatch(throwData.whoThrow());
             return;
         }
-        /// Remove entity after snapshot created
-        hit.remove();
 
-        var captured = getCapturedItem(date, entityLevel, spawn, snapshot, throwData);
+        /// Remove entity after snapshot created
+        wrapped.getEntity().remove();
+
+        var captured = getCapturedItem(date, level, spawn, snapshot, throwData);
+
         loc.getWorld().dropItem(loc, captured);
 
-        throwData.whoThrow().sendMessage("You caught a level " + entityLevel + " " + entityName);
+        throwData.whoThrow().sendMessage("You caught a level " + level + " " + name);
     }
 
     /// [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Catch_rate)
@@ -248,7 +262,9 @@ public class MonsterBallListener implements Listener {
         return 1; //todo change this
     }
 
-    private void dropBall(BallThrow throwData, Projectile projectile) {
+    /// used for when the ball needs to be drops at where it hit
+    /// also used for spawning the ball to reclaim it
+    private void spawnBallOnProjectile(BallThrow throwData, Projectile projectile) {
         var jitem = Items.ITEMS.getById(throwData.ball().getId());
         projectile.getWorld().dropItem(projectile.getLocation(), Items.ITEMS.createItemStack(jitem));
     }
@@ -312,7 +328,12 @@ public class MonsterBallListener implements Listener {
         return captured;
     }
 
-    private String getEntityName(EntityType type) {
+
+    /**
+     *
+     * @return a readable formatted name
+     */
+    private String getEntityTypeFormatted(EntityType type) {
         var builder = new StringBuilder();
         var name = type.name().toLowerCase();
 
@@ -329,6 +350,8 @@ public class MonsterBallListener implements Listener {
     }
 
     static {
+        /// Rather than storing the spawm material in the map.
+        /// store a list of allowed mobs and then get the material by Material#valueOf(EntityType#name() + _SPAWN_EGG)
         SPAWN_EGGS = new HashMap<>();
 
         SPAWN_EGGS.put(EntityType.COW, Material.COW_SPAWN_EGG);

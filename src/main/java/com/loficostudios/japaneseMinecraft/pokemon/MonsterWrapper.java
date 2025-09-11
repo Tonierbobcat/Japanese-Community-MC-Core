@@ -3,11 +3,13 @@ package com.loficostudios.japaneseMinecraft.pokemon;
 import com.loficostudios.japaneseMinecraft.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import org.apache.commons.lang3.Validate;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MonsterWrapper {
@@ -55,7 +57,7 @@ public class MonsterWrapper {
         return getOwner() == null;
     }
 
-    public @Nullable LivingEntity getEntity() {
+    public @NotNull LivingEntity getEntity() {
         return entity;
     }
 
@@ -93,5 +95,9 @@ public class MonsterWrapper {
 
     public boolean isCurrentOwner(Player player) {
         return getOwner() != null && getOwner().equals(player.getName());
+    }
+
+    public Location getLocation() {
+        return entity.getLocation();
     }
 }
