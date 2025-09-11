@@ -34,21 +34,9 @@ public class Items {
     /// We need to override the item name because geyser cannot handle translatable item components
     public static final ItemRegistry ITEMS = new ItemRegistry(List.of(
             (item, stack) -> {
-                var builder = new StringBuilder();
-
-                var strings = item.getId().split("_");
-
-                for (String string : strings) {
-                    var chars = string.toCharArray();
-                    if (chars.length < 1)
-                        continue;
-                    chars[0] = Character.toUpperCase(chars[0]);
-                    builder.append(chars).append(" ");
-                }
-
                 var meta = stack.getItemMeta();
 
-                meta.displayName(Component.text(builder.toString().trim())
+                meta.displayName(Component.text(Common.formatEnumName(item.getId()))
                         .decoration(TextDecoration.ITALIC, false));
 
                 stack.setItemMeta(meta);

@@ -1,5 +1,6 @@
 package com.loficostudios.japaneseMinecraft.pokemon;
 
+import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.Debug;
 import com.loficostudios.japaneseMinecraft.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
@@ -69,7 +70,7 @@ public class MonsterBallListener implements Listener {
             wrapped.setLevel(level);
         }
 
-        var name = getEntityTypeFormatted(entity.getType());
+        var name = Common.formatEnumName(entity.getType());
         if (hasOwner) {
             entity.customName(Component.text(owner + "'s " + "Lvl " + level + " | " + name));
         } else {
@@ -181,7 +182,7 @@ public class MonsterBallListener implements Listener {
             spawnBallOnProjectile(throwData, projectile);
             return;
         }
-        var entityName = getEntityTypeFormatted(hit.getType());
+        var entityName = Common.formatEnumName(hit.getType());
 
         /// No need to recalculate catch chances if the pokemon has already been caught
         var isCurrentOwner = throwData.whoThrow().getName().equals(Objects.requireNonNullElse(wrapped.getOwner(), ""));
@@ -326,27 +327,6 @@ public class MonsterBallListener implements Listener {
 
         captured.setItemMeta(meta);
         return captured;
-    }
-
-
-    /**
-     *
-     * @return a readable formatted name
-     */
-    private String getEntityTypeFormatted(EntityType type) {
-        var builder = new StringBuilder();
-        var name = type.name().toLowerCase();
-
-        var strings = name.split("_");
-        for (String string : strings) {
-            char[] chars = string.toCharArray();
-            if (chars.length < 1)
-                continue;
-            chars[0] = Character.toUpperCase(chars[0]);
-            builder.append(chars).append(" ");
-        }
-
-        return builder.toString().trim();
     }
 
     static {

@@ -1,5 +1,6 @@
 package com.loficostudios.japaneseMinecraft.commands;
 
+import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
 import org.bukkit.command.Command;
@@ -38,15 +39,20 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
         switch (args[0]) {
             case "play" -> {
                 if (args.length > 2 || args[1].isEmpty()) {
-                    sender.sendMessage("You must enter a valid song");
+                    var eng = "You must enter a valid song";
+                    sender.sendMessage(eng);
                 }
                 var key = args[1];
                 musicWrapper.playSong(key, sender);
-                sender.sendMessage("Now playing " + key + "...");
+                var eng = "Now playing {song}...";
+                sender.sendMessage(eng.replace("{song}", Common.formatEnumName(key)));
             }
             case "stop" -> {
+                var wasListening = NoteBlockAPIWrapper.isListening(sender);
                 musicWrapper.stopSong(sender);
-                sender.sendMessage(NoteBlockAPIWrapper.isListening(sender) ? "Stopped listening..." : "You were not listening to anything");
+                var eng0 = "Stopped listening...";
+                var eng1 = "You were not listening to anything";
+                sender.sendMessage(wasListening ?  eng0: eng1);
             }
         }
         return true;
@@ -54,13 +60,12 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
-        if (args.length == 1) {
-            return switch (args[0]) {
-                case "play" -> getSongKeys();
-                default -> List.of();
-            };
+        if (args.length == 1 && args[0].equals("play")) {
+            return getSongKeys();
+        } else if (args.length == 0) {
+            return List.of("play", "stop");
         }
-        return List.of("play", "stop");
+        return List.of();
     }
 
     /// We are not storing songs on the repo because of copyright infringements
