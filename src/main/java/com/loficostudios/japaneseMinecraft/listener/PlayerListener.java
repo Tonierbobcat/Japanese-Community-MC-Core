@@ -139,7 +139,7 @@ public class PlayerListener implements Listener {
         var moneyText = "§9$ §f" + profile.getMoney();
 
         /// Maybe it changes the color depending on the value
-        var sanityText = "§c☯ §f" + profile.getSanity() + "%";
+        var sanityText = "§c☯ §f" + String.format("%.2f", profile.getSanity()) + "%";
 
         var weatherText = symbol + " §f" + plugin.getWeatherManager().getTemperature(player) + "°C";
 

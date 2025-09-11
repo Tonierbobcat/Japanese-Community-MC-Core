@@ -15,6 +15,7 @@ import com.loficostudios.japaneseMinecraft.notifications.NotificationManager;
 import com.loficostudios.japaneseMinecraft.pokemon.MonsterBallListener;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.profile.ProfileManager;
+import com.loficostudios.japaneseMinecraft.sanity.SanityManager;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -38,7 +39,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
     public static final String SERVER_IP = "jp.loficostudios.com";
 
     ///  MOTD can contain color codes and \n for new lines
-    public static final String MOTD = "§eA Japanese Community Server!\n§aSHIRITORI COMING SOON!!!";
+    public static final String MOTD = "§eA Japanese Community Server!\n§aNEW POKEMON SYSTEM!!!";
 
     private static JapaneseMinecraft instance;
 
@@ -83,6 +84,9 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         notificationManager = new NotificationManager();
         profileManager = new ProfileManager(this);
         shiritoriManager = new ShiritoriManager(this);
+
+        // stub for now
+        new SanityManager();
 
         /// Register event listeners
         registerEvents();
