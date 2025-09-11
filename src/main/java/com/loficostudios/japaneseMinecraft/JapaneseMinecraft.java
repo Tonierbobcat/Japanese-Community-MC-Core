@@ -6,6 +6,7 @@ import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.HomeCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriManager;
+import com.loficostudios.japaneseMinecraft.listener.ItemListener;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerDeathListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerListener;
@@ -95,7 +96,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private void registerEvents() {
         Arrays.asList(
-                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this), new MonsterBallListener()
+                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this), new MonsterBallListener(), new ItemListener()
         ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
     }
 
@@ -119,6 +120,10 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     @Override
     public void onDisable() {
+
+        /// This should be handled better
+        /// rather then a static instance. it should be stored in a field in this class
+        ItemListener.clearLightSources();
     }
 
     public WeatherManager getWeatherManager() {

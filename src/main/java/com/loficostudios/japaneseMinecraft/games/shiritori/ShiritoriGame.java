@@ -43,7 +43,7 @@ public class ShiritoriGame { // PLACEHOLDER ADD LATER
             "ゆき"       // 雪
     };
 
-    private static final String PREFIX = "§8[§dShiritori§8] §r";
+    public static final String PREFIX = "§8[§dShiritori§8] §r";
 
     private static final String STARTING_MESSAGE = """
         §a§l=== Shiritori Starting ===

@@ -18,8 +18,11 @@ import org.bukkit.Sound;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -61,8 +64,35 @@ public class Items {
             })
             .model()));
 
-    public static final JItem MASTER_BALL = ITEMS.create("master_ball", () -> new MonsterBall(10, new JItem.Properties()));
+    public static final JItem BASIC_FLASHLIGHT = ITEMS.create("basic_flashlight", () -> new JItem(Material.TORCH, new JItem.Properties()));
 
+    public static final JItem MASTER_BALL = ITEMS.create("master_ball", () -> new MonsterBall(10, new JItem.Properties()));
+    public static final JItem TELEPORT_CRYSTAL = ITEMS.create("teleport_crystal", () -> new JItem(Material.AMETHYST_SHARD, JItem.Properties.empty()));
+
+    public static <T> @Nullable T getItemFromItem(ItemStack stack, Class<T> clazz) {
+        var id = getId(stack);
+        if (id == null)
+            return null;
+        var item = Items.ITEMS.getById(id);
+        return clazz.isInstance(item) ? clazz.cast(item) : null;
+    }
+
+    public static boolean isItem(ItemStack stack, JItem item) {
+        if (stack == null)
+            return false;
+        var id = getId(stack);
+        if (id == null)
+            return false;
+        return id.equals(item.getId());
+    }
+
+    private static @Nullable String getId(ItemStack stack) {
+        if (stack.getType().equals(Material.AIR) || !stack.hasItemMeta())
+            return null;
+        var pdc = stack.getItemMeta().getPersistentDataContainer();
+        var id = pdc.get(Items.ITEMS.getItemKey(), PersistentDataType.STRING);
+        return id;
+    }
 
     /// DEBUG
     public static class FlowerBow extends BowItem {

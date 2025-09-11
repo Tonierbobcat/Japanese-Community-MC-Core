@@ -114,11 +114,12 @@ public class PlayerListener implements Listener {
     }
 
     private void updateDisplay(Player player) {
+        var profile = JapaneseMinecraft.getPlayerProfile(player);
         var world = player.getWorld();
         var time = world.getTime();
         var shifted = (time + 6000) % 24000;
         var timeText = "§e⌚ §f" + String.format("%02d:%02d", shifted / 1000, ((shifted % 1000) * 60) / 1000);
-        var livesText = "§a❤ §f" + JapaneseMinecraft.getPlayerProfile(player).getLives();
+        var livesText = "§a❤ §f" + profile.getLives();
 
         Map<WeatherManager.WeatherType, String> symbols = Map.of(
                 WeatherManager.WeatherType.SUNNY, world.isDayTime() ? "§e☀" : "§f☽",
@@ -132,7 +133,9 @@ public class PlayerListener implements Listener {
 
         var symbol = symbols.getOrDefault(type, "<null>");
 
-        player.sendActionBar(Component.text(livesText + " §r| " + timeText + " §r| " + symbol + " §f" + plugin.getWeatherManager().getTemperature(player) + "°C"));
+        var moneyText = "§9$ " + profile.getMoney();
+
+        player.sendActionBar(Component.text(livesText + " §r| " + moneyText + " §r| " + timeText + " §r| " + symbol + " §f" + plugin.getWeatherManager().getTemperature(player) + "°C"));
     }
 
     static {

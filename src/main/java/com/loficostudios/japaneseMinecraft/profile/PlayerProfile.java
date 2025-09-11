@@ -15,6 +15,8 @@ public class PlayerProfile {
     private final File file;
     private final FileConfiguration config;
 
+    private long money;
+
     private int lives;
     private Language language;
 
@@ -36,6 +38,7 @@ public class PlayerProfile {
         this.file = file;
         this.config = YamlConfiguration.loadConfiguration(file);
         this.lives = config.getInt("lives", DEFAULT_LIVES);
+        this.money = config.getLong("money", 0);
 
         try {
             var string = config.getString("language", "OTHER");
@@ -47,6 +50,25 @@ public class PlayerProfile {
         }
 
         save();
+    }
+
+    public boolean hasMoney(int amount) {
+        return money >= amount;
+    }
+
+    /// WILL OVERDRAW
+    public void subtractMoney(int amount) {
+        money -= amount;
+        save();
+    }
+
+    public void addMoney(int amount) {
+        money += amount;
+        save();
+    }
+
+    public long getMoney() {
+        return money;
     }
 
     public Language getLanguage() {

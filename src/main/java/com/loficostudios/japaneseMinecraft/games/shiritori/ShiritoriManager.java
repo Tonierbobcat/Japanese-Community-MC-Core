@@ -48,6 +48,34 @@ public class ShiritoriManager implements Listener {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.sendMessage(message.replace("{points}", "" + results.getOrDefault(player.getUniqueId(), 0)));
             }
+
+            int fifthPlaceMoney = 100;
+            int fourthPlaceMoney = 100;
+            int thirdPlaceMoney = 100;
+            int secondPlaceMoney = 300;
+            int firstPlaceMoney = 750;
+
+            Map<Integer, Integer> moneyRewards = Map.of(
+                    0, firstPlaceMoney,
+                    1, secondPlaceMoney,
+                    2, thirdPlaceMoney,
+                    3, fourthPlaceMoney,
+                    4, fifthPlaceMoney
+            );
+
+            int index = 0;
+            for (Map.Entry<UUID, Integer> entry : results.entrySet()) {
+                var reward = moneyRewards.get(index);
+                if (reward != null) {
+                    var eng = ShiritoriGame.PREFIX + "You have received a ${money} reward!"
+                            .replace("{money}", "" + reward);
+                    var player = Bukkit.getPlayer(entry.getKey());
+                    if (player != null) {
+                        player.sendMessage(eng);
+                    }
+                }
+                index++;
+            }
         }
     }
 
