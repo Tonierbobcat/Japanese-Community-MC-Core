@@ -32,22 +32,24 @@ import java.util.List;
 public class Items {
 
     /// We need to override the item name because geyser cannot handle translatable item components
-    public static final ItemRegistry ITEMS = new ItemRegistry(List.of((item, stack) -> {
-        var builder = new StringBuilder();
+    public static final ItemRegistry ITEMS = new ItemRegistry(List.of(
+            (item, stack) -> {
+                Debug.log("RUNNING ITEM NAME OVER RIDE");
+                var builder = new StringBuilder();
 
-        var strings = item.getId().split("_");
+                var strings = item.getId().split("_");
 
-        for (String string : strings) {
-            var chars = string.toCharArray();
-            if (chars.length < 1)
-                continue;
-            chars[0] = Character.toUpperCase(chars[0]);
-            builder.append(chars).append(" ");
-        }
+                for (String string : strings) {
+                    var chars = string.toCharArray();
+                    if (chars.length < 1)
+                        continue;
+                    chars[0] = Character.toUpperCase(chars[0]);
+                    builder.append(chars).append(" ");
+                }
 
-        stack.getItemMeta().displayName(Component.text(builder.toString().trim())
-                .decoration(TextDecoration.ITALIC, false));
-    }));
+                stack.getItemMeta().displayName(Component.text(builder.toString().trim())
+                        .decoration(TextDecoration.ITALIC, false));
+            }));
 
     public static final JItem FLOWER_SWORD = ITEMS.create("flower_sword",
             () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, new JItem.Properties()
