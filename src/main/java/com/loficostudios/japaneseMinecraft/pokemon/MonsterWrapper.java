@@ -90,4 +90,8 @@ public class MonsterWrapper {
     public  @Nullable Integer getLevel() {
         return pdc.get(leveledEntityKey, PersistentDataType.INTEGER);
     }
+
+    public boolean isCurrentOwner(Player player) {
+        return getOwner() != null && getOwner().equals(player.getName());
+    }
 }

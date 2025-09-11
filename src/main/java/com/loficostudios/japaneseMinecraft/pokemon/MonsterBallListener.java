@@ -179,8 +179,14 @@ public class MonsterBallListener implements Listener {
             dropBall(throwData, projectile);
             return;
         }
-
         var entityName = getEntityName(hit.getType());
+
+        /// No need to recalculate catch chances if the pokemon has already been caught
+        var isCurrentOwner = throwData.whoThrow().getName().equals(Objects.requireNonNullElse(wrapped.getOwner(), ""));
+        if (isCurrentOwner) {
+            throwData.whoThrow().sendMessage("You retrieved your " + entityLevel + " " + entityName);
+            return;
+        }
 
         /// int Value between 0-10. 10 = 100%
         var capturePower = throwData.ball().getCapturePower();
@@ -204,7 +210,6 @@ public class MonsterBallListener implements Listener {
 
         var loc = hit.getLocation();
 
-        var wasLastOwner = throwData.whoThrow().getName().equals(Objects.requireNonNullElse(wrapped.getOwner(), ""));
         initializeCatch(throwData, wrapped);
 
         /// For whatever reason. date is null
@@ -225,11 +230,7 @@ public class MonsterBallListener implements Listener {
         var captured = getCapturedItem(date, entityLevel, spawn, snapshot, throwData);
         loc.getWorld().dropItem(loc, captured);
 
-        if (wasLastOwner) {
-            throwData.whoThrow().sendMessage("You retrieved your " + entityLevel + " " + entityName);
-        } else {
-            throwData.whoThrow().sendMessage("You caught a level " + entityLevel + " " + entityName);
-        }
+        throwData.whoThrow().sendMessage("You caught a level " + entityLevel + " " + entityName);
     }
 
     /// [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Catch_rate)
@@ -265,6 +266,7 @@ public class MonsterBallListener implements Listener {
         return SPAWN_EGGS.get(type);
     }
 
+    //TODO there is a really wierd back the the item that you used to throw the ball does not have metadata
     private ItemStack getCapturedItem(long date, int level, Material spawnEgg, EntitySnapshot snapshot, BallThrow throwData) {
         var captured = new ItemStack(spawnEgg);
         var meta = captured.getItemMeta();
