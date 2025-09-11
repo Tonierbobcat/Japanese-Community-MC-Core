@@ -116,7 +116,7 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     private void onPlayerJoin(PlayerJoinEvent e) {
-        new NoteBlockAPIWrapper(plugin).playSong("Fairy Tail Theme");
+        new NoteBlockAPIWrapper(plugin).playSong("Fairy Tail Theme", e.getPlayer());
     }
 
     private void updateDisplay(Player player) {
