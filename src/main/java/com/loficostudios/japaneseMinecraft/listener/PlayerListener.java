@@ -3,6 +3,7 @@ package com.loficostudios.japaneseMinecraft.listener;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.WeatherManager;
 import com.loficostudios.japaneseMinecraft.notifications.Notification;
+import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -111,6 +112,11 @@ public class PlayerListener implements Listener {
             if(block != null && block.getType().equals(Material.FARMLAND))
                 e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    private void onPlayerJoin(PlayerJoinEvent e) {
+        new NoteBlockAPIWrapper(plugin).playSong("Fairy Tail Theme");
     }
 
     private void updateDisplay(Player player) {

@@ -59,6 +59,10 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/releases/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -89,6 +93,12 @@
             <groupId>com.github.jikyo</groupId>
             <artifactId>romaji</artifactId>
             <version>0.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.koca2000</groupId>
+            <artifactId>NoteBlockAPI</artifactId>
+            <version>1.6.2</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
