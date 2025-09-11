@@ -34,7 +34,6 @@ public class Items {
     /// We need to override the item name because geyser cannot handle translatable item components
     public static final ItemRegistry ITEMS = new ItemRegistry(List.of(
             (item, stack) -> {
-                Debug.log("RUNNING ITEM NAME OVER RIDE");
                 var builder = new StringBuilder();
 
                 var strings = item.getId().split("_");
@@ -47,8 +46,12 @@ public class Items {
                     builder.append(chars).append(" ");
                 }
 
-                stack.getItemMeta().displayName(Component.text(builder.toString().trim())
+                var meta = stack.getItemMeta();
+
+                meta.displayName(Component.text(builder.toString().trim())
                         .decoration(TextDecoration.ITALIC, false));
+
+                stack.setItemMeta(meta);
             }));
 
     public static final JItem FLOWER_SWORD = ITEMS.create("flower_sword",
