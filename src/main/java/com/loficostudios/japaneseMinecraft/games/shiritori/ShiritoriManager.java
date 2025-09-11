@@ -72,6 +72,9 @@ public class ShiritoriManager implements Listener {
                             .replace("{money}", "" + reward);
                     var player = Bukkit.getPlayer(entry.getKey());
                     if (player != null) {
+                        /// Add money reward to player
+                        JapaneseMinecraft.getPlayerProfile(player)
+                                        .addMoney(reward);
                         player.sendMessage(eng);
                     }
                 }
