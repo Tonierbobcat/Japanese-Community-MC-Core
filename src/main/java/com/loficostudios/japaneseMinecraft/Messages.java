@@ -86,7 +86,7 @@ public class Messages {
     private static final String NOW_PLAYING_EN = "Now Playing §6{song}§r...";
     //TODO JAPANESE
 
-    private static final String MUST_ENTER_VALID_SONG_ID_EN = "You must enter a valid song. {key} If you think this a mistake please contact admins";
+    private static final String MUST_ENTER_VALID_SONG_ID_EN = "You must enter a valid song. '{key}' If you think this a mistake please contact admins";
     //TODO JAPANESE
 
 

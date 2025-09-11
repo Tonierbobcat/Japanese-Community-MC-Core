@@ -42,13 +42,15 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
             case "play" -> {
                 if (args.length > 2 || args[1].isEmpty()) {
                     /// instead of this maybe?? send usage text
-                    sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id"));
+                    sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
+                            .replace("{key}", "null"));
                 }
                 var key = args[1];
                 try {
                     musicWrapper.playSong(key, sender);
                 } catch (Exception ignore) {
-                    sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id"));
+                    sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
+                            .replace("{key}", key));
                     return true;
                 }
                 sender.sendMessage(PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", Common.formatEnumName(key)));
