@@ -80,6 +80,14 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                     sender.getInventory().addItem(Items.ITEMS.createItemStack(item));
                     return true;
                 }
+                case "start-shiritori" -> {
+                    if (plugin.getShiritoriManager().tryStartNewGame()) {
+                        sender.sendMessage("Started shiritori");
+                    } else {
+                        sender.sendMessage("Could not start shiritori. too few players or there is already a game running");
+                    }
+                    return true;
+                }
                 default -> {
                     sender.sendMessage("Unknown Command.");
                     return true;
@@ -94,7 +102,7 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
     @Override
     public @NotNull List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return List.of("suggest", "lookup", "lang", "items");
+            return List.of("suggest", "lookup", "lang", "items", "start-shiritori");
         } else if (args.length == 2) {
             if (args[0].equals("lang")) {
                 return List.of("en", "jp");

@@ -26,14 +26,15 @@ public class ShiritoriManager implements Listener {
         JapaneseMinecraft.runTaskTimer(this::tryStartNewGame, 20 * 60, 20 * 60 * AUTO_START_MINUTES);
     }
 
-    private void tryStartNewGame() {
+    public boolean tryStartNewGame() {
         if (game != null || Bukkit.getOnlinePlayers().size() < 2)
-            return;
+            return false;
 
         game = new ShiritoriGame(GAME_LENGTH_MINUTES);
         game.start();
 
         JapaneseMinecraft.runTaskLater(this::endGame, 20 * 60 * 2); //
+        return true;
     }
 
     private void endGame() {
