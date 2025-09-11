@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /// This command allows the player to play music and to create playlists
@@ -40,17 +42,32 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
         switch (args[0]) {
             case "play" -> {
-                if (args.length > 2 || args[1].isEmpty()) {
-                    /// instead of this maybe?? send usage text
-                    sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
-                            .replace("{key}", "null"));
+                List<String> strings = new ArrayList<>();
+                for (int i = 1; i < args.length; i++) {
+                    if (i > args.length - 1)
+                        continue;
+                    strings.add(args[i]);
                 }
-                var key = args[1];
+
+                var key = String.join(" ", strings);
+
+                if (key.isEmpty()){
+                    /// Send key is empty text rather than invalid key
+                    sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
+                            .replace("{key}", key));
+                    return true;
+                }
+
                 try {
                     musicWrapper.playSong(key, sender);
                 } catch (Exception ignore) {
                     sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
                             .replace("{key}", key));
+
+                    /// SEND HINT OF LIBRARY LIST
+                    // todo move this to messages
+                    var eng = "Use '/spicify list' to view a list of our library!";
+                    sender.sendMessage(PREFIX + eng);
                     return true;
                 }
                 sender.sendMessage(PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", Common.formatEnumName(key)));
@@ -63,16 +80,18 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                         ? Messages.getMessage(sender, "stopped_listening")
                         : Messages.getMessage(sender, "not_listening_to_anything")));
             }
+            case "list" -> {
+                var strings = getSongKeys();
+                sender.sendMessage(String.join("\n", strings));
+            }
         }
         return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
-        if (args.length == 1 && args[0].equals("play")) {
-            return getSongKeys();
-        } else if (args.length == 0) {
-            return List.of("play", "stop");
+        if (args.length == 0) {
+            return List.of("play", "stop", "list");
         }
         return List.of();
     }
@@ -80,6 +99,13 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
     /// We are not storing songs on the repo because of copyright infringements
     /// instead we get the songs locally by iterating through the songs folder
     private List<String> getSongKeys() {
-        return List.of();
+        var songsFolder = new File(plugin.getDataFolder(), "songs");
+        songsFolder.mkdirs();
+        var result = new ArrayList<String>();
+        for (File file : songsFolder.listFiles()) {
+            var name = file.getName().replace(".nbs", "");
+            result.add(name);
+        }
+        return result;
     }
 }

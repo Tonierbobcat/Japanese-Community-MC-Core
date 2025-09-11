@@ -82,7 +82,7 @@ public class Messages {
     private static final String NOT_LISTENING_TO_ANYTHING_EN = "You were not listening to anything";
     //TODO JAPANESE
 
-    /// Ideally I do not want color codes in messages
+    /// Ideally I do not want color codes in messages but this looks really nice
     private static final String NOW_PLAYING_EN = "Now Playing §6{song}§r...";
     //TODO JAPANESE
 

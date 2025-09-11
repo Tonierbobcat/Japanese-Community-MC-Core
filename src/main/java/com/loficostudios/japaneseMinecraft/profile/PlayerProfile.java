@@ -12,6 +12,7 @@ import java.util.Locale;
 
 public class PlayerProfile {
     private static final int DEFAULT_LIVES = 3;
+    private static final double MAX_SANITY = 100; //100%
     private final File file;
     private final FileConfiguration config;
 
@@ -19,6 +20,8 @@ public class PlayerProfile {
 
     private int lives;
     private Language language;
+
+    private double sanity;
 
     public PlayerProfile(JapaneseMinecraft plugin, Player player) {
         var file = new File(plugin.getDataFolder(), "players" + File.separator + player.getUniqueId() + ".yml");
@@ -40,6 +43,9 @@ public class PlayerProfile {
         this.lives = config.getInt("lives", DEFAULT_LIVES);
         this.money = config.getLong("money", 0);
 
+        /// Start at 100
+        this.sanity = config.getDouble("sanity", MAX_SANITY);
+
         try {
             var string = config.getString("language", "OTHER");
             this.language = Language.valueOf(string);
@@ -50,6 +56,14 @@ public class PlayerProfile {
         }
 
         save();
+    }
+
+    public void setSanity(double sanity) {
+        this.sanity = sanity;
+    }
+
+    public double getSanity() {
+        return Math.min(sanity, MAX_SANITY);
     }
 
     public boolean hasMoney(int amount) {
@@ -83,7 +97,8 @@ public class PlayerProfile {
     public void save() {
         config.set("lives", lives);
         config.set("language", language.name());
-        config.set("moeny", money);
+        config.set("money", money);
+        config.set("sanity", Math.min(sanity, MAX_SANITY));
         try {
             config.save(file);
         } catch (IOException e) {

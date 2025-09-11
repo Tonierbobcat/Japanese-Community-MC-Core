@@ -134,9 +134,20 @@ public class PlayerListener implements Listener {
 
         var symbol = symbols.getOrDefault(type, "<null>");
 
+        /// make sure that money is shorten for example 1.5k or 105.2m max digits = 5
+        /// Will have a /bal command to get the exact balance
         var moneyText = "§9$ §f" + profile.getMoney();
 
-        player.sendActionBar(Component.text(livesText + " §r| " + moneyText + " §r| " + timeText + " §r| " + symbol + " §f" + plugin.getWeatherManager().getTemperature(player) + "°C"));
+        /// Maybe it changes the color depending on the value
+        var sanityText = "§c☯ §f" + profile.getSanity() + "%";
+
+        var weatherText = symbol + " §f" + plugin.getWeatherManager().getTemperature(player) + "°C";
+
+        player.sendActionBar(Component.text(livesText + " §r| " +
+                sanityText + " §r| " +
+                moneyText + " §r| " +
+                timeText + " §r| " +
+                weatherText));
     }
 
     static {
