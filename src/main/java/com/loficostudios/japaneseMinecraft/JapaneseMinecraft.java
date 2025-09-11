@@ -5,6 +5,7 @@ import com.loficostudios.forgified.paper.utils.ResourceLoadingUtils;
 import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.HomeCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;
+import com.loficostudios.japaneseMinecraft.commands.SpicifyCommand;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriManager;
 import com.loficostudios.japaneseMinecraft.listener.ItemListener;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
@@ -113,7 +114,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         Map.of(
                 "jpmc", new JPMCCommand(this),
                 "dm", new DMCommand(chatManager),
-                "home", new HomeCommand()
+                "home", new HomeCommand(),
+                "spicify", new SpicifyCommand(this)
         ).forEach((id, executor) -> Optional.ofNullable(this.getCommand(id))
                 .ifPresentOrElse(command -> command.setExecutor(executor), () -> Debug.log("Failed to register command: " + id)));
     }
