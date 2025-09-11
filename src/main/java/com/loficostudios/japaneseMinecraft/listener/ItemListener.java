@@ -9,6 +9,7 @@ import org.bukkit.block.data.type.Light;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -35,6 +36,8 @@ public class ItemListener implements Listener {
             e.setCancelled(true);
             handleTeleportCrystal(e.getPlayer());
         } else if (Items.isItem(item, Items.BASIC_FLASHLIGHT)) {
+            e.setCancelled(true);
+        } else if (Items.isItem(item, Items.LEVEL_CANDY)) {
             e.setCancelled(true);
         }
     }

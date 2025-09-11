@@ -5,10 +5,7 @@ import com.loficostudios.japaneseMinecraft.Debug;
 import com.loficostudios.japaneseMinecraft.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -16,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -31,7 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 // TODO move some functionality to seperate classes
 // TODO ADD TOP LEVEL DOCS
 /// This class is the manager for monsterballs
-public class MonsterBallListener implements Listener {
+public class MonsterBallListener implements Listener { //todo maybe?? rename to somethingManager
 
     private final int MAX_LEVEL = 99;
     private final int MIN_LEVEL = 1;
@@ -87,14 +85,18 @@ public class MonsterBallListener implements Listener {
         var shooter = e.getEntity().getShooter();
         if (!(shooter instanceof Player player))
             return;
-        var main = Items.getItemFromItem(player.getInventory().getItemInMainHand(), MonsterBall.class);
-        var off = Items.getItemFromItem(player.getInventory().getItemInOffHand(), MonsterBall.class);
+        var mainHand = player.getInventory().getItemInMainHand();
+        var offHand = player.getInventory().getItemInOffHand();
+        var mainBall = Items.getItemFromItem(player.getInventory().getItemInMainHand(), MonsterBall.class);
+        var offBall = Items.getItemFromItem(player.getInventory().getItemInOffHand(), MonsterBall.class);
 
-        if (main != null) {
-            monsterBalls.put(projectile.getUniqueId(), new BallThrow(main, player, player.getInventory().getItemInMainHand()));
+        if (mainBall != null) {
+            Debug.log( "MainHand Type: " + mainHand.getType() +" MainHand has ItemMeta: " + mainHand.hasItemMeta());
+            monsterBalls.put(projectile.getUniqueId(), new BallThrow(mainBall, player, mainHand));
         }
-        if (off != null) {
-            monsterBalls.put(projectile.getUniqueId(), new BallThrow(off, player, player.getInventory().getItemInOffHand()));
+        if (offBall != null) {
+            Debug.log( "OffHand Type: " + offHand.getType() +" OffHand has ItemMeta: " + offHand.hasItemMeta());
+            monsterBalls.put(projectile.getUniqueId(), new BallThrow(offBall, player, offHand));
         }
 
         Debug.log("Projectile in map: " + monsterBalls.containsKey(projectile.getUniqueId()));
@@ -187,8 +189,8 @@ public class MonsterBallListener implements Listener {
         /// No need to recalculate catch chances if the pokemon has already been caught
         var isCurrentOwner = throwData.whoThrow().getName().equals(Objects.requireNonNullElse(wrapped.getOwner(), ""));
         if (isCurrentOwner) {
-            handleMonsterBallEnter(throwData, wrapped, entityLevel, entityName, spawn);
-            throwData.whoThrow().sendMessage("You retrieved your " + entityLevel + " " + entityName);
+            handleMonsterBallEnter(throwData, wrapped, entityLevel, spawn);
+            throwData.whoThrow().sendMessage("You retrieved your level " + entityLevel + " " + entityName);
             return;
         }
 
@@ -215,12 +217,38 @@ public class MonsterBallListener implements Listener {
         /// InitializeCatch before entering the pokeball
         initializeCatch(throwData, wrapped);
 
-        handleMonsterBallEnter(throwData, wrapped, entityLevel, entityName, spawn);
+        handleMonsterBallEnter(throwData, wrapped, entityLevel, spawn);
+
+        throwData.whoThrow().sendMessage("You caught a level " + entityLevel + " " + entityName);
     }
 
+    @EventHandler
+    private void onInteract(PlayerInteractAtEntityEvent e) {
+        var item = e.getPlayer().getInventory().getItem(e.getHand());
+        if (Items.isItem(item, Items.LEVEL_CANDY)) {
+            var entity = e.getRightClicked();
+            if (!(entity instanceof LivingEntity))
+                return;
+            if (!SPAWN_EGGS.containsKey(entity.getType()))
+                return;
+            var wrapped = new MonsterWrapper(plugin, ((LivingEntity) entity));
+            var level = wrapped.getLevel();
+            if (level == null)
+                return;
+            if (level >= MAX_LEVEL) {
+                var eng = "This Creature is already at max level!";
+                e.getPlayer().sendMessage(eng);
+            }
+
+            wrapped.setLevel(wrapped.getLevel() + 1);
+            e.getPlayer().playSound(entity.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
+            var eng = "Leveled up this Creature!";
+            e.getPlayer().sendMessage(eng);
+        }
+    }
 
     @SuppressWarnings("UnstableApiUsage")
-    private void handleMonsterBallEnter(BallThrow throwData, MonsterWrapper wrapped, int level, String name, Material spawn) {
+    private void handleMonsterBallEnter(BallThrow throwData, MonsterWrapper wrapped, int level, Material spawn) {
         var loc = wrapped.getLocation();
 
         /// For whatever reason. date is null
@@ -244,8 +272,6 @@ public class MonsterBallListener implements Listener {
         var captured = getCapturedItem(date, level, spawn, snapshot, throwData);
 
         loc.getWorld().dropItem(loc, captured);
-
-        throwData.whoThrow().sendMessage("You caught a level " + level + " " + name);
     }
 
     /// [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Catch_rate)

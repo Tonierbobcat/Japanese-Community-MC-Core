@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/// Please put documentation on your item do tell other developers what is used for
+
 @SuppressWarnings("UnstableApiUsage")
 public class Items {
 
@@ -75,6 +77,9 @@ public class Items {
                 item.setData(DataComponentTypes.CONSUMABLE, Consumable.consumable().addEffect(ConsumeEffect.applyStatusEffects(effects, 1)).build());
             })
             .model()));
+
+    /// Used to level up monstermons
+    public static final JItem LEVEL_CANDY = ITEMS.create("level_candy", () -> new JItem(Material.EMERALD, JItem.Properties.empty()));
 
     public static final JItem BASIC_FLASHLIGHT = ITEMS.create("basic_flashlight", () -> new JItem(Material.TORCH, new JItem.Properties()));
 
