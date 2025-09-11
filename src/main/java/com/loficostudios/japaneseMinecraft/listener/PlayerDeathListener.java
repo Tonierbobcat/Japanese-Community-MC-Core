@@ -41,6 +41,10 @@ public class PlayerDeathListener implements Listener {
         this.plugin = plugin;
     }
 
+    // rather than sending the player a message
+    // we should send them a title with the Sekiro revive kanji
+    // and then as the subtitle we show lives remaining
+    // this way we can remove the lives icon from the player gui
     private void playReviveEffect(Player player) {
         var maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
 
