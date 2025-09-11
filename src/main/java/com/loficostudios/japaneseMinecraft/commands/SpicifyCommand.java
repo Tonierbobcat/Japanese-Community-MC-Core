@@ -41,10 +41,16 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
         switch (args[0]) {
             case "play" -> {
                 if (args.length > 2 || args[1].isEmpty()) {
+                    /// instead of this maybe?? send usage text
                     sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id"));
                 }
                 var key = args[1];
-                musicWrapper.playSong(key, sender);
+                try {
+                    musicWrapper.playSong(key, sender);
+                } catch (Exception ignore) {
+                    sender.sendMessage(PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id"));
+                    return true;
+                }
                 sender.sendMessage(PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", Common.formatEnumName(key)));
             }
             case "stop" -> {
