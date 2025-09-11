@@ -13,6 +13,8 @@ import io.papermc.paper.datacomponent.item.BlocksAttacks;
 import io.papermc.paper.datacomponent.item.Consumable;
 import io.papermc.paper.datacomponent.item.FoodProperties;
 import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -28,7 +30,24 @@ import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
 public class Items {
-    public static final ItemRegistry ITEMS = new ItemRegistry();
+
+    /// We need to override the item name because geyser cannot handle translatable item components
+    public static final ItemRegistry ITEMS = new ItemRegistry(List.of((item, stack) -> {
+        var builder = new StringBuilder();
+
+        var strings = item.getId().split("_");
+
+        for (String string : strings) {
+            var chars = string.toCharArray();
+            if (chars.length < 1)
+                continue;
+            chars[0] = Character.toUpperCase(chars[0]);
+            builder.append(chars).append(" ");
+        }
+
+        stack.getItemMeta().displayName(Component.text(builder.toString().trim())
+                .decoration(TextDecoration.ITALIC, false));
+    }));
 
     public static final JItem FLOWER_SWORD = ITEMS.create("flower_sword",
             () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, new JItem.Properties()
@@ -68,6 +87,8 @@ public class Items {
 
     public static final JItem MASTER_BALL = ITEMS.create("master_ball", () -> new MonsterBall(10, new JItem.Properties()));
     public static final JItem TELEPORT_CRYSTAL = ITEMS.create("teleport_crystal", () -> new JItem(Material.AMETHYST_SHARD, JItem.Properties.empty()));
+
+    public static final JItem POKEBALL = ITEMS.create("pokeball", () -> new MonsterBall(1, new JItem.Properties()));
 
     public static <T> @Nullable T getItemFromItem(ItemStack stack, Class<T> clazz) {
         var id = getId(stack);

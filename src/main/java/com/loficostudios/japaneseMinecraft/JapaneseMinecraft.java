@@ -96,7 +96,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private void registerEvents() {
         Arrays.asList(
-                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this), new MonsterBallListener(), new ItemListener()
+                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this), new MonsterBallListener(this), new ItemListener()
         ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
     }
 

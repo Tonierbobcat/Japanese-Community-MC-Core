@@ -133,7 +133,7 @@ public class PlayerListener implements Listener {
 
         var symbol = symbols.getOrDefault(type, "<null>");
 
-        var moneyText = "§9$ " + profile.getMoney();
+        var moneyText = "§9$ §f" + profile.getMoney();
 
         player.sendActionBar(Component.text(livesText + " §r| " + moneyText + " §r| " + timeText + " §r| " + symbol + " §f" + plugin.getWeatherManager().getTemperature(player) + "°C"));
     }

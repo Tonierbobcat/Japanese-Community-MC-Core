@@ -94,7 +94,7 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                 }
             }
         } else {
-            sender.sendMessage("Usage: /jpmc suggest <your suggestion>");
+            sender.sendMessage("Invalid command");
             return true;
         }
     }
