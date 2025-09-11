@@ -2,19 +2,19 @@ package com.loficostudios.japaneseMinecraft.sanity;
 
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 
 // todo finish/fix this
 public class SanityManager {
+    private static final long TICK_SPEED = 30;
     private static final double MIN_DISTANCE_FROM_PLAYER = 100;
 
     /// slightly higher than decrease per second
     private static final double PER_PLAYER_INCREASE = 0.2;
 
     /// This might get crazy
-    private static final double AMOUNT_TO_DECREASE_PER_SECOND = 0.1;
+    private static final double AMOUNT_TO_DECREASE_PER_TICK = 0.1;
 
     public SanityManager() {
         JapaneseMinecraft.runTaskTimer(() -> {
@@ -47,10 +47,10 @@ public class SanityManager {
                     if (totalDarkness)
                         multiplier++;
 
-                    var amountToDecrease = totalDarkness ? AMOUNT_TO_DECREASE_PER_SECOND * multiplier : AMOUNT_TO_DECREASE_PER_SECOND;
+                    var amountToDecrease = totalDarkness ? AMOUNT_TO_DECREASE_PER_TICK * multiplier : AMOUNT_TO_DECREASE_PER_TICK;
                     profile.setSanity(Math.max(profile.getSanity() - amountToDecrease, 0));
                 }
             }
-        }, 0, 20); ///EVERY second to save performance
+        }, 0, TICK_SPEED); ///EVERY second to save performance
     }
 }
