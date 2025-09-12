@@ -21,8 +21,7 @@ public class FlyCommand implements CommandExecutor {
             sender.sendMessage("You are no longer flying!");
         } else {
             sender.setAllowFlight(true);
-            sender.setFlying(true);
-            sender.sendMessage("You are now flying!");
+            sender.sendMessage("You can now fly!");
         }
 
         return true;
