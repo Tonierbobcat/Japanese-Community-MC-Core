@@ -2,6 +2,7 @@ package com.loficostudios.japaneseMinecraft;
 
 import com.loficostudios.forgified.paper.IPluginResources;
 import com.loficostudios.forgified.paper.utils.ResourceLoadingUtils;
+import com.loficostudios.japaneseMinecraft.chat.ChatManager;
 import com.loficostudios.japaneseMinecraft.commands.DMCommand;
 import com.loficostudios.japaneseMinecraft.commands.HomeCommand;
 import com.loficostudios.japaneseMinecraft.commands.JPMCCommand;

@@ -81,6 +81,10 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 case "start-shiritori" -> {
+                    if (!sender.isOp()) {
+                        sender.sendMessage("You do not have permission to use this command.");
+                        return true;
+                    }
                     if (plugin.getShiritoriManager().tryStartNewGame()) {
                         sender.sendMessage("Started shiritori");
                     } else {

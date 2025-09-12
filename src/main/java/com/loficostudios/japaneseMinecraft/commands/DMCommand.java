@@ -1,6 +1,6 @@
 package com.loficostudios.japaneseMinecraft.commands;
 
-import com.loficostudios.japaneseMinecraft.ChatManager;
+import com.loficostudios.japaneseMinecraft.chat.ChatManager;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
