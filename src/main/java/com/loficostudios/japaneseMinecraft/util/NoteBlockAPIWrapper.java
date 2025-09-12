@@ -1,6 +1,7 @@
 package com.loficostudios.japaneseMinecraft.util;
 
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import com.loficostudios.japaneseMinecraft.spicify.SpicifyService;
 import com.xxmicloxx.NoteBlockAPI.model.Song;
 import com.xxmicloxx.NoteBlockAPI.songplayer.RadioSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.songplayer.SongPlayer;
@@ -30,7 +31,7 @@ public class NoteBlockAPIWrapper {
     private final JapaneseMinecraft plugin;
 
     private Song getSong(String key) {
-        var file = new File(plugin.getDataFolder(), "songs/" + key + ".nbs");
+        var file = new File(plugin.getDataFolder(), SpicifyService.FOLDER + "/" + key + ".nbs");
         return NBSDecoder.parse(file);
     }
 
