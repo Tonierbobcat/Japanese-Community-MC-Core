@@ -63,7 +63,7 @@ public class Common {
     }
 
     public static String createMessagePrefix(String title, String color) {
-        return "§8[{color}{title}§8] §r"
+        return "§8[{color}{title}§8]§r "
                 .replace("{color}", color)
                 .replace("{title}", title);
     }
