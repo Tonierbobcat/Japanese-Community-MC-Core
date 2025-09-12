@@ -59,7 +59,7 @@ public class ShopGui<Impl extends ShopItem<Impl>> extends PopOutGui implements P
 
             GuiIcon icon;
             if (item instanceof ShopGuiIcon) {
-                icon = ((ShopGuiIcon) item).getIcon(clone, 1, (p, c) -> {
+                icon = ((ShopGuiIcon<Impl>) item).getIcon(clone, 1, (p, c) -> {
                     if (clone.isStackable()) {
                         new AmountSelectionGui<>(this, clone, getPlayer)
                                 .open(p);
@@ -151,7 +151,7 @@ public class ShopGui<Impl extends ShopItem<Impl>> extends PopOutGui implements P
 
             GuiIcon icon;
             if (item instanceof ShopGuiIcon) {
-                icon = ((ShopGuiIcon) item).getIcon(instance, amount, (p, c) -> confirm(p, selectedAmount));
+                icon = ((ShopGuiIcon<Impl>) item).getIcon(instance, amount, (p, c) -> confirm(p, selectedAmount));
                 parent.template.handleIcon.accept(instance, icon, amount);
             } else {
                 icon = new GuiIcon(Material.PURPLE_STAINED_GLASS_PANE, Component.text(item.getName()));

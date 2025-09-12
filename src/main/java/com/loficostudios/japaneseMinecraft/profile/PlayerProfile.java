@@ -2,13 +2,16 @@ package com.loficostudios.japaneseMinecraft.profile;
 
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Language;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.UUID;
 
 public class PlayerProfile {
     private static final int DEFAULT_LIVES = 3;
@@ -21,9 +24,12 @@ public class PlayerProfile {
     private int lives;
     private Language language;
 
+    private final UUID uuid;
+
     private double sanity;
 
     public PlayerProfile(JapaneseMinecraft plugin, Player player) {
+        this.uuid = player.getUniqueId();
         var file = new File(plugin.getDataFolder(), "players" + File.separator + player.getUniqueId() + ".yml");
 
         // Ensure parent directory exists
@@ -113,5 +119,9 @@ public class PlayerProfile {
 
     public int getLives() {
         return lives;
+    }
+
+    public @Nullable Player getPlayer() {
+        return Bukkit.getPlayer(uuid);
     }
 }

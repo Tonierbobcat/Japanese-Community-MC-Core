@@ -7,6 +7,7 @@
 package com.loficostudios.japaneseMinecraft.shop.gui;
 
 import com.loficostudios.japaneseMinecraft.Common;
+import com.loficostudios.japaneseMinecraft.Debug;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Material;
@@ -19,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -104,15 +104,33 @@ public class GuiIcon {
     }
 
     public @NotNull List<Component> description() {
-        var meta = Objects.requireNonNull(item.getItemMeta());
-        var lore = meta.lore();
-        return lore != null ? lore : List.of();
+        var meta = item.getItemMeta();
+        if (meta != null) {
+            var lore = meta.lore();
+            return lore != null ? lore : List.of();
+        } else {
+            try {
+                throw new IllegalArgumentException("Meta is not found");
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+        return List.of();
     }
 
     public GuiIcon description(@NotNull List<? extends Component> lines) {
-        var meta = Objects.requireNonNull(item.getItemMeta());
-        meta.lore(lines);
-        item.setItemMeta(meta);
+        var meta = item.getItemMeta();
+        if (meta != null) {
+            meta.lore(lines);
+            item.setItemMeta(meta);
+        } else {
+            try {
+                throw new IllegalArgumentException("Meta is not found");
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+
         return this;
     }
 
