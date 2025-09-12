@@ -3,14 +3,18 @@ package com.loficostudios.japaneseMinecraft.pokemon;
 import com.loficostudios.japaneseMinecraft.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import org.apache.commons.lang3.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class MonsterWrapper {
 
@@ -97,7 +101,19 @@ public class MonsterWrapper {
         return getOwner() != null && getOwner().equals(player.getName());
     }
 
-    public Location getLocation() {
+    public @NotNull Location getLocation() {
         return entity.getLocation();
+    }
+
+    public @Nullable UUID getOwnerUUID() {
+        var owner = getOwner();
+        if (owner == null)
+            return null;
+        var player = Bukkit.getOfflinePlayer(owner);
+        return player.getUniqueId();
+    }
+
+    public EntityType getType() {
+        return getEntity().getType();
     }
 }

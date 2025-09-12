@@ -9,6 +9,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
@@ -33,13 +34,15 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
     private final int MAX_LEVEL = 99;
     private final int MIN_LEVEL = 1;
-    private static final Map<EntityType, Material> SPAWN_EGGS;
+    private static final Set<EntityType> CAPTURABLE_ENTITIES;
 
     private final Map<UUID, BallThrow> monsterBalls = new HashMap<>();
 
     private final JapaneseMinecraft plugin;
 
     private final NamespacedKey ballKey;
+
+    private final Map<UUID, ItemStack> spawnItems = new HashMap<>();
 
     public MonsterBallListener(JapaneseMinecraft plugin) {
         this.plugin = plugin;
@@ -50,11 +53,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         JapaneseMinecraft.runTaskTimer(() -> {
             for (World world : Bukkit.getWorlds()) {
                 for (Entity entity : world.getEntities()) {
-                    if (!SPAWN_EGGS.containsKey(entity.getType()))
-                        continue;
-                    if (!(entity instanceof LivingEntity))
-                        continue;
-                    if (entity instanceof Player)
+                    if (!isMonsterMon(entity))
                         continue;
                     updateEntityName(entity);
                 }
@@ -110,24 +109,38 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
     private record BallThrow(MonsterBall ball, Player whoThrew) {
     }
 
+    private boolean isMonsterMon(Entity entity) {
+        return (entity instanceof LivingEntity) && !(entity instanceof Player) && CAPTURABLE_ENTITIES.contains(entity.getType());
+    }
+
     @EventHandler
     private void onSpawn(EntitySpawnEvent e) {
         var entity = e.getEntity();
-        if (!(entity instanceof LivingEntity))
+        if (!isMonsterMon(entity))
             return;
-        var wrapped = new MonsterWrapper(plugin, ((LivingEntity) entity));
-        var type = e.getEntityType();
 
-        if (!SPAWN_EGGS.containsKey(type)) {
-            return;
-        }
+        /// we can safely cast entity to living entity
+        var wrapped = new MonsterWrapper(plugin, ((LivingEntity) entity));
 
         /// Check if entity does not have level we set it to a random level
         if (wrapped.getLevel() == null)
             wrapped.setLevel(getRandomLevel());
 
-        //todo move this to player interact event
-        //if the player is in creative remove the associated item from their inventory to prevent duplicate MONS
+        var ownerUUID = wrapped.getOwnerUUID();
+
+        ItemStack spawnItem = ownerUUID != null ? spawnItems.remove(ownerUUID) : null;
+
+        /// if the mon was spawned without an item return
+        if (spawnItem == null)
+            return;
+        var onlineOwner = Bukkit.getPlayer(ownerUUID);
+
+        /// if the player is in creative remove the associated item from their inventory to prevent duplicate MONS
+        if (onlineOwner != null && onlineOwner.getGameMode().equals(GameMode.CREATIVE)) {
+            spawnItem.setAmount(spawnItem.getAmount() - 1);
+        }
+
+        /// drop the ball
         if (wrapped.getMonsterBall() != null) {
             entity.getWorld().dropItem(entity.getLocation(), Items.ITEMS.createItemStack(wrapped.getMonsterBall()));
         }
@@ -164,17 +177,16 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         var throwData = monsterBalls.remove(projectile.getUniqueId());
         if (throwData == null)
             return;
-        Player whoThrew = throwData.whoThrew();;
-        if (!(hit instanceof LivingEntity) || hit instanceof Player) {
+        Player whoThrew = throwData.whoThrew();
+
+        if (hit == null) {
             spawnBallOnProjectile(throwData, projectile);
             return;
         }
 
-        var spawn = getSpawnEggMaterial(hit.getType());
-        if (spawn == null) {
+        if (!isMonsterMon(hit)) {
             notifyPlayerOfInvalidCatch(whoThrew);
             spawnBallOnProjectile(throwData, projectile);
-            return;
         }
 
         var wrapped = new MonsterWrapper(plugin, ((LivingEntity) hit));
@@ -195,7 +207,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         var isCurrentOwner = whoThrew.getName().equals(Objects.requireNonNullElse(wrapped.getOwner(), ""));
         var isOwned = wrapped.getOwner() != null;
         if (isCurrentOwner) {
-            handleMonsterBallEnter(throwData, wrapped, entityLevel, spawn);
+            handleMonsterBallEnter(throwData, wrapped, entityLevel);
             var message = Messages.getMessage(whoThrew, "retrieved_creature");
             whoThrew.sendMessage(message
                     .replace("{level}", "" + entityLevel)
@@ -235,7 +247,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         /// InitializeCatch before entering the pokeball
         initializeCatch(throwData, wrapped);
 
-        handleMonsterBallEnter(throwData, wrapped, entityLevel, spawn);
+        handleMonsterBallEnter(throwData, wrapped, entityLevel);
 
         var message = Messages.getMessage(whoThrew, "creature_caught");
         whoThrew.sendMessage(message
@@ -249,10 +261,9 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         var item = player.getInventory().getItem(e.getHand());
         if (Items.isItem(item, Items.LEVEL_CANDY)) {
             var entity = e.getRightClicked();
-            if (!(entity instanceof LivingEntity))
+            if (!isMonsterMon(entity))
                 return;
-            if (!SPAWN_EGGS.containsKey(entity.getType()))
-                return;
+
             var wrapped = new MonsterWrapper(plugin, ((LivingEntity) entity));
 
             /// Check if it is owned by the player first
@@ -266,6 +277,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
                 return;
             if (level >= MAX_LEVEL) {
                 player.sendMessage(Messages.getMessage(player, "item_level_candy_max_level"));
+                return;
             }
 
             item.setAmount(item.getAmount() - 1);
@@ -278,7 +290,8 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
     /// lowest here so that it can be cancelled
     @EventHandler(priority = EventPriority.LOWEST)
     private void onInteract(PlayerInteractEvent e) {
-        if (e.isCancelled()) {
+        /// spawn eggs can only be placed on blocks
+        if (e.isCancelled() || !e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             return;
         }
 
@@ -289,18 +302,11 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         var ballId = pdc.get(ballKey, PersistentDataType.STRING);
         if (ballId == null)
             return;
-
-        /// run a tick later so item metadata can pass through
-        JapaneseMinecraft.runTaskLater(() -> {
-            /// remove item from players inventory in creative to prevent accidental duplicates
-            if (e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
-                item.setAmount(item.getAmount() - 1);
-            }
-        }, 1);
+        spawnItems.put(e.getPlayer().getUniqueId(), item);
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private void handleMonsterBallEnter(BallThrow throwData, MonsterWrapper wrapped, int level, Material spawn) {
+    private void handleMonsterBallEnter(BallThrow throwData, MonsterWrapper wrapped, int level) {
         var loc = wrapped.getLocation();
 
         /// For whatever reason. date is null
@@ -321,7 +327,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         /// Remove entity after snapshot created
         wrapped.getEntity().remove();
 
-        var captured = getCapturedItem(date, level, spawn, snapshot, throwData);
+        var captured = getCapturedItem(date, level, getSpawnEggMaterial(wrapped.getType()), snapshot, throwData);
 
         loc.getWorld().dropItem(loc, captured);
     }
@@ -358,9 +364,12 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         player.sendMessage(Messages.getMessage(player, "uncatchable_creature"));
     }
 
+    /**
+     *
+     * @throws IllegalArgumentException if it cannot retrieve material
+     */
     private Material getSpawnEggMaterial(EntityType type) {
-        /// ANIMALS ONLY
-        return SPAWN_EGGS.get(type);
+        return Material.valueOf(type.name() + "_SPAWN_EGG");
     }
 
     //TODO there is a really wierd back the the item that you used to throw the ball does not have metadata
@@ -416,36 +425,36 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
     static {
         /// Rather than storing the spawm material in the map.
         /// store a list of allowed mobs and then get the material by Material#valueOf(EntityType#name() + _SPAWN_EGG)
-        SPAWN_EGGS = new HashMap<>();
-
-        SPAWN_EGGS.put(EntityType.COW, Material.COW_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.SHEEP, Material.SHEEP_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.PIG, Material.PIG_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.CHICKEN, Material.CHICKEN_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.HORSE, Material.HORSE_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.DONKEY, Material.DONKEY_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.MULE, Material.MULE_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.MOOSHROOM, Material.MOOSHROOM_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.LLAMA, Material.LLAMA_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.TRADER_LLAMA, Material.TRADER_LLAMA_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.OCELOT, Material.OCELOT_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.CAT, Material.CAT_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.RABBIT, Material.RABBIT_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.POLAR_BEAR, Material.POLAR_BEAR_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.TURTLE, Material.TURTLE_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.FOX, Material.FOX_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.WOLF, Material.WOLF_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.PANDA, Material.PANDA_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.PARROT, Material.PARROT_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.CAMEL, Material.CAMEL_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.DOLPHIN, Material.DOLPHIN_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.AXOLOTL, Material.AXOLOTL_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.FROG, Material.FROG_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.BAT, Material.BAT_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.TROPICAL_FISH, Material.TROPICAL_FISH_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.SALMON, Material.SALMON_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.COD, Material.COD_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.PUFFERFISH, Material.PUFFERFISH_SPAWN_EGG);
-        SPAWN_EGGS.put(EntityType.BEE, Material.BEE_SPAWN_EGG);
+        CAPTURABLE_ENTITIES = Set.of(
+                EntityType.COW,
+                EntityType.SHEEP,
+                EntityType.PIG,
+                EntityType.CHICKEN,
+                EntityType.HORSE,
+                EntityType.DONKEY,
+                EntityType.MULE,
+                EntityType.MOOSHROOM,
+                EntityType.LLAMA,
+                EntityType.TRADER_LLAMA,
+                EntityType.OCELOT,
+                EntityType.CAT,
+                EntityType.RABBIT,
+                EntityType.POLAR_BEAR,
+                EntityType.TURTLE,
+                EntityType.FOX,
+                EntityType.WOLF,
+                EntityType.PANDA,
+                EntityType.PARROT,
+                EntityType.CAMEL,
+                EntityType.DOLPHIN,
+                EntityType.AXOLOTL,
+                EntityType.FROG,
+                EntityType.BAT,
+                EntityType.TROPICAL_FISH,
+                EntityType.SALMON,
+                EntityType.COD,
+                EntityType.PUFFERFISH,
+                EntityType.BEE
+        );
     }
 }
