@@ -1,16 +1,19 @@
 package com.loficostudios.japaneseMinecraft.pokemon;
 
 import com.loficostudios.japaneseMinecraft.*;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -36,8 +39,13 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
     private final JapaneseMinecraft plugin;
 
+    private final NamespacedKey ballKey;
+
     public MonsterBallListener(JapaneseMinecraft plugin) {
         this.plugin = plugin;
+
+        /// hehe 'balls'
+        ballKey = new NamespacedKey(plugin, "balls");
 
         JapaneseMinecraft.runTaskTimer(() -> {
             for (World world : Bukkit.getWorlds()) {
@@ -196,7 +204,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
         ///if is owned but player catching is not owner
         } else if (isOwned) {
-            var message = Messages.getMessage(whoThrew, "cannot_catch_others_creatures_en");
+            var message = Messages.getMessage(whoThrew, "cannot_catch_others_creatures");
             whoThrew.sendMessage(message);
             spawnBallOnProjectile(throwData, projectile);
             return;
@@ -215,6 +223,7 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
         } else {
             probability = calculateCatchProbability(capturePower, entityLevel, ((LivingEntity) hit).getHealth(), maxHealth);
         }
+        Debug.log("Catch Probability: " + probability);
 
         boolean success = rand.nextDouble() < probability;
         if (!success) {
@@ -262,8 +271,32 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
             item.setAmount(item.getAmount() - 1);
             wrapped.setLevel(wrapped.getLevel() + 1);
             player.playSound(entity.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-            player.sendMessage(Messages.getMessage(player, "item_level_candy_levelup_en"));
+            player.sendMessage(Messages.getMessage(player, "item_level_candy_levelup"));
         }
+    }
+
+    /// lowest here so that it can be cancelled
+    @EventHandler(priority = EventPriority.LOWEST)
+    private void onInteract(PlayerInteractEvent e) {
+        if (e.isCancelled()) {
+            return;
+        }
+
+        var item = e.getItem();
+        if (item == null || item.getType().equals(Material.AIR) || !item.hasItemMeta())
+            return;
+        var pdc = item.getItemMeta().getPersistentDataContainer();
+        var ballId = pdc.get(ballKey, PersistentDataType.STRING);
+        if (ballId == null)
+            return;
+
+        /// run a tick later so item metadata can pass through
+        JapaneseMinecraft.runTaskLater(() -> {
+            /// remove item from players inventory in creative to prevent accidental duplicates
+            if (e.getPlayer().getGameMode().equals(GameMode.CREATIVE)) {
+                item.setAmount(item.getAmount() - 1);
+            }
+        }, 1);
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -295,17 +328,23 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
     /// [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Catch_rate)
     /// We are using the sword and shield generation for reference for the catch formula
+    /**
+     *
+     * @return a value from 0.0 - 1.0
+     */
     private double calculateCatchProbability(@Range(from = 0, to = 10) double ballCapturePower, double monLevel, double currentHealth, double maxHealth) {
-        double heathFactor = ((3*maxHealth)-(2*currentHealth))/3*maxHealth;
-
         /// We are using the catch rate of caterpie as the default
         /// [キャタピー]https://bulbapedia.bulbagarden.net/wiki/Caterpie_(Pok%C3%A9mon)
-        // catch rate is between 1 and 255
+        /// catch rate is between 1 and 255
         int defaultMonCatchRate = 255;
-        double rateModified = Math.max(1, Math.min(255, defaultMonCatchRate * ballCapturePower));
-        var levelBonus = Math.max((30 - monLevel)/10, 1);
 
-        return 1; //todo change this
+        double healthFactor = (3.0 * maxHealth - 2.0 * currentHealth) / (3.0 * maxHealth);
+        double rateModified = Math.max(1, Math.min(255, defaultMonCatchRate));
+        double levelBonus = Math.max(1.0, (30.0 - monLevel) / 10.0);
+
+        double a = healthFactor * 4096.0 * rateModified * ballCapturePower * levelBonus;
+
+        return Math.min(1.0, a / 65536.0);
     }
 
     /// used for when the ball needs to be drops at where it hit
@@ -345,10 +384,13 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
         /// Create a fresh instance of the item
         var stack = Items.ITEMS.createItemStack(throwData.ball);
+        /// set max stack to 1
+        stack.setData(DataComponentTypes.MAX_STACK_SIZE, 1);
         var throwMeta = stack.getItemMeta();
         if (throwMeta != null) {
             meta.displayName(throwMeta.displayName());
         }
+
 
         /// Formated date yyyy/MM/dd HH:mm
         meta.lore(List.of(
@@ -359,8 +401,8 @@ public class MonsterBallListener implements Listener { //todo maybe?? rename to 
 
         var pdc = meta.getPersistentDataContainer();
 
-        /// RATHER THAN STORING THE BALL ON THE ITEM WE STORE IT ON THE ENTITY
-//        pdc.set(ballKey, PersistentDataType.STRING, throwData.ball().getId());
+        // store ball on item
+        pdc.set(ballKey, PersistentDataType.STRING, throwData.ball().getId());
 
         /// Add random pdc do make the stack unique if caught with the same ball at the same time
         var garbage = UUID.randomUUID()
