@@ -2,9 +2,9 @@ package com.loficostudios.japaneseMinecraft.games;
 
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameManager {
@@ -19,7 +19,7 @@ public class GameManager {
     }
 
     public boolean isGameRunning() {
-        return this.currentGame != null;
+        return this.currentGame != null && currentGame.isActive();
     }
 
     public GameStartResult startGame(String id) {
@@ -39,7 +39,24 @@ public class GameManager {
         this.currentGame = game;
         game.start();
 
-        JapaneseMinecraft.runTaskLater(this::stop, 20L * 60L * game.getLengthMinutes());
+        JapaneseMinecraft.runTaskTimer(new BukkitRunnable() {
+            long elapsedTicks;
+            @Override
+            public void run() {
+                if (!isGameRunning()) {
+                    stop();
+                    this.cancel();
+                    return;
+                }
+
+                elapsedTicks++;
+                long gameLengthTicks = game.getLengthMinutes() * 60L * 20L;
+                if (elapsedTicks >= gameLengthTicks) {
+                    stop();
+                    this.cancel();
+                }
+            }
+        }, 1, 1);
         return GameStartResult.SUCCESS;
     }
 

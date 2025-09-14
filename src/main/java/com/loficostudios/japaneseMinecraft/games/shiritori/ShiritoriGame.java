@@ -3,7 +3,6 @@ package com.loficostudios.japaneseMinecraft.games.shiritori;
 import com.github.jikyo.romaji.Transliterator;
 import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
-import com.loficostudios.japaneseMinecraft.Messages;
 import com.loficostudios.japaneseMinecraft.games.Game;
 import com.loficostudios.japaneseMinecraft.util.JishoAPI;
 import io.papermc.paper.event.player.AsyncChatEvent;
@@ -16,7 +15,6 @@ import org.bukkit.event.Listener;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Function;
 
 public class ShiritoriGame implements Game, Listener { // PLACEHOLDER ADD LATER
 
@@ -98,6 +96,11 @@ public class ShiritoriGame implements Game, Listener { // PLACEHOLDER ADD LATER
     @Override
     public int getMinPlayers() {
         return 2;
+    }
+
+    @Override
+    public String getPrefix() {
+        return PREFIX;
     }
 
     @Override
@@ -188,13 +191,13 @@ public class ShiritoriGame implements Game, Listener { // PLACEHOLDER ADD LATER
 
         ///  Check if the word ends with ん or ン
         if (reading.endsWith("ん") || reading.endsWith("ン")) {
-            sendMessage(sender, "word_ends_with_n", msg -> msg.replace("{points}", "" + INCORRECT_POINTS));
+            notifyPlayer(sender, "word_ends_with_n", msg -> msg.replace("{points}", "" + INCORRECT_POINTS));
             subtractPoints(sender, ShiritoriGame.INCORRECT_POINTS);
             return;
         }
 
         if (usedWords.contains(reading)) {
-            sendMessage(sender, "word_already_used", msg -> msg.replace("{points}", "" + INCORRECT_POINTS));
+            notifyPlayer(sender, "word_already_used", msg -> msg.replace("{points}", "" + INCORRECT_POINTS));
             subtractPoints(sender, ShiritoriGame.INCORRECT_POINTS);
             return;
         }
@@ -204,7 +207,7 @@ public class ShiritoriGame implements Game, Listener { // PLACEHOLDER ADD LATER
         var lastKanaRomaji = Transliterator.transliterate(lastKana).getFirst();
 
         if (!romaji.startsWith(lastKanaRomaji)) {
-            sendMessage(sender, "wrong_kana", msg -> msg
+            notifyPlayer(sender, "wrong_kana", msg -> msg
                     .replace("{kana}", lastKana)
                     .replace("{romaji}", lastKanaRomaji)
                     .replace("{points}", "" + INCORRECT_POINTS));
@@ -218,14 +221,10 @@ public class ShiritoriGame implements Game, Listener { // PLACEHOLDER ADD LATER
                     .replace("{player}", sender.getName()));
         }
 
-        sendMessage(sender, "word_correct", msg -> msg.replace("{points}", "" + CORRECT_POINTS));
+        notifyPlayer(sender, "word_correct", msg -> msg.replace("{points}", "" + CORRECT_POINTS));
         addPoints(sender, CORRECT_POINTS);
 
         usedWords.add(reading);
-    }
-
-    private void sendMessage(Player player, String key, Function<String, String> replacer) {
-        player.sendMessage(PREFIX + replacer.apply(Messages.getMessage(player, key)));
     }
 
     public Map<UUID, Integer> getResults() {
@@ -244,8 +243,6 @@ public class ShiritoriGame implements Game, Listener { // PLACEHOLDER ADD LATER
     public int getLengthMinutes() {
         return 2;
     }
-
-
 
     @Override
     public void end() {

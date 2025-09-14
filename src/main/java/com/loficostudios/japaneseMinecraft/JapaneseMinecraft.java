@@ -5,6 +5,7 @@ import com.loficostudios.forgified.paper.utils.ResourceLoadingUtils;
 import com.loficostudios.japaneseMinecraft.chat.ChatManager;
 import com.loficostudios.japaneseMinecraft.commands.*;
 import com.loficostudios.japaneseMinecraft.games.GameManager;
+import com.loficostudios.japaneseMinecraft.games.KakurenboGame;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriGame;
 import com.loficostudios.japaneseMinecraft.listener.ItemListener;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
@@ -83,10 +84,12 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
         //todo move this out of onEnable
         var shiritori = new ShiritoriGame(2);
+        var kakurenbo = new KakurenboGame();
         Bukkit.getPluginManager().registerEvents(shiritori, this);
+        Bukkit.getPluginManager().registerEvents(kakurenbo, this);
 
         /// Initialize gamemanager with registered games
-        gameManager = new GameManager(List.of(shiritori));
+        gameManager = new GameManager(List.of(shiritori, kakurenbo));
 
         // stub for now
         new SanityManager();
