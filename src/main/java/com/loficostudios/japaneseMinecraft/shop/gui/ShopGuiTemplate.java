@@ -2,10 +2,7 @@ package com.loficostudios.japaneseMinecraft.shop.gui;
 
 import com.loficostudios.forgified.paper.gui.GuiIcon;
 import com.loficostudios.japaneseMinecraft.Debug;
-import com.loficostudios.japaneseMinecraft.shop.Shop;
-import com.loficostudios.japaneseMinecraft.shop.ShopInstance;
-import com.loficostudios.japaneseMinecraft.shop.ShopItem;
-import com.loficostudios.japaneseMinecraft.shop.ShopTransactionResult;
+import com.loficostudios.japaneseMinecraft.shop.*;
 import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -13,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -205,6 +203,77 @@ public class ShopGuiTemplate<Impl extends ShopItem<Impl>> {
             Validate.isTrue(onBuy != null, "OnBuy must not be null");
 
             return new ShopGuiTemplate<>(this);
+        }
+    }
+
+    public static final String SHOP_SUCCESSFULLY_PURCHASED_ITEM = "You successfully purchased {amount}x {item}";
+    public static final String SHOP_NOT_ENOUGH_MONEY = "You do not have enough money to buy {amount}x {item}!";
+    public static final String SHOP_NOT_ENOUGH_INVENTORY_SPACE = "<red>Not enough inventory space!";
+
+    public static <T extends ShopItem<T>> ShopGuiTemplate<T> generic(Component title) {
+        return new ShopGuiTemplate.Builder<T>(5 * 9, (shop) -> title)
+                .onBuy(ShopGuiTemplate::onBuyFunction)
+                .onInstance(((instance, player) -> {
+                }))
+                .setSelectionScreenSize(9)
+                .setSelectionScreenTitle((instance) -> Component.text("Selection Screen"))
+                .setAddAmountButton((instance, amount) -> Component.text("§a+" + amount), (instance, amount) -> List.of())
+                .setRemoveAmountButton((instance, amount) -> Component.text("§c-" + amount), (instance, amount) -> List.of())
+                .icon((instance, icon, amount) -> {
+                    var item = icon.item();
+
+                    var description = icon.description();
+                    if (!description.isEmpty())
+                        description.add(getPriceMessage(instance, icon, amount));
+                    else description = Collections.singletonList(getPriceMessage(instance, icon, amount));
+
+                    icon.description(description);
+                })
+                .build();
+    }
+
+    private static <T extends ShopItem<T>> Component getPriceMessage(ShopInstance<T> instance, GuiIcon icon, int amount) {
+        if (icon == null)
+            return Component.text("NaN");
+
+        var cost = instance.getCost();
+        var total = cost * amount;
+        var base = instance.getBaseCost();
+        var original = base * amount;
+
+        var hasModifiers = !instance.getModifiers().isEmpty() && cost > base || cost < base;
+
+        var line = (String) null;
+        if (instance.getItem() instanceof Stackable && amount > 1) {
+            if (hasModifiers) {
+                line = "§fʀɪᴄᴇ: §e§m${original}§r §e${total} §8§m${cost}§r §8${base} ᴇᴀ"
+                        .replace("{original}", String.format("%.3f", original)).replace("{base}", String.format("%.3f",base))
+                        .replace("{total}", String.format("%.3f", total).replace("{cost}", String.format("%.3f",cost)));
+            } else {
+                line = "§fʀɪᴄᴇ: §e${total} §8${cost} ᴇᴀ"
+                        .replace("{total}", String.format("%.3f", total)).replace("{cost}", String.format("%.3f",cost));
+            }
+        } else {
+            if (hasModifiers) {
+                line = "§fᴘʀɪᴄᴇ: §e§m${original}§r §e${total}"
+                        .replace("{original}", String.format("%.3f", original))
+                        .replace("{total}", String.format("%.3f", total));
+            } else {
+                line = "§fᴘʀɪᴄᴇ: §e${total}"
+                        .replace("{total}", String.format("%.3f", total));
+            }
+        }
+        return Component.text(line);
+    }
+
+    private static <T extends ShopItem<T>> void onBuyFunction(ShopTransactionResult<T> result, Player player) {
+        switch (result.type()) {
+            case NO_INVENTORY_SPACE -> player.sendMessage(SHOP_NOT_ENOUGH_INVENTORY_SPACE);
+            case SUCCESS -> player.sendMessage(SHOP_SUCCESSFULLY_PURCHASED_ITEM.replace("{amount}", "" + result.amount())
+                    .replace("{item}", result.instance().getItem().getName()));
+            case NOT_ENOUGH_MONEY -> player.sendMessage(SHOP_NOT_ENOUGH_MONEY.replace("{amount}", "" +  result.amount())
+                    .replace("{item}", result.instance().getItem().getName()));
+            default -> throw new IllegalArgumentException("Unhandled TransactionResult: " + result.type());
         }
     }
 }

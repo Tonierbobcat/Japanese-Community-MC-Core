@@ -126,84 +126,9 @@ public class ShopCommand implements CommandExecutor {
             }
         });
 
-
-        new ShopGui<>(shop, getGenericShopTemplate(Component.text("Shop")), JapaneseMinecraft::getPlayerProfile)
+        new ShopGui<>(shop, ShopGuiTemplate.generic(Component.text("Shop")), JapaneseMinecraft::getPlayerProfile)
                 .open(sender);
         return true;
-    }
-
-    public static <T extends ShopItem<T>> ShopGuiTemplate<T> getGenericShopTemplate(Component title) {
-        return new ShopGuiTemplate.Builder<T>(5 * 9, (shop) -> title)
-                .onBuy(ShopCommand::onBuy)
-                .onInstance(((instance, player) -> {
-                }))
-                .setSelectionScreenSize(9)
-                .setSelectionScreenTitle((instance) -> Component.text("Selection Screen"))
-                .setAddAmountButton((instance, amount) -> Component.text("§a+" + amount), (instance, amount) -> List.of())
-                .setRemoveAmountButton((instance, amount) -> Component.text("§c-" + amount), (instance, amount) -> List.of())
-                .icon((instance, icon, amount) -> {
-                    var item = icon.item();
-
-                    var description = icon.description();
-                    if (!description.isEmpty())
-                        description.add(getPriceMessage(instance, icon, amount));
-                    else description = Collections.singletonList(getPriceMessage(instance, icon, amount));
-
-                    icon.description(description);
-                })
-                .build();
-    }
-
-    public static <T extends ShopItem<T>> Component getPriceMessage(ShopInstance<T> instance, GuiIcon icon, int amount) {
-        if (icon == null)
-            return Component.text("NaN");
-
-
-        var cost = instance.getCost();
-        var total = cost * amount;
-        var base = instance.getBaseCost();
-        var original = base * amount;
-
-        var hasModifiers = !instance.getModifiers().isEmpty() && cost > base || cost < base;
-
-        var line = (String) null;
-        if (instance.getItem() instanceof Stackable && amount > 1) {
-            if (hasModifiers) {
-                line = "§fʀɪᴄᴇ: §e§m${original}§r §e${total} §8§m${cost}§r §8${base} ᴇᴀ"
-                        .replace("{original}", String.format("%.3f", original)).replace("{base}", String.format("%.3f",base))
-                        .replace("{total}", String.format("%.3f", total).replace("{cost}", String.format("%.3f",cost)));
-            } else {
-                line = "§fʀɪᴄᴇ: §e${total} §8${cost} ᴇᴀ"
-                        .replace("{total}", String.format("%.3f", total)).replace("{cost}", String.format("%.3f",cost));
-            }
-        } else {
-            if (hasModifiers) {
-                line = "§fᴘʀɪᴄᴇ: §e§m${original}§r §e${total}"
-                        .replace("{original}", String.format("%.3f", original))
-                        .replace("{total}", String.format("%.3f", total));
-            } else {
-                line = "§fᴘʀɪᴄᴇ: §e${total}"
-                        .replace("{total}", String.format("%.3f", total));
-            }
-        }
-        return Component.text(line);
-    }
-
-    public static final String SHOP_SUCCESSFULLY_PURCHASED_ITEM = "You successfully purchased {amount}x {item}";
-
-    public static final String SHOP_NOT_ENOUGH_MONEY = "You do not have enough money to buy {amount}x {item}!";
-
-    public static final String SHOP_NOT_ENOUGH_INVENTORY_SPACE = "<red>Not enough inventory space!";
-
-    public static <T extends ShopItem<T>> void onBuy(ShopTransactionResult<T> result, Player player) {
-        switch (result.type()) {
-            case NO_INVENTORY_SPACE -> player.sendMessage(SHOP_NOT_ENOUGH_INVENTORY_SPACE);
-            case SUCCESS -> player.sendMessage(SHOP_SUCCESSFULLY_PURCHASED_ITEM.replace("{amount}", "" + result.amount())
-                    .replace("{item}", result.instance().getItem().getName()));
-            case NOT_ENOUGH_MONEY -> player.sendMessage(SHOP_NOT_ENOUGH_MONEY.replace("{amount}", "" +  result.amount())
-                    .replace("{item}", result.instance().getItem().getName()));
-            default -> throw new IllegalArgumentException("Unhandled TransactionResult: " + result.type());
-        }
     }
 
     private static class VanillaShopItem implements ShopItem<VanillaShopItem>, Stackable, ShopGuiIcon<VanillaShopItem> {
