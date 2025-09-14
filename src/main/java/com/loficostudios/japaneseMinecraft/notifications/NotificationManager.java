@@ -12,21 +12,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+//todo the automated messaging is a bit finicky
 public class NotificationManager {
 
-//    private static final Map<Notification.Type, Long> INTERVALS_SECONDS = Map.of(
-//            Notification.Type.BOUNTY, 220L,
-//            Notification.Type.ANNOUNCEMENT, 300L,
-//            Notification.Type.ALERT, 300L,
-//            Notification.Type.INFO, 120L
-//    );
-
-    /// DEBUG
     private static final Map<Notification.Type, Long> INTERVALS_SECONDS = Map.of(
-            Notification.Type.BOUNTY, 2L,
-            Notification.Type.ANNOUNCEMENT, 5L,
-            Notification.Type.ALERT, 3L,
-            Notification.Type.INFO, 1L
+            Notification.Type.BOUNTY, 220L,
+            Notification.Type.ANNOUNCEMENT, 300L,
+            Notification.Type.ALERT, 300L,
+            Notification.Type.INFO, 120L
     );
 
     /// mapping types to prefixes
@@ -44,11 +37,12 @@ public class NotificationManager {
 
     public NotificationManager(JapaneseMinecraft plugin) {
         loadNotifications(plugin);
-        for (Notification.Type type : Notification.Type.values()) {
-            if (notifications.getOrDefault(type, List.of()).isEmpty())
-                continue;
-            start(type);
-        }
+
+//        for (Notification.Type type : Notification.Type.values()) {
+//            if (notifications.getOrDefault(type, List.of()).isEmpty())
+//                continue;
+//            start(type);
+//        }
     }
 
     private void loadNotifications(JapaneseMinecraft plugin) {
@@ -129,7 +123,7 @@ public class NotificationManager {
             }
 
             nextIndex.put(type, (index + 1) % notifications.size());
-        }, 0, INTERVALS_SECONDS.get(type) * 20L);
+        }, ThreadLocalRandom.current().nextInt(0, 120) * 20L, INTERVALS_SECONDS.get(type) * 20L);
     }
 
     public void sendNotification(Notification notification, Player... players) {
