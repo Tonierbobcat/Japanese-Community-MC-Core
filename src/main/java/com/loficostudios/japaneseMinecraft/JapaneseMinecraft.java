@@ -4,7 +4,8 @@ import com.loficostudios.forgified.paper.IPluginResources;
 import com.loficostudios.forgified.paper.utils.ResourceLoadingUtils;
 import com.loficostudios.japaneseMinecraft.chat.ChatManager;
 import com.loficostudios.japaneseMinecraft.commands.*;
-import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriManager;
+import com.loficostudios.japaneseMinecraft.games.GameManager;
+import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriGame;
 import com.loficostudios.japaneseMinecraft.listener.ItemListener;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
 import com.loficostudios.japaneseMinecraft.listener.PlayerDeathListener;
@@ -24,9 +25,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 public final class JapaneseMinecraft extends JavaPlugin implements IPluginResources {
@@ -51,7 +50,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private ProfileManager profileManager;
 
-    private ShiritoriManager shiritoriManager;
+    private GameManager gameManager;
 
     public JapaneseMinecraft() {
         instance = this;
@@ -81,7 +80,13 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         chatManager = new ChatManager(this);
         notificationManager = new NotificationManager(this);
         profileManager = new ProfileManager(this);
-        shiritoriManager = new ShiritoriManager(this);
+
+        //todo move this out of onEnable
+        var shiritori = new ShiritoriGame(2);
+        Bukkit.getPluginManager().registerEvents(shiritori, this);
+
+        /// Initialize gamemanager with registered games
+        gameManager = new GameManager(List.of(shiritori));
 
         // stub for now
         new SanityManager();
@@ -136,8 +141,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         return weatherManager;
     }
 
-    public ShiritoriManager getShiritoriManager() {
-        return shiritoriManager;
+    public GameManager getGameManager() {
+        return gameManager;
     }
 
     public ChatManager getChatManager() {

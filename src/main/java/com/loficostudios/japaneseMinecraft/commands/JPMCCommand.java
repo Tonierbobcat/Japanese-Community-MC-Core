@@ -33,92 +33,95 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (args.length > 1) {
-            switch (args[0]) {
-                case "suggest" -> {
-                    var suggestion = String.join(" ", args).substring(8).trim();
-                    if (suggestion.isEmpty()) {
-                        var message = Messages.getMessage(sender, "cannot_submit_empty_suggestion");
-                        sender.sendMessage(Component.text(message));
-                        return true;
-                    }
-
-                    suggest(sender, suggestion);
-                    return true;
-                }
-                case "lookup" -> {
-                    lookup(sender, String.join(" ", args).substring(7).trim());
-                    return true;
-                }
-                case "lang" -> {
-                    if (args.length != 2 || (!args[1].equals("en") && !args[1].equals("jp"))) {
-                        sender.sendMessage("Usage: /jpmc lang <en|jp>");
-                        return true;
-                    }
-                    var isJapanese = args[1].equals("jp");
-                    lang(sender, isJapanese);
-                    return true;
-                }
-                case "items" -> {
-                    if (!hasPermission(sender)) {
-                        sender.sendMessage("You do not have permission to use this command.");
-                        return true;
-                    }
-
-                    if (args.length != 2) {
-                        sender.sendMessage("Usage: /jpmc items <id>");
-                        return true;
-                    }
-
-                    var id = args[1];
-
-                    JItem item = Items.ITEMS.getById(id);
-                    if (item == null) {
-                        sender.sendMessage("Item not found.");
-                        return true;
-                    }
-
-                    sender.getInventory().addItem(Items.ITEMS.createItemStack(item));
-                    return true;
-                }
-                case "start-shiritori" -> {
-                    if (!hasPermission(sender)) {
-                        sender.sendMessage("You do not have permission to use this command.");
-                        return true;
-                    }
-                    if (plugin.getShiritoriManager().tryStartNewGame()) {
-                        sender.sendMessage("Started shiritori");
-                    } else {
-                        sender.sendMessage("Could not start shiritori. too few players or there is already a game running");
-                    }
-                    return true;
-                }
-                case "post-bounty" -> {
-                    if (!hasPermission(sender)) {
-                        sender.sendMessage("You do not have permission to use this command.");
-                        return true;
-                    }
-                    var message = args[1];
-                    var reward = args[2];
-
-                    /// run async because of file io
-                    var file = new File(plugin.getDataFolder(), "bounties.yaml");
-                    JapaneseMinecraft.runTaskAsynchronously(() -> {
-                        new BountyService(file)
-                                .post(new BountyService.Bounty(message, Double.parseDouble(reward)));
-                        sender.sendMessage("Successfully posted bounty");
-                    });
-
-                    return true;
-                }
-                default -> {
-                    sender.sendMessage("Unknown Command.");
-                    return true;
-                }
-            }
-        } else {
+        if (args.length < 1) {
             sender.sendMessage("Invalid command");
             return true;
+        }
+
+        switch (args[0]) {
+            case "suggest" -> {
+                var suggestion = String.join(" ", args).substring(8).trim();
+                if (suggestion.isEmpty()) {
+                    var message = Messages.getMessage(sender, "cannot_submit_empty_suggestion");
+                    sender.sendMessage(Component.text(message));
+                    return true;
+                }
+
+                suggest(sender, suggestion);
+                return true;
+            }
+            case "lookup" -> {
+                lookup(sender, String.join(" ", args).substring(7).trim());
+                return true;
+            }
+            case "lang" -> {
+                if (args.length != 2 || (!args[1].equals("en") && !args[1].equals("jp"))) {
+                    sender.sendMessage("Usage: /jpmc lang <en|jp>");
+                    return true;
+                }
+                var isJapanese = args[1].equals("jp");
+                lang(sender, isJapanese);
+                return true;
+            }
+            case "items" -> {
+                if (!hasPermission(sender)) {
+                    sender.sendMessage("You do not have permission to use this command.");
+                    return true;
+                }
+
+                if (args.length != 2) {
+                    sender.sendMessage("Usage: /jpmc items <id>");
+                    return true;
+                }
+
+                var id = args[1];
+
+                JItem item = Items.ITEMS.getById(id);
+                if (item == null) {
+                    sender.sendMessage("Item not found.");
+                    return true;
+                }
+
+                sender.getInventory().addItem(Items.ITEMS.createItemStack(item));
+                return true;
+            }
+            case "start-game" -> {
+                if (!hasPermission(sender)) {
+                    sender.sendMessage("You do not have permission to use this command.");
+                    return true;
+                }
+
+                var result = plugin.getGameManager().startGame(args[1]);
+
+                if (!result.isSuccess()) {
+                    sender.sendMessage("Could not start game. " + Common.formatEnumName(result));
+                    return true;
+                }
+                sender.sendMessage("Successfully started game!");
+                return true;
+            }
+            case "post-bounty" -> {
+                if (!hasPermission(sender)) {
+                    sender.sendMessage("You do not have permission to use this command.");
+                    return true;
+                }
+                var message = args[1];
+                var reward = args[2];
+
+                /// run async because of file io
+                var file = new File(plugin.getDataFolder(), "bounties.yaml");
+                JapaneseMinecraft.runTaskAsynchronously(() -> {
+                    new BountyService(file)
+                            .post(new BountyService.Bounty(message, Double.parseDouble(reward)));
+                    sender.sendMessage("Successfully posted bounty");
+                });
+
+                return true;
+            }
+            default -> {
+                sender.sendMessage("Unknown Command.");
+                return true;
+            }
         }
     }
 
@@ -131,7 +134,7 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             var commands = new ArrayList<>(List.of("suggest", "lookup", "lang", "items"));
             if (hasPermission(sender)) {
-                commands.addAll(List.of("start-shiritori", "post-bounty"));
+                commands.addAll(List.of("start-game", "post-bounty"));
             }
             return commands;
         } else if (args.length == 2) {
