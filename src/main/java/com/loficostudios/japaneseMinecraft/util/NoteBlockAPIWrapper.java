@@ -25,6 +25,15 @@ public class NoteBlockAPIWrapper {
         return ppp.containsKey(sender.getUniqueId());
     }
 
+    public String getCurrentSong(Player sender) {
+        var player = ppp.get(sender.getUniqueId());
+        if (player == null)
+            return null;
+        var title = player.getSong().getTitle();
+        var key = player.getSong().getPath();
+        return key.getName();
+    }
+
     /// I am not sure if I am going to keep this
     public enum SongPlayerType {RADIO,POSITION,NOTE_BLOCK,ENTITY}
 

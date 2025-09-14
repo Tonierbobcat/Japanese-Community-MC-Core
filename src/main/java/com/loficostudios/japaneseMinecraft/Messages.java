@@ -43,8 +43,8 @@ public class Messages {
 
     private static final Map<String, String> messages;
 
-    private static final String ERROR_MESSAGE = "!!!ERROR!!! Please report this to a server admin: missing message key <key>";
-    private static final String ERROR_MESSAGE_JP = "サーバー管理者にこれを報告してください: メッセージキーが見つかりません <key>";
+    private static final String ERROR_MESSAGE = "!!!ERROR!!! Please report this to a server admin: missing message title <title>";
+    private static final String ERROR_MESSAGE_JP = "サーバー管理者にこれを報告してください: メッセージキーが見つかりません <title>";
 
     private static final String CANNOT_PVP_EN = "You cannot PvP on this server.";
     private static final String CANNOT_PVP_JP = "このサーバーではPvPできません。";
@@ -98,7 +98,7 @@ public class Messages {
     private static final String NOW_PLAYING_EN = "Now Playing §6{song}§r...";
     //TODO JAPANESE
 
-    private static final String MUST_ENTER_VALID_SONG_ID_EN = "You must enter a valid song. '{key}' If you think this a mistake please contact admins";
+    private static final String MUST_ENTER_VALID_SONG_ID_EN = "You must enter a valid song. '{title}' If you think this a mistake please contact admins";
     //TODO JAPANESE
 
 
@@ -107,7 +107,7 @@ public class Messages {
         key = key + (isJapanese ? "_jp" : "_en");
         var message = messages.get(key);
         return message != null && !message.isEmpty() ? message : (isJapanese ? ERROR_MESSAGE_JP : ERROR_MESSAGE)
-                .replace("<key>", key);
+                .replace("<title>", key);
     }
 
     static {

@@ -4,10 +4,7 @@ import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Messages;
 import com.loficostudios.japaneseMinecraft.spicify.SpicifyService;
-import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import com.xxmicloxx.NoteBlockAPI.model.Playlist;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,9 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /// This command allows the player to play music and to create playlists
@@ -58,9 +53,9 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                 var key = String.join(" ", strings);
 
                 if (key.isEmpty()){
-                    /// Send key is empty text rather than invalid key
+                    /// Send title is empty text rather than invalid title
                     sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
-                            .replace("{key}", key));
+                            .replace("{title}", key));
                     return true;
                 }
 
@@ -69,14 +64,14 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
                 } catch (Exception ignore) {
                     sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
-                            .replace("{key}", key));
+                            .replace("{title}", key));
 
                     // move to messages
                     var eng = "Use '/spicify list' to view a list of our library!";
                     sender.sendMessage(SpicifyService.PREFIX + eng);
                     return true;
                 }
-                sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", Common.formatEnumName(key)));
+                sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", key));
             }
             case "stop" -> {
                 var wasListening = service.isListening(sender);
@@ -91,7 +86,8 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                 if (args.length > 1) {
                     try {
                         page = Integer.parseInt(args[1]);
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
                     }
                 }
 
@@ -101,7 +97,18 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                 var strings = service.getSongKeys();
                 sender.sendMessage(service.getPage(strings, page));
             }
+            case "current" -> {
+                var song = service.getCurrentSong(sender);
+                if (song == null) {
+                    sender.sendMessage(SpicifyService.PREFIX + "You are currently not listening to anything");
+                    return true;
+                }
+                sender.sendMessage(SpicifyService.PREFIX + "Listening to {current} §l{likes} §f[§c❤§f]"
+                                .replace("{likes}", "" + song.likes())
+                        .replace("{current}", song.title()));
+            }
         }
+
         return true;
     }
 

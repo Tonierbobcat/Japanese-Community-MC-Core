@@ -6,6 +6,7 @@ import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -115,5 +116,15 @@ public class SpicifyService {
 
     public void stopSong(Player sender) {
         wrapper.stopSong(sender);
+    }
+
+    public @Nullable SpicifySong getCurrentSong(Player sender) {
+        var key = wrapper.getCurrentSong(sender);
+        if (key == null)
+            return null;
+        return new SpicifySong(key, 0);
+    }
+
+    public record SpicifySong(String title, int likes) {
     }
 }
