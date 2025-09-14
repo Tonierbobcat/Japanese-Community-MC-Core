@@ -1,5 +1,6 @@
 package com.loficostudios.japaneseMinecraft.shop.gui;
 
+import com.loficostudios.forgified.paper.gui.GuiIcon;
 import com.loficostudios.japaneseMinecraft.shop.ShopInstance;
 import com.loficostudios.japaneseMinecraft.shop.ShopItem;
 import org.bukkit.entity.Player;

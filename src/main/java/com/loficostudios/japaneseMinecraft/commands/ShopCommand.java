@@ -1,11 +1,11 @@
 package com.loficostudios.japaneseMinecraft.commands;
 
+import com.loficostudios.forgified.paper.gui.GuiIcon;
 import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.Debug;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.shop.*;
-import com.loficostudios.japaneseMinecraft.shop.gui.GuiIcon;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGui;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGuiIcon;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGuiTemplate;

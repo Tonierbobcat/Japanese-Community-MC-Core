@@ -1,5 +1,8 @@
 package com.loficostudios.japaneseMinecraft.shop.gui;
 
+import com.loficostudios.forgified.paper.gui.GuiIcon;
+import com.loficostudios.forgified.paper.gui.Paginated;
+import com.loficostudios.forgified.paper.gui.PopOutGui;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.shop.Shop;
 import com.loficostudios.japaneseMinecraft.shop.ShopInstance;

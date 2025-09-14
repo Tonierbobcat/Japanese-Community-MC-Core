@@ -14,7 +14,6 @@ import com.loficostudios.japaneseMinecraft.pokemon.MonsterBallListener;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.profile.ProfileManager;
 import com.loficostudios.japaneseMinecraft.sanity.SanityManager;
-import com.loficostudios.japaneseMinecraft.shop.gui.GuiManager;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -100,7 +99,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private void registerEvents() {
         Arrays.asList(
-                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this), new MonsterBallListener(this), new ItemListener(), new GuiManager()
+                new PlayerListener(this), new MobListener(), new PlayerDeathListener(this), new MonsterBallListener(this), new ItemListener()
         ).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
     }
 
