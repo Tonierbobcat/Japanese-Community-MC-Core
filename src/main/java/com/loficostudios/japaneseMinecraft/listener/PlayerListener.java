@@ -1,6 +1,7 @@
 package com.loficostudios.japaneseMinecraft.listener;
 
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import com.loficostudios.japaneseMinecraft.Messages;
 import com.loficostudios.japaneseMinecraft.WeatherManager;
 import com.loficostudios.japaneseMinecraft.notifications.Notification;
 import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
@@ -11,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,6 +22,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +32,6 @@ public class PlayerListener implements Listener {
 
     private static final String JOIN_MESSAGE = "§a§l+ §f<player>";
     private static final String QUIT_MESSAGE = "§c§l- §f<player>";
-
-    private static final List<Notification> NOTIFICATIONS;
 
     private final BossBar overlay;
 
@@ -77,31 +80,10 @@ public class PlayerListener implements Listener {
 
         overlay.addPlayer(player);
 
-        // TODO Move these to a NotificationManager
+        /// run a tick later so that the profile loads
         JapaneseMinecraft.runTaskLater(() -> {
-
-            if (NOTIFICATIONS.isEmpty())
-                return;
-
-            player.sendMessage(" ");
-
-            plugin.getNotificationManager().sendNotification(NOTIFICATIONS.getFirst(), player);
-
-            int[] index = {1};
-            JapaneseMinecraft.runTaskTimer((runnable) -> {
-
-                final int max = NOTIFICATIONS.size();
-                if (index[0] >= max) {
-                    runnable.cancel();
-                    return;
-                }
-
-                player.sendMessage(" ");
-                plugin.getNotificationManager().sendNotification(NOTIFICATIONS.get(index[0]), player);
-
-                index[0]++;
-            }, 20L*10L, 20L*10L);
-        }, 30L);
+            sendWelcomeMessage(player);
+        }, 1);
     }
 
     @EventHandler
@@ -112,6 +94,10 @@ public class PlayerListener implements Listener {
             if(block != null && block.getType().equals(Material.FARMLAND))
                 e.setCancelled(true);
         }
+    }
+
+    private void sendWelcomeMessage(Player player) {
+        player.sendMessage(JapaneseMinecraft.parseText(player, Messages.getMessage(player, "welcome_message")));
     }
 
     private void updateDisplay(Player player) {
@@ -148,37 +134,5 @@ public class PlayerListener implements Listener {
                 moneyText + " §r| " +
                 timeText + " §r| " +
                 weatherText));
-    }
-
-    static {
-        String[] englishWelcomeMessage = {
-                "Welcome, {player}, to the JP-ENG community server!",
-                "This server is a work in progress. Features may be added or changed over time.",
-                "If you have any suggestions, please use /jpmc suggest <suggestion>",
-                "Enjoy your time here!",
-        };
-        String[] japaneseWelcomeMessage = {
-                "ようこそ、{player}さん、JP-ENGコミュニティサーバーへ！",
-                "このサーバーは進行中のプロジェクトです。機能は時間とともに追加または変更される場合があります。",
-                "ご提案がございましたら、/jpmc suggest <提案> をご利用ください。",
-                "ここでの時間をお楽しみください！",
-                " ",
-                " - 開発者注記。あなたが望むかもしれない機能をコード化/追加することができます。"
-        };
-
-        NOTIFICATIONS = List.of(
-                new Notification(
-                        String.join("\n", englishWelcomeMessage),
-                        String.join("\n", japaneseWelcomeMessage),
-                        Notification.Type.INFO),
-                new Notification(
-                        "This is an open source project! Check out the code, report issues, or contribute on GitHub!\n<aqua>Github: <click:open_url:{github_url}>Japanese-Community-MC-Core</click>",
-                        "これはオープンソースプロジェクトです！コードを確認したり、問題を報告したり、GitHubで貢献したりしてください！",
-                        Notification.Type.INFO),
-                new Notification(
-                        "Looking for someone to draw a 64x64 server icon. Apply on the Discord!",
-                        "64x64のサーバーアイコンを描いてくれる人を探しています。Discordで応募してください！",
-                        Notification.Type.BOUNTY)
-        );
     }
 }

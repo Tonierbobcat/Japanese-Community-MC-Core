@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -59,7 +60,7 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 case "items" -> {
-                    if (!sender.isOp()) {
+                    if (!hasPermission(sender)) {
                         sender.sendMessage("You do not have permission to use this command.");
                         return true;
                     }
@@ -81,7 +82,7 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 case "start-shiritori" -> {
-                    if (!sender.isOp()) {
+                    if (!hasPermission(sender)) {
                         sender.sendMessage("You do not have permission to use this command.");
                         return true;
                     }
@@ -90,6 +91,24 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                     } else {
                         sender.sendMessage("Could not start shiritori. too few players or there is already a game running");
                     }
+                    return true;
+                }
+                case "post-bounty" -> {
+                    if (!hasPermission(sender)) {
+                        sender.sendMessage("You do not have permission to use this command.");
+                        return true;
+                    }
+                    var message = args[1];
+                    var reward = args[2];
+
+                    /// run async because of file io
+                    var file = new File(plugin.getDataFolder(), "bounties.yaml");
+                    JapaneseMinecraft.runTaskAsynchronously(() -> {
+                        new BountyService(file)
+                                .post(new BountyService.Bounty(message, Double.parseDouble(reward)));
+                        sender.sendMessage("Successfully posted bounty");
+                    });
+
                     return true;
                 }
                 default -> {
@@ -103,15 +122,23 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private boolean hasPermission(CommandSender sender) {
+        return sender.isOp();
+    }
+
     @Override
     public @NotNull List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return List.of("suggest", "lookup", "lang", "items", "start-shiritori");
+            var commands = new ArrayList<>(List.of("suggest", "lookup", "lang", "items"));
+            if (hasPermission(sender)) {
+                commands.addAll(List.of("start-shiritori", "post-bounty"));
+            }
+            return commands;
         } else if (args.length == 2) {
             if (args[0].equals("lang")) {
                 return List.of("en", "jp");
             } else if (args[0].equals("items")) {
-                if (!sender.isOp()) {
+                if (!hasPermission(sender)) {
                     return Collections.emptyList();
                 }
                 return Items.ITEMS.getRegistered().stream().map(JItem::getId).toList();

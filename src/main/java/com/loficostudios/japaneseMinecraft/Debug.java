@@ -15,4 +15,8 @@ public class Debug {
     public static void logError(String s) {
         Bukkit.getLogger().log(Level.SEVERE, "[JapaneseMinecraft] " + s);
     }
+
+    public static void logWarning(String s) {
+        Bukkit.getLogger().log(Level.WARNING, "[JapaneseMinecraft] " + s);
+    }
 }

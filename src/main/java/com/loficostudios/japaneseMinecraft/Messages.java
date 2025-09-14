@@ -7,6 +7,18 @@ import java.util.Map;
 
 public class Messages {
 
+    private static final String WELCOME_MESSAGE_EN = """
+             Welcome, {player}, to the JP-ENG community server!
+             This server is a work in progress. Features may be added or changed over time.
+             If you have any suggestions, please use /jpmc suggest <suggestion>
+             Enjoy your time here!
+             """;
+    private static final String WELCOME_MESSAGE_JP = """
+            ようこそ、{player}さん、JP-ENGコミュニティサーバーへ！
+            このサーバーは進行中のプロジェクトです。機能は時間とともに追加または変更される場合があります。
+            ご提案がございましたら、/jpmc suggest <提案> をご利用ください。
+            ここでの時間をお楽しみください！
+            """;
 
     private static final String GLOBAL_PLAYER_REVIVED_EN = "%s has been revived by a mysterious garden spirit!";
     private static final String GLOBAL_PLAYER_REVIVED_JP = "%sは神秘的な庭の精霊によって復活しました！";
@@ -93,8 +105,9 @@ public class Messages {
     public static String getMessage(Player player, String key) {
         boolean isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(player);
         key = key + (isJapanese ? "_jp" : "_en");
-        return messages.getOrDefault(key, (isJapanese ? ERROR_MESSAGE_JP : ERROR_MESSAGE)
-                .replace("<key>", key));
+        var message = messages.get(key);
+        return message != null && !message.isEmpty() ? message : (isJapanese ? ERROR_MESSAGE_JP : ERROR_MESSAGE)
+                .replace("<key>", key);
     }
 
     static {
@@ -136,6 +149,9 @@ public class Messages {
 
         messages.put("cannot_catch_others_creatures_en", CANNOT_CATCH_OTHERS_CREATURES_EN);
         //TODO JAPANESE
+
+        messages.put("welcome_message_en", WELCOME_MESSAGE_EN);
+        messages.put("welcome_message_jp", WELCOME_MESSAGE_JP);
 
         messages.put("global_player_revived_en", GLOBAL_PLAYER_REVIVED_EN);
         messages.put("global_player_revived_jp", GLOBAL_PLAYER_REVIVED_JP);

@@ -79,7 +79,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         /// Initializes managers
         weatherManager = new WeatherManager();
         chatManager = new ChatManager(this);
-        notificationManager = new NotificationManager();
+        notificationManager = new NotificationManager(this);
         profileManager = new ProfileManager(this);
         shiritoriManager = new ShiritoriManager(this);
 

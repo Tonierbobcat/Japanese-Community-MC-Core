@@ -23,6 +23,33 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 public class ShopCommand implements CommandExecutor {
+    private static final Map<Material, Integer> ITEMS;
+    private final Shop<VanillaShopItem> SHOP = Shop.create(ITEMS.entrySet().stream().map(a -> new ShopInstance<>(false, a.getValue(), new VanillaShopItem(a.getKey()))).toList(), new EconomyProvider() {
+        @Override
+        public boolean has(PlayerProfile player, double amount) {
+            return player.hasMoney(((int) Math.round(amount)));
+        }
+
+        @Override
+        public boolean withdrawalPlayer(PlayerProfile player, double amount) {
+            player.subtractMoney(amount);
+            return true;
+        }
+
+        @Override
+        public boolean depositPlayer(PlayerProfile player, double amount) {
+            player.addMoney(amount);
+            return true;
+        }
+    });
+
+    public ShopCommand() {
+        for (ShopInstance<VanillaShopItem> instance : SHOP.getInstances()) {
+            instance.removeModifier("builder-sale");
+            instance.addModifier(new CostModifier("builder-sale", 0.5, Operation.MULTIPLY));
+        }
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
         if (!(commandSender instanceof Player sender)) {
@@ -30,6 +57,44 @@ public class ShopCommand implements CommandExecutor {
             return true;
         }
 
+        new ShopGui<>(SHOP, ShopGuiTemplate.generic(Component.text("Shop")), JapaneseMinecraft::getPlayerProfile)
+                .open(sender);
+        return true;
+    }
+
+    private static class VanillaShopItem implements ShopItem<VanillaShopItem>, Stackable, ShopGuiIcon<VanillaShopItem> {
+        private final Material material;
+
+        private VanillaShopItem(Material material) {
+            this.material = material;
+        }
+
+        @Override
+        public ShopTransactionResult<VanillaShopItem> onBuy(ShopInstance<VanillaShopItem> instance, int amount, PlayerProfile profile) {
+            var player = profile.getPlayer();
+            if (player == null) {
+                Debug.logError("player is not online!!");
+                return new ShopTransactionResult<>(instance, amount, ShopTransactionResult.Type.FAILURE);
+            }
+            var stack = new ItemStack(material, Math.max(amount, 1));
+            player.getInventory().addItem(stack);
+            return new ShopTransactionResult<>(instance, amount, ShopTransactionResult.Type.SUCCESS);
+        }
+
+        @Override
+        public String getName() {
+            return Common.formatEnumName(material);
+        }
+
+        @Override
+        public GuiIcon getIcon(ShopInstance<VanillaShopItem> instance, int amount, BiConsumer<Player, ClickType> onClick) {
+            var icon = new GuiIcon(instance.getItem().material, Component.text(instance.getItem().getName()));
+            icon.onClick(onClick);
+            return icon;
+        }
+    }
+
+    static {
         Map<Material, Integer> items = new LinkedHashMap<>();
 
         items.put(Material.OAK_LOG, 5);
@@ -107,59 +172,6 @@ public class ShopCommand implements CommandExecutor {
             items.put(Material.valueOf(color + "_CONCRETE_POWDER"), prices.get("CONCRETE_POWDER"));
         }
 
-        var shop = Shop.create(items.entrySet().stream().map(a -> new ShopInstance<>(a.getValue(), new VanillaShopItem(a.getKey()))).toList(), new EconomyProvider() {
-            @Override
-            public boolean has(PlayerProfile player, double amount) {
-                return player.hasMoney(((int) Math.round(amount)));
-            }
-
-            @Override
-            public boolean withdrawalPlayer(PlayerProfile player, double amount) {
-                player.subtractMoney(((int) Math.round(amount)));
-                return true;
-            }
-
-            @Override
-            public boolean depositPlayer(PlayerProfile player, double amount) {
-                player.addMoney(((int) Math.round(amount)));
-                return true;
-            }
-        });
-
-        new ShopGui<>(shop, ShopGuiTemplate.generic(Component.text("Shop")), JapaneseMinecraft::getPlayerProfile)
-                .open(sender);
-        return true;
-    }
-
-    private static class VanillaShopItem implements ShopItem<VanillaShopItem>, Stackable, ShopGuiIcon<VanillaShopItem> {
-        private final Material material;
-
-        private VanillaShopItem(Material material) {
-            this.material = material;
-        }
-
-        @Override
-        public ShopTransactionResult<VanillaShopItem> onBuy(ShopInstance<VanillaShopItem> instance, int amount, PlayerProfile profile) {
-            var player = profile.getPlayer();
-            if (player == null) {
-                Debug.logError("player is not online!!");
-                return new ShopTransactionResult<>(instance, amount, ShopTransactionResult.Type.FAILURE);
-            }
-            var stack = new ItemStack(material, Math.max(amount, 1));
-            player.getInventory().addItem(stack);
-            return new ShopTransactionResult<>(instance, amount, ShopTransactionResult.Type.SUCCESS);
-        }
-
-        @Override
-        public String getName() {
-            return Common.formatEnumName(material);
-        }
-
-        @Override
-        public GuiIcon getIcon(ShopInstance<VanillaShopItem> instance, int amount, BiConsumer<Player, ClickType> onClick) {
-            var icon = new GuiIcon(instance.getItem().material, Component.text(instance.getItem().getName()));
-            icon.onClick(onClick);
-            return icon;
-        }
+        ITEMS = items;
     }
 }

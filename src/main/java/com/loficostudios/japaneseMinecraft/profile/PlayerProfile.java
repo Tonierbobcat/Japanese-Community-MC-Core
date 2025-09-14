@@ -19,7 +19,7 @@ public class PlayerProfile {
     private final File file;
     private final FileConfiguration config;
 
-    private long money;
+    private double money;
 
     private int lives;
     private Language language;
@@ -47,7 +47,7 @@ public class PlayerProfile {
         this.file = file;
         this.config = YamlConfiguration.loadConfiguration(file);
         this.lives = config.getInt("lives", DEFAULT_LIVES);
-        this.money = config.getLong("money", 0);
+        this.money = config.getDouble("money", 0.0);
 
         /// Start at 100
         this.sanity = config.getDouble("sanity", MAX_SANITY);
@@ -72,22 +72,22 @@ public class PlayerProfile {
         return Math.min(sanity, MAX_SANITY);
     }
 
-    public boolean hasMoney(int amount) {
+    public boolean hasMoney(double amount) {
         return money >= amount;
     }
 
     /// WILL OVERDRAW
-    public void subtractMoney(int amount) {
+    public void subtractMoney(double amount) {
         money -= amount;
         save();
     }
 
-    public void addMoney(int amount) {
+    public void addMoney(double amount) {
         money += amount;
         save();
     }
 
-    public long getMoney() {
+    public double getMoney() {
         return money;
     }
 
