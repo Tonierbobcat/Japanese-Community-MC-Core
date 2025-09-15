@@ -74,7 +74,8 @@ public class SpicifyService {
             }
 
             var song = paginated.get(i);
-            var playIcon = "<click:run_command:/spicify play {song}>{spicify-color}▶</click>";
+//            var playIcon = "<click:run_command:/spicify play {song}>{spicify-color}▶</click>";
+            var playIcon = "{spicify-color}▶";
 
             format.add(line
                     .replace("{play-icon}", playIcon.replace("{spicify-color}", COLOR_MM))
