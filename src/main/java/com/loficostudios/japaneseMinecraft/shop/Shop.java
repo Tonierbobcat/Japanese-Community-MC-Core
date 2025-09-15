@@ -30,7 +30,7 @@ public interface Shop<Impl extends ShopItem<Impl>> {
                 if (!provider.has(player, cost)) {
                     return new ShopTransactionResult<>(instance, amount, ShopTransactionResult.Type.NOT_ENOUGH_MONEY);
                 }
-                if (!provider.withdrawalPlayer(player, cost)) {
+                if (!provider.withdrawPlayer(player, cost)) {
                     return new ShopTransactionResult<>(instance, amount, ShopTransactionResult.Type.FAILURE);
                 }
 

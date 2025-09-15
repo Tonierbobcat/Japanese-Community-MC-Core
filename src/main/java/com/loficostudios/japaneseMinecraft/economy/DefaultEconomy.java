@@ -1,10 +1,9 @@
-package com.loficostudios.japaneseMinecraft;
+package com.loficostudios.japaneseMinecraft.economy;
 
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.shop.EconomyProvider;
-import org.apache.commons.lang3.Validate;
 
-public class Economy implements EconomyProvider {
+public class DefaultEconomy implements EconomyProvider {
 
     @Override
     public boolean has(PlayerProfile player, double amount) {
@@ -12,7 +11,12 @@ public class Economy implements EconomyProvider {
     }
 
     @Override
-    public boolean withdrawalPlayer(PlayerProfile player, double amount) {
+    public double getBalance(PlayerProfile player) {
+        return player.getMoney();
+    }
+
+    @Override
+    public boolean withdrawPlayer(PlayerProfile player, double amount) {
         player.subtractMoney(amount);
         return true;
     }

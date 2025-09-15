@@ -4,6 +4,8 @@ import com.loficostudios.forgified.paper.IPluginResources;
 import com.loficostudios.forgified.paper.utils.ResourceLoadingUtils;
 import com.loficostudios.japaneseMinecraft.chat.ChatManager;
 import com.loficostudios.japaneseMinecraft.commands.*;
+import com.loficostudios.japaneseMinecraft.economy.DefaultEconomy;
+import com.loficostudios.japaneseMinecraft.economy.VaultEconomy;
 import com.loficostudios.japaneseMinecraft.games.GameManager;
 import com.loficostudios.japaneseMinecraft.games.KakurenboGame;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriGame;
@@ -16,11 +18,15 @@ import com.loficostudios.japaneseMinecraft.pokemon.MonsterBallListener;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.profile.ProfileManager;
 import com.loficostudios.japaneseMinecraft.sanity.SanityManager;
+import com.loficostudios.japaneseMinecraft.shop.EconomyProvider;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -53,7 +59,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private GameManager gameManager;
 
-    private Economy economy;
+    private EconomyProvider economy;
 
     public JapaneseMinecraft() {
         instance = this;
@@ -84,8 +90,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         notificationManager = new NotificationManager(this);
         profileManager = new ProfileManager(this);
 
-        /// initialize economy after profile manager
-        economy = new Economy();
+        /// initialize economy after profile manager loads
+        setupEconomy();
 
         //todo move this out of onEnable
         var shiritori = new ShiritoriGame(2);
@@ -106,8 +112,24 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         registerCommands();
 
         /// Start announcement task
+        //todo move this to notification manager
         startAnnouncementTask();
+    }
 
+    public void setupEconomy() {
+        EconomyProvider provider;
+        try {
+            Class.forName("net.milkbowl.vault.economy.Economy");
+            var vaultEconomy = new VaultEconomy(this);
+            getServer().getServicesManager().register(Economy.class, vaultEconomy, this, ServicePriority.Normal);
+            provider = vaultEconomy;
+            Debug.log("Registered vault economy to ServicesManager");
+        } catch (ClassNotFoundException e) {
+            /// we still create a provider, we are just not registering it with RSP
+            Debug.logWarning("Vault not installed. Could not register economy to ServicesManager.");
+            provider = new DefaultEconomy();
+        }
+        this.economy = provider;
     }
 
     private void registerEvents() {
@@ -166,11 +188,15 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         return getFile();
     }
 
-    public Economy getEconomy() {
+    public ProfileManager getProfileManager() {
+        return profileManager;
+    }
+
+    public EconomyProvider getEconomy() {
         return economy;
     }
 
-    public static Economy getEconomyProvider() {
+    public static EconomyProvider getEconomyProvider() {
         return instance.getEconomy();
     }
 

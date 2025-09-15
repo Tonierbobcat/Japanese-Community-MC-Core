@@ -1,6 +1,7 @@
 package com.loficostudios.japaneseMinecraft.profile;
 
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -35,5 +36,13 @@ public class ProfileManager implements Listener {
 
     public PlayerProfile getProfile(UUID uuid) {
         return profiles.get(uuid);
+    }
+
+    public PlayerProfile getOrCreateOfflineProfile(OfflinePlayer offlinePlayer) {
+        if (offlinePlayer.isOnline()) {
+            return getProfile(offlinePlayer.getUniqueId());
+        }
+
+        return profiles.computeIfAbsent(offlinePlayer.getUniqueId(), (uuid) -> new PlayerProfile(plugin, offlinePlayer));
     }
 }

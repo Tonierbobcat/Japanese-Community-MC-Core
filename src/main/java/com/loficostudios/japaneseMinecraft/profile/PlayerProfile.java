@@ -3,6 +3,7 @@ package com.loficostudios.japaneseMinecraft.profile;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Language;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -29,6 +30,10 @@ public class PlayerProfile {
     private double sanity;
 
     public PlayerProfile(JapaneseMinecraft plugin, Player player) {
+        this(plugin, (OfflinePlayer) player);
+    }
+
+    public PlayerProfile(JapaneseMinecraft plugin, OfflinePlayer player) {
         this.uuid = player.getUniqueId();
         var file = new File(plugin.getDataFolder(), "players" + File.separator + player.getUniqueId() + ".yml");
 
@@ -56,9 +61,13 @@ public class PlayerProfile {
             var string = config.getString("language", "OTHER");
             this.language = Language.valueOf(string);
         } catch (IllegalArgumentException e) {
-            var local = player.locale();
-            var isJapanese = local.equals(Locale.JAPANESE) || local.equals(Locale.JAPAN);
-            this.language = isJapanese ? Language.JAPANESE : Language.ENGLISH;
+            if (player.isOnline() && player.getPlayer() != null) {
+                var local = player.getPlayer().locale();
+                var isJapanese = local.equals(Locale.JAPANESE) || local.equals(Locale.JAPAN);
+                this.language = isJapanese ? Language.JAPANESE : Language.ENGLISH;
+            } else {
+                this.language = Language.ENGLISH;
+            }
         }
 
         save();
