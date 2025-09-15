@@ -2,23 +2,19 @@ package com.loficostudios.japaneseMinecraft.listener;
 
 import com.loficostudios.japaneseMinecraft.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
-import com.loficostudios.japaneseMinecraft.commands.ShopCommand;
 import com.loficostudios.japaneseMinecraft.config.Shops;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGui;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGuiTemplate;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.type.Light;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.PluginDisableEvent;
 
 import java.util.HashMap;
 import java.util.Map;

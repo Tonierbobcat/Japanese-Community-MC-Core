@@ -1,27 +1,18 @@
 package com.loficostudios.japaneseMinecraft.commands;
 
-import com.loficostudios.forgified.paper.gui.GuiIcon;
-import com.loficostudios.japaneseMinecraft.Common;
-import com.loficostudios.japaneseMinecraft.Debug;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.config.Shops;
-import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
-import com.loficostudios.japaneseMinecraft.shop.*;
+import com.loficostudios.japaneseMinecraft.shop.CostModifier;
+import com.loficostudios.japaneseMinecraft.shop.Operation;
+import com.loficostudios.japaneseMinecraft.shop.ShopInstance;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGui;
-import com.loficostudios.japaneseMinecraft.shop.gui.ShopGuiIcon;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGuiTemplate;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
-import java.util.function.BiConsumer;
 
 public class ShopCommand implements CommandExecutor {
     public ShopCommand() {

@@ -1,10 +1,8 @@
 package com.loficostudios.japaneseMinecraft.commands;
 
-import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Messages;
 import com.loficostudios.japaneseMinecraft.spicify.SpicifyService;
-import com.xxmicloxx.NoteBlockAPI.model.Playlist;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

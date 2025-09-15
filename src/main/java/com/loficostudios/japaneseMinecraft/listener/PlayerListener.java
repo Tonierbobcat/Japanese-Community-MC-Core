@@ -3,8 +3,6 @@ package com.loficostudios.japaneseMinecraft.listener;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Messages;
 import com.loficostudios.japaneseMinecraft.WeatherManager;
-import com.loficostudios.japaneseMinecraft.notifications.Notification;
-import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,7 +10,6 @@ import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,10 +19,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class PlayerListener implements Listener {

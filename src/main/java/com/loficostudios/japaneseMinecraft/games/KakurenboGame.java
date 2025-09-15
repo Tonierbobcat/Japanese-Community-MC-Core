@@ -15,7 +15,6 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 /// Hide and seek
 public class KakurenboGame implements Game, Listener {

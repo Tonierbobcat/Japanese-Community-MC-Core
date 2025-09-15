@@ -2,7 +2,6 @@ package com.loficostudios.japaneseMinecraft.chat;
 
 import com.loficostudios.japaneseMinecraft.Debug;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
