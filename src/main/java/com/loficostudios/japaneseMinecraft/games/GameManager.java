@@ -37,6 +37,7 @@ public class GameManager {
         if (Bukkit.getOnlinePlayers().size() < game.getMinPlayers())
             return GameStartResult.NOT_ENOUGH_PLAYERS;
         this.currentGame = game;
+        game.reset();
         game.start();
 
         JapaneseMinecraft.runTaskTimer(new BukkitRunnable() {
