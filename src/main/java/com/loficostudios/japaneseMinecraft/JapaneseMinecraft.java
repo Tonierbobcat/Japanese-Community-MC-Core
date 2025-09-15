@@ -53,6 +53,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private GameManager gameManager;
 
+    private Economy economy;
+
     public JapaneseMinecraft() {
         instance = this;
     }
@@ -81,6 +83,9 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         chatManager = new ChatManager(this);
         notificationManager = new NotificationManager(this);
         profileManager = new ProfileManager(this);
+
+        /// initialize economy after profile manager
+        economy = new Economy();
 
         //todo move this out of onEnable
         var shiritori = new ShiritoriGame(2);
@@ -154,6 +159,19 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     public NotificationManager getNotificationManager() {
         return notificationManager;
+    }
+
+    @Override
+    public File getJarFile() {
+        return getFile();
+    }
+
+    public Economy getEconomy() {
+        return economy;
+    }
+
+    public static Economy getEconomyProvider() {
+        return instance.getEconomy();
     }
 
     public static boolean isPlayerLanguageJapanese(Player player) {
@@ -235,10 +253,5 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         } else {
             return instance.getServer().getScheduler().runTaskAsynchronously(instance, runnable);
         }
-    }
-
-    @Override
-    public File getJarFile() {
-        return getFile();
     }
 }
