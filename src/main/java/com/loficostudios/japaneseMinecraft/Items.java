@@ -70,6 +70,8 @@ public class Items {
                     .build())
             .model()));
 
+    public static final JItem BUILDERS_CHEST = ITEMS.create("builders_chest", () -> new JItem(Material.CHEST, JItem.Properties.empty()));
+
     public static final JItem EDIBLE_IRON_PICKAXE = ITEMS.create("edible_iron_pickaxe", () -> new JItem(Material.IRON_PICKAXE, new JItem.Properties()
             .food(FoodProperties.food().nutrition(20).saturation(20).build())
             .custom((item) -> {

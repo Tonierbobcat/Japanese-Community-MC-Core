@@ -2,6 +2,10 @@ package com.loficostudios.japaneseMinecraft.listener;
 
 import com.loficostudios.japaneseMinecraft.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import com.loficostudios.japaneseMinecraft.commands.ShopCommand;
+import com.loficostudios.japaneseMinecraft.shop.gui.ShopGui;
+import com.loficostudios.japaneseMinecraft.shop.gui.ShopGuiTemplate;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,6 +43,10 @@ public class ItemListener implements Listener {
             e.setCancelled(true);
         } else if (Items.isItem(item, Items.LEVEL_CANDY)) {
             e.setCancelled(true);
+        } else if (Items.isItem(item, Items.BUILDERS_CHEST)) {
+            e.setCancelled(true);
+            new ShopGui<>(ShopCommand.SHOP, ShopGuiTemplate.generic(Component.text("Shop")), JapaneseMinecraft::getPlayerProfile)
+                    .open(e.getPlayer());
         }
     }
 
