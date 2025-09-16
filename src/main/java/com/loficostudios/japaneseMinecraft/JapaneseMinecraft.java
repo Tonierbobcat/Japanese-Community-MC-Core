@@ -98,6 +98,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
         /// default towns per player is 1 to save resources and the max area is 250x250 so people don't hog space
         townsAPI.getAPIConfig()
+                .setMessagingOverride((key, player) -> Messages.getMessage(player, key))
                 .setMinTownLength(50)
                 .setMinTownWidth(50)
                 .setMaxTownLength(250)
