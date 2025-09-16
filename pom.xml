@@ -101,6 +101,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.loficostudios</groupId>
+            <artifactId>harmonized-towns-api</artifactId>
+            <version>0.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>

@@ -19,6 +19,7 @@ import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.profile.ProfileManager;
 import com.loficostudios.japaneseMinecraft.sanity.SanityManager;
 import com.loficostudios.japaneseMinecraft.shop.EconomyProvider;
+import com.loficostudios.townsplugin.api.HarmonizedTownsAPI;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -63,6 +64,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private EconomyProvider economy;
 
+    private HarmonizedTownsAPI townsAPI;
+
     public JapaneseMinecraft() {
         instance = this;
     }
@@ -76,6 +79,13 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
             placeholderAPIEnabled = true;
         } catch (ClassNotFoundException ignore) {
         }
+
+        if (!initializeTownsAPI()) {
+            getLogger().severe("Failed to initialize Towns API. Disabling plugin...");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
 
         Items.ITEMS.initialize(this);
 
@@ -116,6 +126,14 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         /// Start announcement task
         //todo move this to notification manager
         startAnnouncementTask();
+    }
+
+    public boolean initializeTownsAPI() {
+        var rsp = getServer().getServicesManager().getRegistration(HarmonizedTownsAPI.class);
+        if (rsp == null)
+            return false;
+        townsAPI = rsp.getProvider();
+        return true;
     }
 
     public void setupEconomy() {
@@ -165,7 +183,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
     public void onDisable() {
 
         /// This should be handled better
-        /// rather then a static instance. it should be stored in a field in this class
+        /// rather than a static instance. it should be stored in a field in this class
         ItemListener.clearLightSources();
     }
 
@@ -196,6 +214,10 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     public EconomyProvider getEconomy() {
         return economy;
+    }
+
+    public HarmonizedTownsAPI getTownsAPI() {
+        return townsAPI;
     }
 
     public static EconomyProvider getEconomyProvider() {
