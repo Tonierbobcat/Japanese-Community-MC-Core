@@ -36,11 +36,7 @@ public class Messages {
     }
 
     public static String getMessage(Player player, Key key) {
-        boolean isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(player);
-        var stringKey = key.name().toLowerCase() + (isJapanese ? "_jp" : "_en");
-        var message = messages.get(stringKey);
-        return message != null && !message.isEmpty() ? message : (isJapanese ? ERROR_MESSAGE_JP : ERROR_MESSAGE)
-                .replace("<title>", stringKey);
+        return getMessage(player, key.name().toLowerCase());
     }
 
     @Deprecated
