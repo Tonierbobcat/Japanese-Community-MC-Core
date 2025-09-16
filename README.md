@@ -7,6 +7,8 @@
 
 # Info
 
+This project is using [Harmonized Towns](https://github.com/Tonierbobcat/Harmonized-Towns-API)
+
 TRANSLATION NEEDED
 Feel free to fix translations in [Messages.java](src/main/java/com/loficostudios/japaneseMinecraft/Messages.java)
 
