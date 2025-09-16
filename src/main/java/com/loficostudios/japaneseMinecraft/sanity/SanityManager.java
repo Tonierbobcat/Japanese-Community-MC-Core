@@ -16,41 +16,44 @@ public class SanityManager {
     /// This might get crazy
     private static final double AMOUNT_TO_DECREASE_PER_TICK = 0.1;
 
+    /// the idea is that sanity is always decrease but there are always going to be ways of slowing it down
     public SanityManager() {
         JapaneseMinecraft.runTaskTimer(() -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 var profile = JapaneseMinecraft.getPlayerProfile(player);
-                // Check distance to other players
-                var nearby = player.getNearbyEntities(MIN_DISTANCE_FROM_PLAYER, MIN_DISTANCE_FROM_PLAYER, MIN_DISTANCE_FROM_PLAYER).stream()
-                        .filter(a -> a instanceof Player)
-                        .map(a -> (Player) a).toList();
 
-                var players = nearby.size();
+                var total = 0.0;
 
-                // todo maybe?? if there a tone of players sanity could go to 200% or 300%
-                if (players > 0) {
-                    //increase sanity
-                    var amountToIncrease = players * PER_PLAYER_INCREASE;
-                    profile.setSanity(profile.getSanity() + amountToIncrease);
-                } else {
-                    //decrease sanity
-                    // todo fix this. it is not working
+                total += getAmountToIncrease(player);
+                total -= getAmountToDecrease(player);
 
-                    double multiplier = 1;
-
-                    boolean totalDarkness = player.getLocation().getBlock().getLightLevel() <= 0;
-
-                    boolean isHungry = player.getFoodLevel() <= 6;
-
-                    if (isHungry)
-                        multiplier++;
-                    if (totalDarkness)
-                        multiplier++;
-
-                    var amountToDecrease = totalDarkness ? AMOUNT_TO_DECREASE_PER_TICK * multiplier : AMOUNT_TO_DECREASE_PER_TICK;
-                    profile.setSanity(Math.max(profile.getSanity() - amountToDecrease, 0));
-                }
+                profile.setSanity(Math.max(profile.getSanity() + total, 0));
             }
         }, 0, TICK_SPEED); ///EVERY second to save performance
+    }
+
+    private double getAmountToIncrease(Player player) {
+        /// Check distance to other players
+        var nearby = player.getNearbyEntities(MIN_DISTANCE_FROM_PLAYER, MIN_DISTANCE_FROM_PLAYER, MIN_DISTANCE_FROM_PLAYER).stream()
+                .filter(a -> a instanceof Player)
+                .map(a -> (Player) a).toList();
+
+        var players = nearby.size();
+        var inTown = JapaneseMinecraft.getTownsAPI().getTownContainer().getTown(player.getLocation()) != null;
+        return players * PER_PLAYER_INCREASE + (inTown ? 0.05 : 0);
+    }
+
+    private double getAmountToDecrease(Player player) {
+        double decreaseMultiplier = 1;
+        boolean totalDarkness = player.getLocation().getBlock().getLightLevel() <= 0;
+
+        boolean isHungry = player.getFoodLevel() <= 6;
+
+        if (isHungry)
+            decreaseMultiplier++;
+        if (totalDarkness)
+            decreaseMultiplier++;
+
+        return totalDarkness ? AMOUNT_TO_DECREASE_PER_TICK * decreaseMultiplier : AMOUNT_TO_DECREASE_PER_TICK;
     }
 }

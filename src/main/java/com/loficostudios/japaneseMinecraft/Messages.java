@@ -13,8 +13,8 @@ public class Messages {
 
     private static final Map<String, String> messages = new HashMap<>();
 
-    private static final String ERROR_MESSAGE = "!!!ERROR!!! Please report this to a server admin: missing message title <title>";
-    private static final String ERROR_MESSAGE_JP = "サーバー管理者にこれを報告してください: メッセージキーが見つかりません <title>";
+    private static final String ERROR_MESSAGE = "!!!ERROR!!! Please report this to a server admin: missing message key <key>";
+    private static final String ERROR_MESSAGE_JP = "サーバー管理者にこれを報告してください: メッセージキーが見つかりません <key>";
 
     public static void initialize(JapaneseMinecraft plugin) throws IOException {
         plugin.saveResource("en_us.yml", true);
@@ -42,10 +42,10 @@ public class Messages {
     @Deprecated
     public static String getMessage(Player player, String key) {
         boolean isJapanese = JapaneseMinecraft.isPlayerLanguageJapanese(player);
-        key = key + (isJapanese ? "_jp" : "_en");
+        key = key.toLowerCase() + (isJapanese ? "_jp" : "_en");
         var message = messages.get(key);
         return message != null && !message.isEmpty() ? message : (isJapanese ? ERROR_MESSAGE_JP : ERROR_MESSAGE)
-                .replace("<title>", key);
+                .replace("<key>", key);
     }
 
     public enum Key {

@@ -235,8 +235,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         return economy;
     }
 
-    public HarmonizedTownsAPI getTownsAPI() {
-        return townsAPI;
+    public static HarmonizedTownsAPI getTownsAPI() {
+        return instance.townsAPI;
     }
 
     public static EconomyProvider getEconomyProvider() {
