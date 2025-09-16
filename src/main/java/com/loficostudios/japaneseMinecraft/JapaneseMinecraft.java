@@ -32,6 +32,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,15 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
             getLogger().severe("Failed to initialize Towns API. Disabling plugin...");
             getServer().getPluginManager().disablePlugin(this);
             return;
+        }
+
+        try {
+            Messages.initialize(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Debug.logError("Could not load messages. " + e.getMessage());
+            Debug.logError("Disabling plugin...");
+            Bukkit.getPluginManager().disablePlugin(this);
         }
 
 
