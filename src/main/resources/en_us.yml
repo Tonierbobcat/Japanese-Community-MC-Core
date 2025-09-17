@@ -24,3 +24,42 @@ stopped_listening: "Stopped listening..."
 not_listening_to_anything: "You were not listening to anything"
 now_playing: "Now Playing §6{song}§r..."
 must_enter_valid_song_id: "You must enter a valid song. '{title}' If you think this a mistake please contact admins"
+
+# TOWNS
+# these messages do not needs keys because they are handled by another plugin
+default_town_leave_message: "You have left {town}."
+default_town_enter_message: "Welcome to {town}!"
+
+cannot_interact_here: "You cannot do that here. ({action})"
+town_editor_hint: "Tip: try /town edit build-mode"
+
+cannot_modify_blocks_in_town: "You cannot {action} blocks inside {town}."
+cannot_modify_blocks_in_claim: "You cannot {action} blocks in {owner}'s claim!"
+
+this_player_is_not_citizen: "{player} is not a citizen."
+removed_citizen: "Removed {player} from the town."
+player_already_citizen: "{player} is already a citizen!"
+made_citizen: "{player} has joined {town} with permissions: {permissions}."
+
+you_cannot_do_this_while_in_town: "You cannot do that while inside a town!"
+
+could_not_create_town: "Town creation failed. Reason: {reason}"
+created_town: "Town created successfully!"
+
+flag_update: "Set {flag} to {state}."
+flag_same_value: "That flag is already set to this value."
+
+enter_valid_town_name: "Please enter a valid town name."
+set_town_name: "Town name set to {name}."
+
+enter_valid_amount: "Enter a valid amount. (Expected: {valid})"
+update_bounds: "Bounds updated: {old} → {new}"
+could_not_update_bounds: "Bounds update failed. Reason: {reason}"
+
+town_removed: "The town has been removed."
+town_does_not_exist: "That town does not exist."
+not_in_town: "You are not currently in a town."
+no_permission: "You do not have permission to do that."
+
+now_in_build_mode: "Build mode enabled."
+no_longer_in_build_mode: "Build mode disabled."

@@ -25,3 +25,42 @@ word_correct: "{points}ポイント獲得！"
 #not_listening_to_anything: "TODO"
 #now_playing: "TODO"
 #must_enter_valid_song_id: "TODO"
+
+# TOWNS
+# these messages do not needs keys because they are handled by another plugin
+default_town_leave_message: "{town} を離れました。"
+default_town_enter_message: "{town} へようこそ！"
+
+cannot_interact_here: "ここでは {action} を行うことはできません。"
+town_editor_hint: "ヒント: /town edit build-mode を試してください"
+
+cannot_modify_blocks_in_town: "{town} 内でブロックを {action} することはできません。"
+cannot_modify_blocks_in_claim: "{owner} の領地でブロックを {action} することはできません！"
+
+this_player_is_not_citizen: "{player} は市民ではありません。"
+removed_citizen: "{player} を町から削除しました。"
+player_already_citizen: "{player} はすでに市民です！"
+made_citizen: "{player} が {town} に参加しました（権限: {permissions}）。"
+
+you_cannot_do_this_while_in_town: "町の中ではこれを行うことはできません！"
+
+could_not_create_town: "町の作成に失敗しました。理由: {reason}"
+created_town: "町が正常に作成されました！"
+
+flag_update: "{flag} を {state} に設定しました。"
+flag_same_value: "そのフラグはすでにこの値に設定されています。"
+
+enter_valid_town_name: "有効な町の名前を入力してください。"
+set_town_name: "町の名前を {name} に設定しました。"
+
+enter_valid_amount: "有効な数値を入力してください。（想定: {valid}）"
+update_bounds: "範囲を更新しました: {old} → {new}"
+could_not_update_bounds: "範囲の更新に失敗しました。理由: {reason}"
+
+town_removed: "町は削除されました。"
+town_does_not_exist: "その町は存在しません。"
+not_in_town: "あなたは現在、町に所属していません。"
+no_permission: "これを行う権限がありません。"
+
+now_in_build_mode: "ビルドモードが有効になりました。"
+no_longer_in_build_mode: "ビルドモードが無効になりました。"

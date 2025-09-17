@@ -1,5 +1,6 @@
 package com.loficostudios.japaneseMinecraft;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -23,16 +24,36 @@ public class Messages {
         var english = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "en_us.yml"));
         var japanese = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "ja_jp.yml"));
 
+        /// load native messages first
         for (Key key : Key.values()) {
-            var enText = english.getString(key.name().toLowerCase());
-            var jpText = japanese.getString(key.name().toLowerCase());
-
-            if (enText != null)
-                messages.put(key.name().toLowerCase() + "_en", enText);
-
-            if (jpText != null)
-                messages.put(key.name().toLowerCase() + "_jp", jpText);
+            handleEnglish(english, key.name().toLowerCase());
+            handleJapanese(japanese, key.name().toLowerCase());
         }
+
+        /// this lets the plugin load messages that are not in the keys enum
+        for (String key : english.getKeys(false)) {
+            if (messages.containsKey(key + "_en"))
+                continue;
+            handleEnglish(english, key);
+        }
+
+        for (String key : japanese.getKeys(false)) {
+            if (messages.containsKey(key + "_jp"))
+                continue;
+            handleJapanese(japanese, key);
+        }
+    }
+
+    private static void handleJapanese(ConfigurationSection japanese, String key) {
+        var jpText = japanese.getString(key);
+        if (jpText != null)
+            messages.put(key + "_jp", jpText);
+    }
+
+    private static void handleEnglish(ConfigurationSection english, String key) {
+        var enText = english.getString(key);
+        if (enText != null)
+            messages.put(key + "_en", enText);
     }
 
     public static String getMessage(Player player, Key key) {
