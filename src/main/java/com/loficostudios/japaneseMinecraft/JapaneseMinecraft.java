@@ -6,6 +6,7 @@ import com.loficostudios.japaneseMinecraft.chat.ChatManager;
 import com.loficostudios.japaneseMinecraft.commands.*;
 import com.loficostudios.japaneseMinecraft.economy.DefaultEconomy;
 import com.loficostudios.japaneseMinecraft.economy.VaultEconomy;
+import com.loficostudios.japaneseMinecraft.games.Game;
 import com.loficostudios.japaneseMinecraft.games.GameManager;
 import com.loficostudios.japaneseMinecraft.games.KakurenboGame;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriGame;
@@ -19,6 +20,8 @@ import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.profile.ProfileManager;
 import com.loficostudios.japaneseMinecraft.sanity.SanityManager;
 import com.loficostudios.japaneseMinecraft.shop.EconomyProvider;
+import com.loficostudios.japaneseMinecraft.util.DefaultTextParser;
+import com.loficostudios.japaneseMinecraft.util.TextParser;
 import com.loficostudios.townsplugin.api.HarmonizedTownsAPI;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
@@ -26,6 +29,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -58,6 +62,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
     private NotificationManager notificationManager;
 
     private boolean placeholderAPIEnabled = false;
+    private final TextParser textParser = new DefaultTextParser();
 
     private ProfileManager profileManager;
 
@@ -66,6 +71,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
     private EconomyProvider economy;
 
     private HarmonizedTownsAPI townsAPI;
+
 
     public JapaneseMinecraft() {
         instance = this;
@@ -103,25 +109,20 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 //        RecipeLoaderRegistry.getBukkitRecipeLoaderRegistry()
 //                .initialize(this);
 
+        /// this should get called after initializing items and recipes
         ResourceLoadingUtils.generateResourcePack(this);
 
         /// Initializes managers
         weatherManager = new WeatherManager();
         chatManager = new ChatManager(this);
-        notificationManager = new NotificationManager(this);
+        notificationManager = new NotificationManager(this, textParser);
         profileManager = new ProfileManager(this);
 
         /// initialize economy after profile manager loads
         setupEconomy();
 
-        //todo move this out of onEnable
-        var shiritori = new ShiritoriGame(2);
-        var kakurenbo = new KakurenboGame();
-        Bukkit.getPluginManager().registerEvents(shiritori, this);
-        Bukkit.getPluginManager().registerEvents(kakurenbo, this);
-
-        /// Initialize gamemanager with registered games
-        gameManager = new GameManager(List.of(shiritori, kakurenbo));
+        /// setup registered games like shiritori and kakurenbo
+        setupGames();
 
         // stub for now
         new SanityManager();
@@ -135,6 +136,20 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         /// Start announcement task
         //todo move this to notification manager
         startAnnouncementTask();
+    }
+
+    private void setupGames() {
+         List<Game> games = List.of(
+                new ShiritoriGame(2),
+                new KakurenboGame()
+        );
+        games.forEach(game -> {
+            if (game instanceof Listener)
+                Bukkit.getPluginManager().registerEvents(((Listener) game), this);
+        });
+
+        /// Initialize GameManager with registered games
+        gameManager = new GameManager(games);
     }
 
     public boolean initializeTownsAPI() {
@@ -205,6 +220,7 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         this.economy = provider;
     }
 
+    /// this is where independent listeners should go
     private void registerEvents() {
         Arrays.asList(
                 new PlayerListener(this), new MobListener(), new PlayerDeathListener(this), new MonsterBallListener(this), new ItemListener()
@@ -269,6 +285,10 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         return economy;
     }
 
+    public TextParser getTextParser() {
+        return textParser;
+    }
+
     public static HarmonizedTownsAPI getTownsAPI() {
         return instance.townsAPI;
     }
@@ -286,36 +306,9 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         return instance.profileManager.getProfile(player);
     }
 
-    public static Component parseText(Player player, String text) {
-        var mm = MiniMessage.miniMessage();
-
-        /// handle internal placeholders first
-        String[][] internal = {
-                {"github_url", SERVER_IP},
-                {"player", player.getName()}
-        };
-
-        final char inner = '{';
-        final char outer = '}';
-
-        for (String[] strings : internal) {
-            text = text.replace(
-                    inner + strings[0] + outer, strings[1]
-            );
-        }
-
-        /// handle external placeholders
-        if (instance.placeholderAPIEnabled) {
-            text = PlaceholderAPI.setPlaceholders(player, text);
-        }
-
-        try {
-            return mm.deserialize(text);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Component.text(text);
-        }
-    }
+//    public static Component parseText(Player player, String text) {
+//        return instance.getTextParser().parseText(player, text);
+//    }
 
     public static BukkitTask runTaskTimer(Runnable runnable, long delay, long ticks) {
         if (runnable instanceof BukkitRunnable) {
@@ -323,6 +316,10 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         } else {
             return instance.getServer().getScheduler().runTaskTimer(instance, runnable, delay, ticks);
         }
+    }
+
+    public static boolean isPlaceholderAPI() {
+        return instance.placeholderAPIEnabled;
     }
 
     public static BukkitTask runTaskTimer(Consumer<BukkitRunnable> runnable, long delay, long ticks) {

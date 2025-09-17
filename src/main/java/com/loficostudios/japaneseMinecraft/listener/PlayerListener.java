@@ -90,9 +90,10 @@ public class PlayerListener implements Listener {
     }
 
     private void sendWelcomeMessage(Player player) {
-        player.sendMessage(JapaneseMinecraft.parseText(player, Messages.getMessage(player, "welcome_message")));
+        player.sendMessage(plugin.getTextParser().parseText(player, Messages.getMessage(player, "welcome_message")));
     }
 
+    /// we are using legacy format codes here because that is what is easier
     private void updateDisplay(Player player) {
         var profile = JapaneseMinecraft.getPlayerProfile(player);
         var world = player.getWorld();

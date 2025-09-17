@@ -2,6 +2,7 @@ package com.loficostudios.japaneseMinecraft.notifications;
 
 import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import com.loficostudios.japaneseMinecraft.util.TextParser;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -35,7 +36,10 @@ public class NotificationManager {
     private final Map<Notification.Type, List<Notification>> notifications = new HashMap<>();
     private final Map<Notification.Type, Integer> nextIndex = new EnumMap<>(Notification.Type.class);
 
-    public NotificationManager(JapaneseMinecraft plugin) {
+    private final TextParser textParser;
+
+    public NotificationManager(JapaneseMinecraft plugin, TextParser textParser) {
+        this.textParser = textParser;
         loadNotifications(plugin);
 
 //        for (Notification.Type type : Notification.Type.values()) {
@@ -135,7 +139,7 @@ public class NotificationManager {
             var prefix = TYPE_PREFIX.getOrDefault(notification.type(), "");
 
             /// handling prefix separately to avoid parsing issues
-            player.sendMessage(Component.text(prefix).append(JapaneseMinecraft.parseText(player, message)));
+            player.sendMessage(Component.text(prefix).append(textParser.parseText(player, message)));
         }
     }
 }
