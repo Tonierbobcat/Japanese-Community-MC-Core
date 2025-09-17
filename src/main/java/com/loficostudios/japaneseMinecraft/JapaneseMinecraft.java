@@ -149,10 +149,18 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
     }
 
     private void setupTownsAPIConfig() {
-        int MIN_CLAIM_SIDE = 10;
+        /// only one town per player to save resources
+        /// towns are projected to be relatively heavy on proformance
+        int TOWNS_PER_PLAYER = 1;
+        int CLAIMS_PER_PLAYER = 20;
 
         int MAX_TOWN_SIDE = 250;
         int MIN_TOWN_SIDE = 50;
+
+        int MIN_TOWN_AREA = MIN_TOWN_SIDE * MIN_TOWN_SIDE;
+
+        int MIN_CLAIM_SIDE = 10;
+        int MIN_CLAIM_AREA = MIN_CLAIM_SIDE * MIN_CLAIM_SIDE;
 
         /// default towns per player is 1 to save resources and the max area is 250x250 so people don't hog space
         townsAPI.getAPIConfig()
@@ -164,19 +172,21 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
                 .setMinTownWidth(MIN_TOWN_SIDE)
                 .setMaxTownLength(MAX_TOWN_SIDE)
                 .setMaxTownWidth(MAX_TOWN_SIDE)
+
                 .setDefaultTownBlocks(MAX_TOWN_SIDE*MAX_TOWN_SIDE)
 
-                /// only one town per player to save resources
-                /// towns are projected to be relativily heavy on proformance
-                .setMaxTownsPerPlayer(1)
+                .setMaxTownsPerPlayer(TOWNS_PER_PLAYER)
 
-                .setMaxClaimsPerPlayer(MIN_CLAIM_SIDE)
-                .setMinClaimBlocks(MIN_CLAIM_SIDE*MIN_CLAIM_SIDE)
+                /// players can have up to 20 claims
+                .setMaxClaimsPerPlayer(20)
+
+                .setMinClaimBlocks(MIN_CLAIM_AREA)
 
                 /// the biggest claims are the smallest towns
-                .setMaxClaimBlocks(MIN_TOWN_SIDE*MIN_TOWN_SIDE)
-                .setDefaultClaimBlocks(MIN_TOWN_SIDE*MIN_TOWN_SIDE)
-                .setMaxClaimBlocks(MAX_TOWN_SIDE*MAX_TOWN_SIDE);
+                /// this is on a per-claim basis
+                .setMaxClaimBlocks(MIN_TOWN_AREA)
+
+                .setDefaultClaimBlocks(MIN_TOWN_AREA*CLAIMS_PER_PLAYER);
     }
 
     public void setupEconomy() {
