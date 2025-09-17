@@ -96,17 +96,6 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
-        /// default towns per player is 1 to save resources and the max area is 250x250 so people don't hog space
-        townsAPI.getAPIConfig()
-                .prefix(Common.createMessagePrefix("Towns", "§e"))
-                .setMessagingOverride((key, player) -> Messages.getMessage(player, key))
-                .setMinTownLength(50)
-                .setMinTownWidth(50)
-                .setMaxTownLength(250)
-                .setMaxTownWidth(250)
-                .setDefaultTownBlocks(250*250)
-                .setMaxTownsPerPlayer(1);
-
         Items.ITEMS.initialize(this);
 
         /// tbh this is pretty clean
@@ -153,7 +142,41 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         if (rsp == null)
             return false;
         townsAPI = rsp.getProvider();
+
+        /// setup config
+        setupTownsAPIConfig();
         return true;
+    }
+
+    private void setupTownsAPIConfig() {
+        int MIN_CLAIM_SIDE = 10;
+
+        int MAX_TOWN_SIDE = 250;
+        int MIN_TOWN_SIDE = 50;
+
+        /// default towns per player is 1 to save resources and the max area is 250x250 so people don't hog space
+        townsAPI.getAPIConfig()
+                .prefix(Common.createMessagePrefix("Towns", "§e"))
+                .setMessagingOverride((key, player) -> Messages.getMessage(player, key))
+
+                /// town creation restrictions are pretty consistant throughout
+                .setMinTownLength(MIN_TOWN_SIDE)
+                .setMinTownWidth(MIN_TOWN_SIDE)
+                .setMaxTownLength(MAX_TOWN_SIDE)
+                .setMaxTownWidth(MAX_TOWN_SIDE)
+                .setDefaultTownBlocks(MAX_TOWN_SIDE*MAX_TOWN_SIDE)
+
+                /// only one town per player to save resources
+                /// towns are projected to be relativily heavy on proformance
+                .setMaxTownsPerPlayer(1)
+
+                .setMaxClaimsPerPlayer(MIN_CLAIM_SIDE)
+                .setMinClaimBlocks(MIN_CLAIM_SIDE*MIN_CLAIM_SIDE)
+
+                /// the biggest claims are the smallest towns
+                .setMaxClaimBlocks(MIN_TOWN_SIDE*MIN_TOWN_SIDE)
+                .setDefaultClaimBlocks(MIN_TOWN_SIDE*MIN_TOWN_SIDE)
+                .setMaxClaimBlocks(MAX_TOWN_SIDE*MAX_TOWN_SIDE);
     }
 
     public void setupEconomy() {

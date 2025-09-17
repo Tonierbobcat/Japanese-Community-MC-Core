@@ -85,6 +85,9 @@ public class Items {
 
     public static final JItem BASIC_FLASHLIGHT = ITEMS.create("basic_flashlight", () -> new JItem(Material.TORCH, new JItem.Properties()));
 
+    public static final JItem REGION_STICK = ITEMS.create("region_stick", () -> new JItem(Material.STICK, new JItem.Properties()
+            .model()));
+
     public static final JItem MASTER_BALL = ITEMS.create("master_ball", () -> new MonsterBall(10, new JItem.Properties()));
     public static final JItem TELEPORT_CRYSTAL = ITEMS.create("teleport_crystal", () -> new JItem(Material.AMETHYST_SHARD, JItem.Properties.empty()));
 

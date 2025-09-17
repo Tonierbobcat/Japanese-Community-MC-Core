@@ -5,6 +5,7 @@ import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.config.Shops;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGui;
 import com.loficostudios.japaneseMinecraft.shop.gui.ShopGuiTemplate;
+import com.loficostudios.townsplugin.api.BlockLocation;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,6 +13,7 @@ import org.bukkit.block.data.type.Light;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -33,9 +35,10 @@ public class ItemListener implements Listener {
     @EventHandler
     private void onInteract(PlayerInteractEvent e) {
         var item = e.getItem();
+        var player = e.getPlayer();
         if (Items.isItem(item, Items.TELEPORT_CRYSTAL)) {
             e.setCancelled(true);
-            handleTeleportCrystal(e.getPlayer());
+            handleTeleportCrystal(player);
         } else if (Items.isItem(item, Items.BASIC_FLASHLIGHT)) {
             e.setCancelled(true);
         } else if (Items.isItem(item, Items.LEVEL_CANDY)) {
@@ -43,7 +46,34 @@ public class ItemListener implements Listener {
         } else if (Items.isItem(item, Items.BUILDERS_CHEST)) {
             e.setCancelled(true);
             new ShopGui<>(Shops.BUILDER_SHOP, ShopGuiTemplate.generic(Component.text("Shop")), JapaneseMinecraft::getPlayerProfile)
-                    .open(e.getPlayer());
+                    .open(player);
+        } else if (Items.isItem(item, Items.REGION_STICK)) {
+            e.setCancelled(true);
+            var action = e.getAction();
+            var clickedBlock = e.getClickedBlock();
+            if (clickedBlock == null)
+                return;
+            var api =  JapaneseMinecraft.getTownsAPI();
+            var prefix = api.getAPIConfig().getPrefix();
+
+            switch (action) {
+                case LEFT_CLICK_BLOCK -> {
+                    var min = BlockLocation.from(clickedBlock);
+                    JapaneseMinecraft.getTownsAPI().getPlayerSelectionManager().setMin(player, min);
+                    player.sendMessage(prefix + "Set first position to {x},{y},{z}"
+                            .replace("{x}", "" + min.getX())
+                            .replace("{y}", "" + min.getY())
+                            .replace("{z}", "" + min.getZ()));
+                }
+                case RIGHT_CLICK_BLOCK -> {
+                    var max = BlockLocation.from(clickedBlock);
+                    JapaneseMinecraft.getTownsAPI().getPlayerSelectionManager().setMax(player, max);
+                    player.sendMessage(prefix + "Set second position to {x},{y},{z}"
+                            .replace("{x}", "" + max.getX())
+                            .replace("{y}", "" + max.getY())
+                            .replace("{z}", "" + max.getZ()));
+                }
+            }
         }
     }
 
@@ -101,6 +131,8 @@ public class ItemListener implements Listener {
     }
 
     public static void clearLightSources() {
+        if (instance == null)
+            return;
         for (UUID uuid : instance.lightSources.keySet()) {
             instance.removeLastLightSource(uuid);
         }
