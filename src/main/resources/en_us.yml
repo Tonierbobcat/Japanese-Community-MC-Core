@@ -47,7 +47,7 @@ could_not_create_town: "Town creation failed. Reason: {reason}"
 created_town: "Town created successfully!"
 
 flag_update: "Set {flag} to {state}."
-flag_same_value: "That flag is already set to this value."
+flag_same_value: "That flag is already set to {state}."
 
 enter_valid_town_name: "Please enter a valid town name."
 set_town_name: "Town name set to {name}."
