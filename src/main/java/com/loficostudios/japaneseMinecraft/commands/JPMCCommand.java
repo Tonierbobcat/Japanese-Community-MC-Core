@@ -2,6 +2,7 @@ package com.loficostudios.japaneseMinecraft.commands;
 
 import com.loficostudios.forgified.paper.items.JItem;
 import com.loficostudios.japaneseMinecraft.*;
+import com.loficostudios.japaneseMinecraft.service.BountyService;
 import com.loficostudios.japaneseMinecraft.util.JishoAPI;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -22,8 +23,11 @@ import java.util.concurrent.CompletableFuture;
 public class JPMCCommand implements CommandExecutor, TabCompleter {
     private final JapaneseMinecraft plugin;
 
+    private final BountyService bounties;
+
     public JPMCCommand(JapaneseMinecraft plugin) {
         this.plugin = plugin;
+        this.bounties = new BountyService(plugin);
     }
 
     @Override
@@ -108,11 +112,8 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                 var message = args[1];
                 var reward = args[2];
 
-                /// run async because of file io
-                var file = new File(plugin.getDataFolder(), "bounties.yaml");
                 JapaneseMinecraft.runTaskAsynchronously(() -> {
-                    new BountyService(file)
-                            .post(new BountyService.Bounty(message, Double.parseDouble(reward)));
+                    bounties.post(new BountyService.Bounty(message, Double.parseDouble(reward)));
                     sender.sendMessage("Successfully posted bounty");
                 });
 

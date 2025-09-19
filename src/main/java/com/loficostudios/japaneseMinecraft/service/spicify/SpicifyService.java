@@ -1,11 +1,12 @@
-package com.loficostudios.japaneseMinecraft.spicify;
+package com.loficostudios.japaneseMinecraft.service.spicify;
 
 import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import com.loficostudios.japaneseMinecraft.service.AbstractService;
 import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class SpicifyService {
+public class SpicifyService extends AbstractService {
     public static final String FILE = "spicify.service";
     public static final String FOLDER = "songs";
     private static final String COLOR_LEGACY = "§6";
@@ -27,28 +28,11 @@ public class SpicifyService {
 
     private final Map<SpicifySong, Set<UUID>> likes = new HashMap<>();
 
-    private final File serviceFile;
-    private final YamlConfiguration serviceConfig;
-
     public SpicifyService(JapaneseMinecraft plugin) {
+        super(new File(plugin.getDataFolder(), FILE));
         this.wrapper = new NoteBlockAPIWrapper();
 
         songs = NoteBlockAPIWrapper.initialize(this, new File(plugin.getDataFolder(), FOLDER));
-
-        this.serviceFile = new File(plugin.getDataFolder(), FILE);
-        if (!serviceFile.exists()) {
-            try {
-                serviceFile.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        this.serviceConfig = YamlConfiguration.loadConfiguration(serviceFile);
-    }
-
-    public void save() throws IOException {
-        serviceConfig.save(serviceFile);
     }
 
     public List<Integer> getSongIds() {
@@ -62,7 +46,7 @@ public class SpicifyService {
                 ? "<click:run_command:'/spicify list " + (page - 1) + "'><yellow>« Prev</yellow></click>"
                 : "<gray>« Prev</gray>";
 
-        var nextPage = page < getMaxPage(songIds) - 1
+        var nextPage = page < getMaxPage(songIds)
                 ? "<click:run_command:'/spicify list " + (page + 1) + "'><yellow>Next »</yellow></click>"
                 : "<gray>Next »</gray>";
 
@@ -177,5 +161,13 @@ public class SpicifyService {
 
     public @Nullable SpicifySong getSong(int id) {
         return songs.get(id);
+    }
+
+    @Override
+    protected void save(ConfigurationSection config) {
+    }
+
+    @Override
+    protected void load(ConfigurationSection config) {
     }
 }

@@ -1,16 +1,13 @@
 package com.loficostudios.japaneseMinecraft.util;
 
 import com.loficostudios.japaneseMinecraft.Debug;
-import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
-import com.loficostudios.japaneseMinecraft.spicify.SpicifyService;
-import com.loficostudios.japaneseMinecraft.spicify.SpicifySong;
+import com.loficostudios.japaneseMinecraft.service.spicify.SpicifyService;
+import com.loficostudios.japaneseMinecraft.service.spicify.SpicifySong;
 import com.xxmicloxx.NoteBlockAPI.model.Song;
-import com.xxmicloxx.NoteBlockAPI.songplayer.NoteBlockSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.songplayer.RadioSongPlayer;
 import com.xxmicloxx.NoteBlockAPI.songplayer.SongPlayer;
 import com.xxmicloxx.NoteBlockAPI.utils.NBSDecoder;
 import org.apache.commons.lang3.Validate;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 

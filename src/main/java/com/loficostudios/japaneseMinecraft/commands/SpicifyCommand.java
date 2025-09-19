@@ -2,7 +2,7 @@ package com.loficostudios.japaneseMinecraft.commands;
 
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Messages;
-import com.loficostudios.japaneseMinecraft.spicify.SpicifyService;
+import com.loficostudios.japaneseMinecraft.service.spicify.SpicifyService;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,31 +11,29 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /// This command allows the player to play music and to create playlists
 /// for now we can only play and stop songs
 /// Alot of the code here should be moved to a service. maybe SpicifyService.class
 public class SpicifyCommand implements CommandExecutor, TabCompleter {
-    private final JapaneseMinecraft plugin;
 
     private final SpicifyService service;
 
     public SpicifyCommand(JapaneseMinecraft plugin) {
-        this.plugin = plugin;
         this.service = new SpicifyService(plugin);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
+        String usageMessage = "Usage: /spicify play <song> | stop | list <page> | current";
         if (!(commandSender instanceof Player sender)) {
             commandSender.sendMessage("You must be a player!");
             return true;
         }
 
         if (args.length < 1) {
-            sender.sendMessage("Usage: spicify play <song>, spicify stop");
+            sender.sendMessage(usageMessage);
             return true;
         }
 
@@ -70,6 +68,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", song.title()));
+                return true;
             }
             case "stop" -> {
                 var wasListening = service.isListening(sender);
@@ -78,6 +77,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(SpicifyService.PREFIX + (wasListening
                         ? Messages.getMessage(sender, "stopped_listening")
                         : Messages.getMessage(sender, "not_listening_to_anything")));
+                return true;
             }
             case "list" -> {
                 int page = 1;
@@ -94,6 +94,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
                 var songIds = service.getSongIds();
                 sender.sendMessage(service.getPage(songIds, page));
+                return true;
             }
             case "current" -> {
                 var song = service.getCurrentSong(sender);
@@ -101,19 +102,22 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(SpicifyService.PREFIX + "You are currently not listening to anything");
                     return true;
                 }
-                sender.sendMessage(SpicifyService.PREFIX + "Listening to {current} §l{likes} §f[§c❤§f]"
+                sender.sendMessage(SpicifyService.PREFIX + "Listening to {current} §f[§c❤§f §l{likes}§f]"
                                 .replace("{likes}", "" + song.likes())
                         .replace("{current}", song.title()));
+                return true;
+            }
+            default -> {
+                sender.sendMessage(usageMessage);
+                return true;
             }
         }
-
-        return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
-        if (args.length == 0) {
-            return List.of("play", "stop", "list");
+        if (args.length == 1) {
+            return List.of("play", "stop", "list", "current");
         }
         return List.of();
     }

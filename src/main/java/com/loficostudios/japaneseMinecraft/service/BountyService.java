@@ -1,47 +1,52 @@
-package com.loficostudios.japaneseMinecraft;
+package com.loficostudios.japaneseMinecraft.service;
 
+import com.loficostudios.japaneseMinecraft.Debug;
+import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-public class BountyService {
-    private final File file;
-    private final YamlConfiguration config;
+public class BountyService extends AbstractService {
+    private final List<Bounty> bounties = new ArrayList<>();
 
-    public BountyService(File file) {
-        this.file = file;
-
-        try {
-            if (!file.exists())
-                file.createNewFile();
-            config = YamlConfiguration.loadConfiguration(file);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public BountyService(JapaneseMinecraft plugin) {
+        super(new File(plugin.getDataFolder(), "bounty.service"));
     }
 
     public void post(Bounty bounty) {
-        var path = "bounties." + bounty.uuid();
-        config.set(path + ".message", bounty.message);
-        config.set(path + ".reward", bounty.reward);
-        config.set(path + ".created", bounty.created);
+        bounties.add(bounty);
         try {
-            config.save(file);
+            save();
         } catch (IOException e) {
             Debug.logError("Could not save bounties. " + e.getMessage());
         }
     }
 
     public Collection<Bounty> getBounties() {
-        List<Bounty> result = new LinkedList<>();
+        return bounties;
+    }
+
+    @Override
+    protected void save(ConfigurationSection config) {
+        config.set("bounties", null);
+        for (Bounty bounty : bounties) {
+            var path = "bounties." + bounty.uuid();
+            config.set(path + ".message", bounty.message);
+            config.set(path + ".reward", bounty.reward);
+            config.set(path + ".created", bounty.created);
+        }
+    }
+
+    @Override
+    protected void load(ConfigurationSection config) {
         var sect = config.getConfigurationSection("bounties");
+
         if (sect == null)
-            return List.of();
+            return;
         for (String key : sect.getKeys(false)) {
             UUID uuid = null;
             try {
@@ -57,10 +62,8 @@ public class BountyService {
                 Debug.logWarning("Could not retrieve bounty. " + uuid);
                 continue;
             }
-            result.add(new Bounty(uuid, message, reward, created));
+            bounties.add(new Bounty(uuid, message, reward, created));
         }
-
-        return result;
     }
 
     public record Bounty(UUID uuid, String message, double reward, long created) {
