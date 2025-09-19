@@ -39,14 +39,30 @@ public class SpicifyService extends AbstractService {
         return new ArrayList<>(songs.keySet());
     }
 
+    public List<SpicifySong> getAll() {
+        return new ArrayList<>(songs.values());
+    }
+
+    public List<SpicifySong> search(String query) {
+        query = query.toLowerCase().trim();
+        List<SpicifySong> results = new ArrayList<>();
+        for (Map.Entry<Integer, SpicifySong> entry : songs.entrySet()) {
+            var song = entry.getValue();
+            if (!song.title().toLowerCase().contains(query))
+                continue;
+            results.add(song);
+        }
+        return results;
+    }
+
     /// page starts at 0
-    public Component getPage(List<Integer> songIds, int page) {
+    public Component getPage(List<SpicifySong> songs, int page) {
         var header = "-- {prefix} {current-page}/{max-page} --";
         var prevPage = page > 0
                 ? "<click:run_command:'/spicify list " + (page - 1) + "'><yellow>« Prev</yellow></click>"
                 : "<gray>« Prev</gray>";
 
-        var nextPage = page < getMaxPage(songIds)
+        var nextPage = page < getMaxPage(songs)
                 ? "<click:run_command:'/spicify list " + (page + 1) + "'><yellow>Next »</yellow></click>"
                 : "<gray>Next »</gray>";
 
@@ -54,34 +70,28 @@ public class SpicifyService extends AbstractService {
 
         List<String> format = new ArrayList<>();
 
-        List<Integer> paginated = new ArrayList<>(paginate(songIds, (page - 1), ITEMS_PER_PAGE));
+        List<SpicifySong> paginated = new ArrayList<>(paginate(songs, (page - 1), ITEMS_PER_PAGE));
 
         /// Trim the prefix and replace legacy code with mm format
         format.add(header
                 .replace("{prefix}", PREFIX.trim().replace(COLOR_LEGACY, COLOR_MM).replace("§8", "<gray>").replace("§r", "<reset>"))
                 .replace("{current-page}", "" + page)
-                .replace("{max-page}", "" + getMaxPage(songIds)));
+                .replace("{max-page}", "" + getMaxPage(songs)));
 
         for (int i = 0; i < ITEMS_PER_PAGE; i++) {
             var line = "  - {song} [{play-icon}<reset>][<green>+<reset>][<red>-<reset>]";
 
-            if (i > paginated.size() - 1) {
-                format.add("  -");
+            if (i > paginated.size() - 1)
                 continue;
-            }
 
-            var id = paginated.get(i);
-            var song = songs.get(id);
+            var song = paginated.get(i);
+            var id = song.id();
 
             var playIcon = "<click:run_command:/spicify play {song-id}>{spicify-color}▶</click>"
                     .replace("{song-id}", "" + id);
-            if (song == null) {
-                format.add("  - ");
-            } else {
-                format.add(line
-                        .replace("{play-icon}", playIcon.replace("{spicify-color}", COLOR_MM))
-                        .replace("{song}", song.title()));
-            }
+            format.add(line
+                    .replace("{play-icon}", playIcon.replace("{spicify-color}", COLOR_MM))
+                    .replace("{song}", song.title()));
         }
 
         format.add(footer);
@@ -115,11 +125,11 @@ public class SpicifyService extends AbstractService {
         }
     }
 
-    private int getMaxPage(List<Integer> songs) {
-        if (songs == null || songs.isEmpty()) {
+    private <T> int getMaxPage(List<T> objects) {
+        if (objects == null || objects.isEmpty()) {
             return 1; // at least 1 page, even if no songs
         }
-        return (songs.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
+        return (objects.size() + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE;
     }
 
     /// Util from one of my other projects

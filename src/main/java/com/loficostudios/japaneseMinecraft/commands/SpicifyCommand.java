@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 /// This command allows the player to play music and to create playlists
@@ -26,7 +27,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
-        String usageMessage = "Usage: /spicify play <song> | stop | list <page> | current";
+        String usageMessage = "Usage: /spicify play <id> | stop | list <page> | current | search <query>";
         if (!(commandSender instanceof Player sender)) {
             commandSender.sendMessage("You must be a player!");
             return true;
@@ -39,6 +40,11 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
         switch (args[0]) {
             case "play" -> {
+                if (args.length < 2) {
+                    sender.sendMessage("Usage: /spicify play <id>");
+                    return true;
+                }
+
                 int id = -1;
 
                 try {
@@ -92,8 +98,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                 /// Clamp page
                 page = Math.max(1, page);
 
-                var songIds = service.getSongIds();
-                sender.sendMessage(service.getPage(songIds, page));
+                sender.sendMessage(service.getPage(service.getAll(), page));
                 return true;
             }
             case "current" -> {
@@ -107,6 +112,23 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                         .replace("{current}", song.title()));
                 return true;
             }
+            case "search" -> {
+                if (args.length < 2) {
+                    sender.sendMessage("Usage: /spicify search <query>");
+                    return true;
+                }
+                String query = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+
+                /// run this async
+                JapaneseMinecraft.runTaskAsynchronously(() -> {
+                    var results = service.search(query);
+                    JapaneseMinecraft.runTask(() -> {
+                        /// I only really expect one page of results
+                        sender.sendMessage(service.getPage(results, 1));
+                    });
+                });
+                return true;
+            }
             default -> {
                 sender.sendMessage(usageMessage);
                 return true;
@@ -117,7 +139,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
         if (args.length == 1) {
-            return List.of("play", "stop", "list", "current");
+            return List.of("play", "stop", "list", "current", "search");
         }
         return List.of();
     }
