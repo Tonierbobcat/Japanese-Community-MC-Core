@@ -16,7 +16,7 @@ import java.util.List;
 
 /// This command allows the player to play music and to create playlists
 /// for now we can only play and stop songs
-/// Alot of the code here should be moved to a service. maybe SpicifyService.class
+/// A lot of the code here should be moved to a service. maybe SpicifyService.class
 public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
     private final SpicifyService service;
@@ -27,7 +27,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
-        String usageMessage = "Usage: /spicify play <id> | stop | list <page> | current | search <query>";
+        String usageMessage = "Usage: /spicify play <id> | stop | list <page> | current | search <query> |search <page> <query>";
         if (!(commandSender instanceof Player sender)) {
             commandSender.sendMessage("You must be a player!");
             return true;
@@ -98,7 +98,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                 /// Clamp page
                 page = Math.max(1, page);
 
-                sender.sendMessage(service.getPage(service.getAll(), page));
+                sender.sendMessage(service.getPage(service.getAll(), page, "spicify list {page}"));
                 return true;
             }
             case "current" -> {
@@ -114,17 +114,35 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
             }
             case "search" -> {
                 if (args.length < 2) {
-                    sender.sendMessage("Usage: /spicify search <query>");
+                    sender.sendMessage("Usage: /spicify search <query> | search <page> <query>");
                     return true;
                 }
-                String query = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+
+                /// start at page 1
+                int[] page = new int[] {1};
+                String[] query = new String[1];
+                try {
+                    page[0] = Integer.parseInt(args[1]);
+                    query[0] = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                } catch (NumberFormatException e) {
+                    query[0] = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                }
+
+                /// clamp
+                page[0] = Math.max(1, page[0]);
+
+                if (query[0].isEmpty()) {
+                    var eng = "Query is empty!";
+                    var jp = "検索ワードが空です！";
+                    sender.sendMessage(SpicifyService.PREFIX + (JapaneseMinecraft.isPlayerLanguageJapanese(sender) ? jp : eng));
+                    return true;
+                }
 
                 /// run this async
                 JapaneseMinecraft.runTaskAsynchronously(() -> {
-                    var results = service.search(query);
+                    var results = service.search(query[0]);
                     JapaneseMinecraft.runTask(() -> {
-                        /// I only really expect one page of results
-                        sender.sendMessage(service.getPage(results, 1));
+                        sender.sendMessage(service.getPage(results, page[0], "spicify search {page} " + query[0]));
                     });
                 });
                 return true;

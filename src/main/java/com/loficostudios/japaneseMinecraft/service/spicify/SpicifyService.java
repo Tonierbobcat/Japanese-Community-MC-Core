@@ -56,14 +56,15 @@ public class SpicifyService extends AbstractService {
     }
 
     /// page starts at 0
-    public Component getPage(List<SpicifySong> songs, int page) {
+    public Component getPage(List<SpicifySong> songs, int page, String command) {
         var header = "-- {prefix} {current-page}/{max-page} --";
+
         var prevPage = page > 0
-                ? "<click:run_command:'/spicify list " + (page - 1) + "'><yellow>« Prev</yellow></click>"
+                ? "<click:run_command:'/"  + command.replace("{page}", "" + (page - 1)) + "'><yellow>« Prev</yellow></click>"
                 : "<gray>« Prev</gray>";
 
         var nextPage = page < getMaxPage(songs)
-                ? "<click:run_command:'/spicify list " + (page + 1) + "'><yellow>Next »</yellow></click>"
+                ? "<click:run_command:'/" + command.replace("{page}", "" + (page + 1)) + "'><yellow>Next »</yellow></click>"
                 : "<gray>Next »</gray>";
 
         var footer = prevPage + " <gray>|</gray> " + nextPage;
