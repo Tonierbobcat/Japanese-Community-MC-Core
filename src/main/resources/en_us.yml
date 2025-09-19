@@ -25,7 +25,8 @@ not_listening_to_anything: "You were not listening to anything"
 now_playing: "Now Playing §6{song}§r..."
 must_enter_valid_song_id: "You must enter a valid song. '{title}' If you think this a mistake please contact admins"
 
-# TOWNS
+## START OF TOWNS
+## TOWNS
 # these messages do not needs keys because they are handled by another plugin
 default_town_leave_message: "You have left {town}."
 default_town_enter_message: "Welcome to {town}!"
@@ -63,3 +64,13 @@ no_permission: "You do not have permission to do that."
 
 now_in_build_mode: "Build mode enabled."
 no_longer_in_build_mode: "Build mode disabled."
+
+could_not_create_claim_fallback: "Could not create claim. {reason}"
+successfully_create_town_claim: "You successfully created a claim in {town}!"
+successfully_create_claim: "You successfully created a claim!"
+town_claim_no_permission: "You do not have permission to create a claim in {town}!"
+claim_collides_with_other: "This claim collides with {owner}'s claim!"
+claim_collides_with_town: "This claim collides with {town}!"
+nothing_selected: "You do not have anything selected"
+invalid_selection: "Invalid selection!"
+## END OF TOWNS

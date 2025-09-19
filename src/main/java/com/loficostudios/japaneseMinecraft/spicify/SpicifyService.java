@@ -9,9 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class SpicifyService {
     public static final String FOLDER = "songs";
@@ -20,36 +18,28 @@ public class SpicifyService {
     private static final int ITEMS_PER_PAGE = 8;
     public static final String PREFIX = Common.createMessagePrefix("Spicify", COLOR_LEGACY);
 
-    private final JapaneseMinecraft plugin;
-    
     private final NoteBlockAPIWrapper wrapper;
-    
+
+    private final Map<Integer, SpicifySong> songs;
+
     public SpicifyService(JapaneseMinecraft plugin) {
-        this.plugin = plugin;
-        this.wrapper = new NoteBlockAPIWrapper(plugin);
+        this.wrapper = new NoteBlockAPIWrapper();
+
+        songs = NoteBlockAPIWrapper.initialize(new File(plugin.getDataFolder(), FOLDER));
     }
 
-    /// We are not storing songs on the repo because of copyright infringements
-    /// instead we get the songs locally by iterating through the songs folder
-    public List<String> getSongKeys() {
-        var songsFolder = new File(plugin.getDataFolder(), "songs");
-        songsFolder.mkdirs();
-        var result = new ArrayList<String>();
-        for (File file : songsFolder.listFiles()) {
-            var name = file.getName().replace(".nbs", "");
-            result.add(name);
-        }
-        return result;
+    public List<Integer> getSongIds() {
+        return new ArrayList<>(songs.keySet());
     }
 
     /// page starts at 0
-    public Component getPage(List<String> songs, int page) {
+    public Component getPage(List<Integer> songIds, int page) {
         var header = "-- {prefix} {current-page}/{max-page} --";
         var prevPage = page > 0
                 ? "<click:run_command:'/spicify list " + (page - 1) + "'><yellow>« Prev</yellow></click>"
                 : "<gray>« Prev</gray>";
 
-        var nextPage = page < getMaxPage(songs) - 1
+        var nextPage = page < getMaxPage(songIds) - 1
                 ? "<click:run_command:'/spicify list " + (page + 1) + "'><yellow>Next »</yellow></click>"
                 : "<gray>Next »</gray>";
 
@@ -57,13 +47,13 @@ public class SpicifyService {
 
         List<String> format = new ArrayList<>();
 
-        List<String> paginated = new ArrayList<>(paginate(songs, (page - 1), ITEMS_PER_PAGE));
+        List<Integer> paginated = new ArrayList<>(paginate(songIds, (page - 1), ITEMS_PER_PAGE));
 
         /// Trim the prefix and replace legacy code with mm format
         format.add(header
                 .replace("{prefix}", PREFIX.trim().replace(COLOR_LEGACY, COLOR_MM).replace("§8", "<gray>").replace("§r", "<reset>"))
                 .replace("{current-page}", "" + page)
-                .replace("{max-page}", "" + getMaxPage(songs)));
+                .replace("{max-page}", "" + getMaxPage(songIds)));
 
         for (int i = 0; i < ITEMS_PER_PAGE; i++) {
             var line = "  - {song} [{play-icon}<reset>][<green>+<reset>][<red>-<reset>]";
@@ -73,13 +63,18 @@ public class SpicifyService {
                 continue;
             }
 
-            var song = paginated.get(i);
-//            var playIcon = "<click:run_command:/spicify play {song}>{spicify-color}▶</click>";
-            var playIcon = "{spicify-color}▶";
+            var id = paginated.get(i);
+            var song = songs.get(id);
 
-            format.add(line
-                    .replace("{play-icon}", playIcon.replace("{spicify-color}", COLOR_MM))
-                    .replace("{song}", song));
+            var playIcon = "<click:run_command:/spicify play {song-id}>{spicify-color}▶</click>"
+                    .replace("{song-id}", "" + id);
+            if (song == null) {
+                format.add("  - ");
+            } else {
+                format.add(line
+                        .replace("{play-icon}", playIcon.replace("{spicify-color}", COLOR_MM))
+                        .replace("{song}", song.title()));
+            }
         }
 
         format.add(footer);
@@ -87,7 +82,7 @@ public class SpicifyService {
         return MiniMessage.miniMessage().deserialize(String.join("\n", format));
     }
 
-    private int getMaxPage(List<String> songs) {
+    private int getMaxPage(List<Integer> songs) {
         if (songs == null || songs.isEmpty()) {
             return 1; // at least 1 page, even if no songs
         }
@@ -107,8 +102,13 @@ public class SpicifyService {
         return objects.stream().toList().subList(start, end);
     }
 
-    public void playSong(Player sender, String key) {
-        wrapper.playSong(key, sender);
+    public boolean playSong(Player sender, SpicifySong song) {
+        return wrapper.playSong(song.id, sender);
+    }
+
+    @Deprecated
+    public void playSong(Player sender, int id) {
+        wrapper.playSong(id, sender);
     }
 
     public boolean isListening(Player sender) {
@@ -120,12 +120,19 @@ public class SpicifyService {
     }
 
     public @Nullable SpicifySong getCurrentSong(Player sender) {
-        var key = wrapper.getCurrentSong(sender);
-        if (key == null)
+        var id = wrapper.getCurrentSongId(sender);
+        if (id == -1)
             return null;
-        return new SpicifySong(key, 0);
+        return songs.get(id);
     }
 
-    public record SpicifySong(String title, int likes) {
+    public @Nullable SpicifySong getSong(int id) {
+        return songs.get(id);
+    }
+
+    public record SpicifySong(int id, String title) {
+        public int likes() {
+            return 0;
+        }
     }
 }

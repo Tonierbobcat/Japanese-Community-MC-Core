@@ -41,35 +41,35 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
 
         switch (args[0]) {
             case "play" -> {
-                List<String> strings = new ArrayList<>();
-                for (int i = 1; i < args.length; i++) {
-                    if (i > args.length - 1)
-                        continue;
-                    strings.add(args[i]);
-                }
+                int id = -1;
 
-                var key = String.join(" ", strings);
-
-                if (key.isEmpty()){
-                    /// Send title is empty text rather than invalid title
+                try {
+                    id = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
                     sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
-                            .replace("{title}", key));
+                            .replace("{title}", "" + id));
+                    return true;
+                }
+                var song = service.getSong(id);
+
+
+                if (song == null){
+                    sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
+                            .replace("{title}", "" + id));
                     return true;
                 }
 
-                try {
-                    service.playSong(sender, key);
-
-                } catch (Exception ignore) {
+                var playing = service.playSong(sender, song);
+                if (!playing) {
                     sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "must_enter_valid_song_id")
-                            .replace("{title}", key));
+                            .replace("{title}", "" + id));
 
                     // move to messages
                     var eng = "Use '/spicify list' to view a list of our library!";
                     sender.sendMessage(SpicifyService.PREFIX + eng);
                     return true;
                 }
-                sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", key));
+                sender.sendMessage(SpicifyService.PREFIX + Messages.getMessage(sender, "now_playing").replace("{song}", song.title()));
             }
             case "stop" -> {
                 var wasListening = service.isListening(sender);
@@ -92,8 +92,8 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                 /// Clamp page
                 page = Math.max(1, page);
 
-                var strings = service.getSongKeys();
-                sender.sendMessage(service.getPage(strings, page));
+                var songIds = service.getSongIds();
+                sender.sendMessage(service.getPage(songIds, page));
             }
             case "current" -> {
                 var song = service.getCurrentSong(sender);
