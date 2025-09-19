@@ -103,24 +103,24 @@ public class SpicifyService {
     }
 
     public boolean playSong(Player sender, SpicifySong song) {
-        return wrapper.playSong(song.id, sender);
+        return wrapper.playSong(NoteBlockAPIWrapper.InstanceType.SPICIFY, song.id(), sender);
     }
 
     @Deprecated
     public void playSong(Player sender, int id) {
-        wrapper.playSong(id, sender);
+        wrapper.playSong(NoteBlockAPIWrapper.InstanceType.SPICIFY, id, sender);
     }
 
     public boolean isListening(Player sender) {
-        return NoteBlockAPIWrapper.isListening(sender);
+        return NoteBlockAPIWrapper.isListening(NoteBlockAPIWrapper.InstanceType.SPICIFY, sender);
     }
 
     public void stopSong(Player sender) {
-        wrapper.stopSong(sender);
+        wrapper.stopSong(NoteBlockAPIWrapper.InstanceType.SPICIFY, sender);
     }
 
     public @Nullable SpicifySong getCurrentSong(Player sender) {
-        var id = wrapper.getCurrentSongId(sender);
+        var id = wrapper.getCurrentSongId(NoteBlockAPIWrapper.InstanceType.SPICIFY, sender);
         if (id == -1)
             return null;
         return songs.get(id);
@@ -128,11 +128,5 @@ public class SpicifyService {
 
     public @Nullable SpicifySong getSong(int id) {
         return songs.get(id);
-    }
-
-    public record SpicifySong(int id, String title) {
-        public int likes() {
-            return 0;
-        }
     }
 }
