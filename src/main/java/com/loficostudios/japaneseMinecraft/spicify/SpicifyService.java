@@ -5,13 +5,16 @@ import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.util.NoteBlockAPIWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class SpicifyService {
+    public static final String FILE = "spicify.service";
     public static final String FOLDER = "songs";
     private static final String COLOR_LEGACY = "§6";
     private static final String COLOR_MM = "<gold>";
@@ -22,10 +25,30 @@ public class SpicifyService {
 
     private final Map<Integer, SpicifySong> songs;
 
+    private final Map<SpicifySong, Set<UUID>> likes = new HashMap<>();
+
+    private final File serviceFile;
+    private final YamlConfiguration serviceConfig;
+
     public SpicifyService(JapaneseMinecraft plugin) {
         this.wrapper = new NoteBlockAPIWrapper();
 
-        songs = NoteBlockAPIWrapper.initialize(new File(plugin.getDataFolder(), FOLDER));
+        songs = NoteBlockAPIWrapper.initialize(this, new File(plugin.getDataFolder(), FOLDER));
+
+        this.serviceFile = new File(plugin.getDataFolder(), FILE);
+        if (!serviceFile.exists()) {
+            try {
+                serviceFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        this.serviceConfig = YamlConfiguration.loadConfiguration(serviceFile);
+    }
+
+    public void save() throws IOException {
+        serviceConfig.save(serviceFile);
     }
 
     public List<Integer> getSongIds() {
@@ -80,6 +103,32 @@ public class SpicifyService {
         format.add(footer);
 
         return MiniMessage.miniMessage().deserialize(String.join("\n", format));
+    }
+
+    public int getLikes(SpicifySong song) {
+        return likes.getOrDefault(song, Collections.emptySet()).size();
+    }
+
+    public void likeSong(Player player, SpicifySong song) {
+        likes.computeIfAbsent(song, s -> new HashSet<>()).add(player.getUniqueId());
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void unlikeSong(Player player, SpicifySong song) {
+        Set<UUID> songLikes = likes.get(song);
+        if (songLikes != null) {
+            songLikes.remove(player.getUniqueId());
+            if (songLikes.isEmpty()) likes.remove(song);
+        }
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private int getMaxPage(List<Integer> songs) {

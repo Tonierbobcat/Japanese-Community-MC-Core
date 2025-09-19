@@ -52,7 +52,7 @@ public class NoteBlockAPIWrapper {
     }
 
     /// only time spicify songs are referenced in this class
-    public static Map<Integer, SpicifySong> initialize(File songFolder) {
+    public static Map<Integer, SpicifySong> initialize(SpicifyService service, File songFolder) {
         Validate.isTrue(!initialized);
         initialized = true;
 
@@ -64,7 +64,7 @@ public class NoteBlockAPIWrapper {
             var title = file.getName().replace(".nbs", "");
             var id = result.size();
 
-            result.put(id, new SpicifySong(id, title));
+            result.put(id, new SpicifySong(service, id, title));
             indexed.put(id, file);
         }
 
