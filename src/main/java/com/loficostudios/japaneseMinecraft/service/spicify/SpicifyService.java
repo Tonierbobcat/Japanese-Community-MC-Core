@@ -44,12 +44,14 @@ public class SpicifyService extends AbstractService {
     }
 
     public List<SpicifySong> search(String query) {
-        query = query.toLowerCase().trim();
+        if (!query.isEmpty())
+            query = query.toLowerCase().trim();
         List<SpicifySong> results = new ArrayList<>();
         for (Map.Entry<Integer, SpicifySong> entry : songs.entrySet()) {
             var song = entry.getValue();
-            if (!song.title().toLowerCase().contains(query))
+            if (!query.isEmpty() && !song.title().toLowerCase().contains(query))
                 continue;
+
             results.add(song);
         }
         return results;
