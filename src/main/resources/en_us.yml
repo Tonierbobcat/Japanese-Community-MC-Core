@@ -21,7 +21,7 @@ item_level_candy_not_owned: "You do not own this Creature!"
 item_level_candy_max_level: "This Creature is already at max level!"
 item_level_candy_levelup: "Leveled up this Creature!"
 stopped_listening: "Stopped listening..."
-not_listening_to_anything: "You were not listening to anything"
+not_listening_to_anything: "You are not currently listening to anything"
 now_playing: "Now Playing §6{song}§r..."
 must_enter_valid_song_id: "You must enter a valid song. '{title}' If you think this a mistake please contact admins"
 

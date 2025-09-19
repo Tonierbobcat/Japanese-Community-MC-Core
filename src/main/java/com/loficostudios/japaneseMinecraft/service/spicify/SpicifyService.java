@@ -106,26 +106,41 @@ public class SpicifyService extends AbstractService {
         return likes.getOrDefault(song, Collections.emptySet()).size();
     }
 
-    public void likeSong(Player player, SpicifySong song) {
-        likes.computeIfAbsent(song, s -> new HashSet<>()).add(player.getUniqueId());
+    /**
+     *
+     * @return {@code false} if the player already liked the song
+     */
+    public boolean likeSong(Player player, SpicifySong song) {
+        Set<UUID> songLikes = likes.computeIfAbsent(song, s -> new HashSet<>());
+
+        if (!songLikes.add(player.getUniqueId())) {
+            /// already liked by the player
+            return false;
+        }
         try {
             save();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
-    public void unlikeSong(Player player, SpicifySong song) {
+    public boolean unlikeSong(Player player, SpicifySong song) {
         Set<UUID> songLikes = likes.get(song);
         if (songLikes != null) {
-            songLikes.remove(player.getUniqueId());
-            if (songLikes.isEmpty()) likes.remove(song);
+            var removed = songLikes.remove(player.getUniqueId());
+
+            /// remove song from likes map
+            if (songLikes.isEmpty())
+                likes.remove(song);
+            return removed;
         }
         try {
             save();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     private <T> int getMaxPage(List<T> objects) {
