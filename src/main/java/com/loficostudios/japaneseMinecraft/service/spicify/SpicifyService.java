@@ -82,7 +82,7 @@ public class SpicifyService extends AbstractService {
                 .replace("{max-page}", "" + getMaxPage(songs)));
 
         for (int i = 0; i < ITEMS_PER_PAGE; i++) {
-            var line = "  - {song} [{play-icon}<reset>][<green>+<reset>][<red>-<reset>]";
+            var line = "  - {song} [{play-icon}<reset>][<green>+<reset>][<red>-<reset>][{like-icon}<reset>]";
 
             if (i > paginated.size() - 1)
                 continue;
@@ -92,7 +92,12 @@ public class SpicifyService extends AbstractService {
 
             var playIcon = "<click:run_command:/spicify play {song-id}>{spicify-color}▶</click>"
                     .replace("{song-id}", "" + id);
+
+//            var likeIcon = "<click:run_command:/spicify like {song-id}><red>❤<reset> <bold>{likes}</click>"
+//                    .replace("{likes}", "" + song.likes());
+
             format.add(line
+                    .replace("{like-icon}", "<red>❤")
                     .replace("{play-icon}", playIcon.replace("{spicify-color}", COLOR_MM))
                     .replace("{song}", song.title()));
         }

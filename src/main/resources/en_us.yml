@@ -73,4 +73,7 @@ claim_collides_with_other: "This claim collides with {owner}'s claim!"
 claim_collides_with_town: "This claim collides with {town}!"
 nothing_selected: "You do not have anything selected"
 invalid_selection: "Invalid selection!"
+
+claim_removed: "Successfully removed claim!"
 ## END OF TOWNS
+

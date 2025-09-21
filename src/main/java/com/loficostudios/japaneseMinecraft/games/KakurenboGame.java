@@ -2,6 +2,7 @@ package com.loficostudios.japaneseMinecraft.games;
 
 
 import com.loficostudios.japaneseMinecraft.Common;
+import com.loficostudios.japaneseMinecraft.Debug;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -119,18 +120,27 @@ public class KakurenboGame implements Game, Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     private void onTag(EntityDamageByEntityEvent e) {
+        Debug.log("onTag");
         var victimEntity = e.getEntity();
         var attackerEntity = e.getDamager();
-        if (!(victimEntity instanceof Player))
+        if (!(victimEntity instanceof Player)) {
+            Debug.log("victim is not player");
             return;
-        if (!(attackerEntity instanceof Player))
+        }
+
+        if (!(attackerEntity instanceof Player)) {
+            Debug.log("attacker is not player");
             return;
+        }
         Player victim = ((Player) victimEntity);
         Player attacker = ((Player) attackerEntity);
 
+        Debug.log("isHider: " + isHider(victim) + " isSeeker: " + isSeeker(attacker));
+
         if (isHider(victim) && isSeeker(attacker)) {
+            Debug.log("is hider and is seeker");
             convertToSeeker(victim, attacker);
         }
     }

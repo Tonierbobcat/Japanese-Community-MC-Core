@@ -157,7 +157,7 @@ public class SpicifyCommand implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
-                    var alreadyLiked =  service.likeSong(sender, current);
+                    var alreadyLiked =  !service.likeSong(sender, current);
                     if (alreadyLiked) {
                         //todo  move to messages
                         sender.sendMessage(SpicifyService.PREFIX + "You have already liked {song}!"

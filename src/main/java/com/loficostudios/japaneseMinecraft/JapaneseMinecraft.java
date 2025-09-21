@@ -28,6 +28,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
@@ -177,6 +178,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         int MIN_CLAIM_SIDE = 10;
         int MIN_CLAIM_AREA = MIN_CLAIM_SIDE * MIN_CLAIM_SIDE;
 
+        int MAX_CLAIM_BLOCKS = 250*250;
+
         /// default towns per player is 1 to save resources and the max area is 250x250 so people don't hog space
         townsAPI.getAPIConfig()
                 .prefix(Common.createMessagePrefix("Towns", "§e"))
@@ -197,9 +200,10 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
                 .setMinClaimBlocks(MIN_CLAIM_AREA)
 
-                /// the biggest claims are the smallest towns
+
                 /// this is on a per-claim basis
-                .setMaxClaimBlocks(MIN_TOWN_AREA)
+                .setMaxClaimBlocks(MAX_CLAIM_BLOCKS)
+
 
                 .setDefaultClaimBlocks(MIN_TOWN_AREA*CLAIMS_PER_PLAYER);
     }
