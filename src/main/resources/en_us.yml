@@ -31,7 +31,7 @@ must_enter_valid_song_id: "You must enter a valid song. '{title}' If you think t
 default_town_leave_message: "You have left {town}."
 default_town_enter_message: "Welcome to {town}!"
 
-cannot_interact_here: "You cannot do that here. ({action})"
+cannot_interact_here: "You cannot do that here. {action}"
 town_editor_hint: "Tip: try /town edit build-mode"
 
 cannot_modify_blocks_in_town: "You cannot {action} blocks inside {town}."
