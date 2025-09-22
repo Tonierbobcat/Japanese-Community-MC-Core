@@ -8,6 +8,7 @@ import com.loficostudios.japaneseMinecraft.economy.DefaultEconomy;
 import com.loficostudios.japaneseMinecraft.economy.VaultEconomy;
 import com.loficostudios.japaneseMinecraft.games.Game;
 import com.loficostudios.japaneseMinecraft.games.GameManager;
+import com.loficostudios.japaneseMinecraft.games.GuessPokemonGame;
 import com.loficostudios.japaneseMinecraft.games.KakurenboGame;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriGame;
 import com.loficostudios.japaneseMinecraft.listener.ItemListener;
@@ -141,7 +142,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private void setupGames() {
          List<Game> games = List.of(
-                new ShiritoriGame(2)
+                new ShiritoriGame(2),
+                new GuessPokemonGame()
 //                new KakurenboGame()
         );
         games.forEach(game -> {
