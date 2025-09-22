@@ -32,7 +32,7 @@ default_town_leave_message: "You have left {town}."
 default_town_enter_message: "Welcome to {town}!"
 
 cannot_interact_here: "You cannot do that here. {action}"
-town_editor_hint: "Tip: try /town edit build-mode"
+town_editor_hint: "Tip: run /town edit build-mode to override permissions"
 
 cannot_modify_blocks_in_town: "You cannot {action} blocks inside {town}."
 cannot_modify_blocks_in_claim: "You cannot {action} blocks in {owner}'s claim!"
@@ -75,5 +75,8 @@ nothing_selected: "You do not have anything selected"
 invalid_selection: "Invalid selection!"
 
 claim_removed: "Successfully removed claim!"
+
+cannot_modify_blocks_in_lot_renter: "This lot cannot be edited"
+cannot_modify_blocks_in_lot_others: "You cannot {action} blocks here"
 ## END OF TOWNS
 
