@@ -1,5 +1,10 @@
 # Public repo for the code to the Japanese-English Community MC Server
 
+# JOIN NOW !
+```text
+jp.loficostudios.com:25565
+```
+
 ## Build instructions
 
 - Build this first [ForgifiedPaper](https://github.com/Tonierbobcat/ForgifiedPaper)
