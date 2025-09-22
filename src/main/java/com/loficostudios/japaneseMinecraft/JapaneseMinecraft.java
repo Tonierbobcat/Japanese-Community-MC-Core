@@ -141,8 +141,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private void setupGames() {
          List<Game> games = List.of(
-                new ShiritoriGame(2),
-                new KakurenboGame()
+                new ShiritoriGame(2)
+//                new KakurenboGame()
         );
         games.forEach(game -> {
             if (game instanceof Listener)
