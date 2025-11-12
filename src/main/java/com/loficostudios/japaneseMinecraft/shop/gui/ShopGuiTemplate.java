@@ -4,7 +4,9 @@ import com.loficostudios.forgified.paper.gui.GuiIcon;
 import com.loficostudios.japaneseMinecraft.Debug;
 import com.loficostudios.japaneseMinecraft.shop.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.function.TriFunction;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,7 +35,8 @@ public class ShopGuiTemplate<Impl extends ShopItem<Impl>> {
     private final Function<Shop<Impl>, Component> title;
 
     //        private final BiFunction<ShopInstance<Impl>, Integer, List<Component>> price;
-    public TriConsumer<ShopInstance<Impl>, GuiIcon, Integer> handleIcon;
+//    public TriConsumer<ShopInstance<Impl>, GuiIcon, Integer> handleIcon;
+    public TriFunction<ShopInstance<Impl>, GuiIcon, Integer, GuiIcon> handleIcon;
 
     private BiConsumer<ShopInstance<Impl>, Player> handleInstance;
 
@@ -60,7 +63,7 @@ public class ShopGuiTemplate<Impl extends ShopItem<Impl>> {
         this.onBuy = builder.onBuy;
     }
 
-    public ShopGuiTemplate<Impl> icon(TriConsumer<ShopInstance<Impl>, GuiIcon, Integer> icon) {
+    public ShopGuiTemplate<Impl> icon(TriFunction<ShopInstance<Impl>, GuiIcon, Integer, GuiIcon> icon) {
         this.handleIcon = icon;
         return this;
     }
@@ -123,7 +126,7 @@ public class ShopGuiTemplate<Impl extends ShopItem<Impl>> {
 
     public static class Builder<Impl extends ShopItem<Impl>> {
         private final Integer size;
-        private TriConsumer<ShopInstance<Impl>, GuiIcon, Integer> handleIcon;
+        private TriFunction<ShopInstance<Impl>, GuiIcon, Integer, GuiIcon> handleIcon;
         private Integer selectionSize;
 
         private final Function<Shop<Impl>, Component> title;
@@ -147,7 +150,7 @@ public class ShopGuiTemplate<Impl extends ShopItem<Impl>> {
             this.title = title;
         }
 
-        public Builder<Impl> icon(TriConsumer<ShopInstance<Impl>, GuiIcon, Integer> icon) {
+        public Builder<Impl> icon(TriFunction<ShopInstance<Impl>, GuiIcon, Integer, GuiIcon> icon) {
             this.handleIcon = icon;
             return this;
         }
@@ -211,7 +214,7 @@ public class ShopGuiTemplate<Impl extends ShopItem<Impl>> {
     public static final String SHOP_NOT_ENOUGH_INVENTORY_SPACE = "<red>Not enough inventory space!";
 
     public static <T extends ShopItem<T>> ShopGuiTemplate<T> generic(Component title) {
-        return new ShopGuiTemplate.Builder<T>(5 * 9, (shop) -> title)
+        return new Builder<T>(5 * 9, (shop) -> title)
                 .onBuy(ShopGuiTemplate::onBuyFunction)
                 .onInstance(((instance, player) -> {
                 }))
@@ -220,14 +223,13 @@ public class ShopGuiTemplate<Impl extends ShopItem<Impl>> {
                 .setAddAmountButton((instance, amount) -> Component.text("§a+" + amount), (instance, amount) -> List.of())
                 .setRemoveAmountButton((instance, amount) -> Component.text("§c-" + amount), (instance, amount) -> List.of())
                 .icon((instance, icon, amount) -> {
-                    var item = icon.item();
-
                     var description = icon.description();
+                    var message = getPriceMessage(instance, icon, amount);
                     if (!description.isEmpty())
-                        description.add(getPriceMessage(instance, icon, amount));
-                    else description = Collections.singletonList(getPriceMessage(instance, icon, amount));
+                        description.add(message);
+                    else description = Collections.singletonList(message);
 
-                    icon.description(description);
+                    return icon.description(description);
                 })
                 .build();
     }

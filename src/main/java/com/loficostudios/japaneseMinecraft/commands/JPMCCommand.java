@@ -2,6 +2,7 @@ package com.loficostudios.japaneseMinecraft.commands;
 
 import com.loficostudios.forgified.paper.items.JItem;
 import com.loficostudios.japaneseMinecraft.*;
+import com.loficostudios.japaneseMinecraft.profile.gui.PlayerProfileGui;
 import com.loficostudios.japaneseMinecraft.service.BountyService;
 import com.loficostudios.japaneseMinecraft.util.JishoAPI;
 import net.kyori.adventure.text.Component;
@@ -43,6 +44,10 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
         }
 
         switch (args[0]) {
+            case "profile" -> {
+                new PlayerProfileGui().open(sender);
+                return true;
+            }
             case "suggest" -> {
                 var suggestion = String.join(" ", args).substring(8).trim();
                 if (suggestion.isEmpty()) {
@@ -133,7 +138,7 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
     @Override
     public @NotNull List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            var commands = new ArrayList<>(List.of("suggest", "lookup", "lang", "items"));
+            var commands = new ArrayList<>(List.of("suggest", "profile", "lookup", "lang", "items"));
             if (hasPermission(sender)) {
                 commands.addAll(List.of("start-game", "post-bounty"));
             }

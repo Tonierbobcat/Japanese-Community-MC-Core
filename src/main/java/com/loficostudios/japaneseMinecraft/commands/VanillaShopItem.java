@@ -43,8 +43,8 @@ public class VanillaShopItem implements ShopItem<VanillaShopItem>, Stackable, Sh
 
     @Override
     public GuiIcon getIcon(ShopInstance<VanillaShopItem> instance, int amount, BiConsumer<Player, ClickType> onClick) {
-        var icon = new GuiIcon(instance.getItem().material, Component.text(instance.getItem().getName()));
-        icon.onClick(onClick);
-        return icon;
+        return GuiIcon.material(instance.getItem().material)
+                .display(Component.text(instance.getItem().getName()))
+                .onClick(onClick);
     }
 }

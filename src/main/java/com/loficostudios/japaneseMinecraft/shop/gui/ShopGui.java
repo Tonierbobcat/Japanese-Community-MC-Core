@@ -3,6 +3,7 @@ package com.loficostudios.japaneseMinecraft.shop.gui;
 import com.loficostudios.forgified.paper.gui.GuiIcon;
 import com.loficostudios.forgified.paper.gui.Paginated;
 import com.loficostudios.forgified.paper.gui.PopOutGui;
+import com.loficostudios.japaneseMinecraft.Debug;
 import com.loficostudios.japaneseMinecraft.profile.PlayerProfile;
 import com.loficostudios.japaneseMinecraft.shop.Shop;
 import com.loficostudios.japaneseMinecraft.shop.ShopInstance;
@@ -72,11 +73,14 @@ public class ShopGui<Impl extends ShopItem<Impl>> extends PopOutGui implements P
                     }
                 });
             } else {
-                icon = new GuiIcon(Material.PURPLE_STAINED_GLASS_PANE, Component.text(item.getName()));
-                icon.amount(1);
+//                icon = new GuiIcon(Material.PURPLE_STAINED_GLASS_PANE, Component.text(item.getName()));
+                icon = GuiIcon.material(Material.PURPLE_STAINED_GLASS_PANE)
+                        .display(Component.text(item.getName()));
+
+                icon = icon.amount(1);
             }
 
-            template.handleIcon.accept(instance, icon, 1);
+            icon = template.handleIcon.apply(instance, icon, 1);
 
             setSlot(slot, icon);  //todo add templates
             slot++;  //todo add templates
@@ -89,15 +93,13 @@ public class ShopGui<Impl extends ShopItem<Impl>> extends PopOutGui implements P
     }
 
     private GuiIcon getNextButton() {
-        return new GuiIcon(ItemStack.of(Material.LIME_WOOL), "", (p,c) -> {
-            nextPage(p);
-        });
+        return GuiIcon.material(Material.LIME_WOOL)
+                .onClick(this::nextPage);
     }
 
     private GuiIcon getPreviousButton() {
-        return new GuiIcon(ItemStack.of(Material.RED_WOOL), "", (p,c) -> {
-            previousPage(p);
-        });
+        return GuiIcon.material(Material.RED_WOOL)
+                .onClick(this::previousPage);
     }
 
     @Override
@@ -141,11 +143,13 @@ public class ShopGui<Impl extends ShopItem<Impl>> extends PopOutGui implements P
         }
 
         private GuiIcon getRemoveIcon(int amount) {
-            return new GuiIcon(parent.template.getRemoveAmountIcon(instance, amount), "", (p,c) -> removeSome(amount));
+            return GuiIcon.item(parent.template.getRemoveAmountIcon(instance, amount))
+                    .onClick((p) -> removeSome(amount));
         }
 
         private GuiIcon getAddIcon(int amount) {
-            return new GuiIcon(parent.template.getAddAmountIcon(instance, amount), "", (p,c) -> addSome(amount));
+            return GuiIcon.item(parent.template.getAddAmountIcon(instance, amount))
+                    .onClick((p) -> addSome(amount));
         }
 
         public void updateItem() {
@@ -155,9 +159,10 @@ public class ShopGui<Impl extends ShopItem<Impl>> extends PopOutGui implements P
             GuiIcon icon;
             if (item instanceof ShopGuiIcon) {
                 icon = ((ShopGuiIcon<Impl>) item).getIcon(instance, amount, (p, c) -> confirm(p, selectedAmount));
-                parent.template.handleIcon.accept(instance, icon, amount);
+                icon = parent.template.handleIcon.apply(instance, icon, amount);
             } else {
-                icon = new GuiIcon(Material.PURPLE_STAINED_GLASS_PANE, Component.text(item.getName()));
+                icon = GuiIcon.material(Material.PURPLE_STAINED_GLASS_PANE)
+                        .display(Component.text(item.getName()));
                 icon.amount(amount);
             }
 

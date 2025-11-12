@@ -1,5 +1,6 @@
 package com.loficostudios.japaneseMinecraft.profile;
 
+import com.loficostudios.forgified.paper.gui.unnamed.Configurable;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Language;
 import org.bukkit.Bukkit;
@@ -23,8 +24,14 @@ public class PlayerProfile {
     private double money;
 
     private int lives;
+
+    @Configurable(name = "Pronouns")
+    private String pronouns;
+
+    @Configurable(name = "Language")
     private Language language;
 
+    @Configurable(name = "UID", mutable = false)
     private final UUID uuid;
 
     private double sanity;
@@ -49,8 +56,10 @@ public class PlayerProfile {
             }
         }
 
+
         this.file = file;
         this.config = YamlConfiguration.loadConfiguration(file);
+        this.pronouns = config.getString("pronouns", "");
         this.lives = config.getInt("lives", DEFAULT_LIVES);
         this.money = config.getDouble("money", 0.0);
 
@@ -112,6 +121,7 @@ public class PlayerProfile {
     public void save() {
         config.set("lives", lives);
         config.set("language", language.name());
+        config.get("pronouns", pronouns);
         config.set("money", money);
         config.set("sanity", Math.min(sanity, MAX_SANITY));
         try {

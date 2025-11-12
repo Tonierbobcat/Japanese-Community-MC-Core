@@ -104,6 +104,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
+        setupEconomy();
+
         Items.ITEMS.initialize(this);
 
         /// tbh this is pretty clean
@@ -119,9 +121,6 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         chatManager = new ChatManager(this);
         notificationManager = new NotificationManager(this, textParser);
         profileManager = new ProfileManager(this);
-
-        /// initialize economy after profile manager loads
-        setupEconomy();
 
         /// setup registered games like shiritori and kakurenbo
         setupGames();
