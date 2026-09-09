@@ -39,8 +39,9 @@ public class SanityManager {
                 .map(a -> (Player) a).toList();
 
         var players = nearby.size();
-        var inTown = JapaneseMinecraft.getTownsAPI().getTownContainer(player.getWorld()).getTown(player.getLocation()) != null;
-        return players * PER_PLAYER_INCREASE + (inTown ? 0.05 : 0);
+//        var inTown = JapaneseMinecraft.getTownsAPI().getTownContainer(player.getWorld()).getTown(player.getLocation()) != null;
+//        return players * PER_PLAYER_INCREASE + (inTown ? 0.05 : 0);
+        return players * PER_PLAYER_INCREASE;
     }
 
     private double getAmountToDecrease(Player player) {

@@ -9,7 +9,6 @@ import com.loficostudios.japaneseMinecraft.economy.VaultEconomy;
 import com.loficostudios.japaneseMinecraft.games.Game;
 import com.loficostudios.japaneseMinecraft.games.GameManager;
 import com.loficostudios.japaneseMinecraft.games.GuessPokemonGame;
-import com.loficostudios.japaneseMinecraft.games.KakurenboGame;
 import com.loficostudios.japaneseMinecraft.games.shiritori.ShiritoriGame;
 import com.loficostudios.japaneseMinecraft.listener.ItemListener;
 import com.loficostudios.japaneseMinecraft.listener.MobListener;
@@ -23,13 +22,9 @@ import com.loficostudios.japaneseMinecraft.sanity.SanityManager;
 import com.loficostudios.japaneseMinecraft.shop.EconomyProvider;
 import com.loficostudios.japaneseMinecraft.util.DefaultTextParser;
 import com.loficostudios.japaneseMinecraft.util.TextParser;
-import com.loficostudios.townsplugin.api.HarmonizedTownsAPI;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
@@ -55,6 +50,8 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
     ///  MOTD can contain color codes and \n for new lines
     public static final String MOTD = "§eA Japanese Community Server!\n§aNEW POKEMON SYSTEM!!!";
 
+    public static final String NAMESPACE = "japaneseminecraft";
+
     private static JapaneseMinecraft instance;
 
     private WeatherManager weatherManager;
@@ -72,11 +69,16 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
 
     private EconomyProvider economy;
 
-    private HarmonizedTownsAPI townsAPI;
+//    private HarmonizedTownsAPI townsAPI;
 
 
     public JapaneseMinecraft() {
         instance = this;
+    }
+
+    @Override
+    public void onLoad() {
+        Items.ITEMS.register(this);
     }
 
     @Override
@@ -89,11 +91,11 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         } catch (ClassNotFoundException ignore) {
         }
 
-        if (!initializeTownsAPI()) {
-            getLogger().severe("Failed to initialize Towns API. Disabling plugin...");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+//        if (!initializeTownsAPI()) {
+//            getLogger().severe("Failed to initialize Towns API. Disabling plugin...");
+//            getServer().getPluginManager().disablePlugin(this);
+//            return;
+//        }
 
         try {
             Messages.initialize(this);
@@ -105,8 +107,6 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         }
 
         setupEconomy();
-
-        Items.ITEMS.initialize(this);
 
         /// tbh this is pretty clean
         // DISABLED for now until I update recipe loaders in library
@@ -154,60 +154,60 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         gameManager = new GameManager(games);
     }
 
-    public boolean initializeTownsAPI() {
-        var rsp = getServer().getServicesManager().getRegistration(HarmonizedTownsAPI.class);
-        if (rsp == null)
-            return false;
-        townsAPI = rsp.getProvider();
+//    public boolean initializeTownsAPI() {
+//        var rsp = getServer().getServicesManager().getRegistration(HarmonizedTownsAPI.class);
+//        if (rsp == null)
+//            return false;
+//        townsAPI = rsp.getProvider();
+//
+//        /// setup config
+//        setupTownsAPIConfig();
+//        return true;
+//    }
 
-        /// setup config
-        setupTownsAPIConfig();
-        return true;
-    }
-
-    private void setupTownsAPIConfig() {
-        /// only one town per player to save resources
-        /// towns are projected to be relatively heavy on proformance
-        int TOWNS_PER_PLAYER = 1;
-        int CLAIMS_PER_PLAYER = 20;
-
-        int MAX_TOWN_SIDE = 250;
-        int MIN_TOWN_SIDE = 50;
-
-        int MIN_TOWN_AREA = MIN_TOWN_SIDE * MIN_TOWN_SIDE;
-
-        int MIN_CLAIM_SIDE = 10;
-        int MIN_CLAIM_AREA = MIN_CLAIM_SIDE * MIN_CLAIM_SIDE;
-
-        int MAX_CLAIM_BLOCKS = 250*250;
-
-        /// default towns per player is 1 to save resources and the max area is 250x250 so people don't hog space
-        townsAPI.getAPIConfig()
-                .prefix(Common.createMessagePrefix("Towns", "§e"))
-                .setMessagingOverride((key, player) -> Messages.getMessage(player, key))
-
-                /// town creation restrictions are pretty consistant throughout
-                .setMinTownLength(MIN_TOWN_SIDE)
-                .setMinTownWidth(MIN_TOWN_SIDE)
-                .setMaxTownLength(MAX_TOWN_SIDE)
-                .setMaxTownWidth(MAX_TOWN_SIDE)
-
-                .setDefaultTownBlocks(MAX_TOWN_SIDE*MAX_TOWN_SIDE)
-
-                .setMaxTownsPerPlayer(TOWNS_PER_PLAYER)
-
-                /// players can have up to 20 claims
-                .setMaxClaimsPerPlayer(20)
-
-                .setMinClaimBlocks(MIN_CLAIM_AREA)
-
-
-                /// this is on a per-claim basis
-                .setMaxClaimBlocks(MAX_CLAIM_BLOCKS)
-
-
-                .setDefaultClaimBlocks(MIN_TOWN_AREA*CLAIMS_PER_PLAYER);
-    }
+//    private void setupTownsAPIConfig() {
+//        /// only one town per player to save resources
+//        /// towns are projected to be relatively heavy on proformance
+//        int TOWNS_PER_PLAYER = 1;
+//        int CLAIMS_PER_PLAYER = 20;
+//
+//        int MAX_TOWN_SIDE = 250;
+//        int MIN_TOWN_SIDE = 50;
+//
+//        int MIN_TOWN_AREA = MIN_TOWN_SIDE * MIN_TOWN_SIDE;
+//
+//        int MIN_CLAIM_SIDE = 10;
+//        int MIN_CLAIM_AREA = MIN_CLAIM_SIDE * MIN_CLAIM_SIDE;
+//
+//        int MAX_CLAIM_BLOCKS = 250*250;
+//
+//        /// default towns per player is 1 to save resources and the max area is 250x250 so people don't hog space
+//        townsAPI.getAPIConfig()
+//                .prefix(Common.createMessagePrefix("Towns", "§e"))
+//                .setMessagingOverride((key, player) -> Messages.getMessage(player, key))
+//
+//                /// town creation restrictions are pretty consistant throughout
+//                .setMinTownLength(MIN_TOWN_SIDE)
+//                .setMinTownWidth(MIN_TOWN_SIDE)
+//                .setMaxTownLength(MAX_TOWN_SIDE)
+//                .setMaxTownWidth(MAX_TOWN_SIDE)
+//
+//                .setDefaultTownBlocks(MAX_TOWN_SIDE*MAX_TOWN_SIDE)
+//
+//                .setMaxTownsPerPlayer(TOWNS_PER_PLAYER)
+//
+//                /// players can have up to 20 claims
+//                .setMaxClaimsPerPlayer(20)
+//
+//                .setMinClaimBlocks(MIN_CLAIM_AREA)
+//
+//
+//                /// this is on a per-claim basis
+//                .setMaxClaimBlocks(MAX_CLAIM_BLOCKS)
+//
+//
+//                .setDefaultClaimBlocks(MIN_TOWN_AREA*CLAIMS_PER_PLAYER);
+//    }
 
     public void setupEconomy() {
         EconomyProvider provider;
@@ -294,9 +294,9 @@ public final class JapaneseMinecraft extends JavaPlugin implements IPluginResour
         return textParser;
     }
 
-    public static HarmonizedTownsAPI getTownsAPI() {
-        return instance.townsAPI;
-    }
+//    public static HarmonizedTownsAPI getTownsAPI() {
+//        return instance.townsAPI;
+//    }
 
     public static EconomyProvider getEconomyProvider() {
         return instance.getEconomy();

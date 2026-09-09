@@ -1,8 +1,8 @@
 package com.loficostudios.japaneseMinecraft.profile;
 
-import com.loficostudios.forgified.paper.gui.unnamed.Configurable;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
 import com.loficostudios.japaneseMinecraft.Language;
+import com.loficostudios.japaneseMinecraft.profile.info.GiftColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -25,14 +25,23 @@ public class PlayerProfile {
 
     private int lives;
 
-    @Configurable(name = "Pronouns")
+//    @Configurable(name = "Pronouns")
     private String pronouns;
 
-    @Configurable(name = "Language")
+//    @Configurable(name = "Language", nullable = false)
     private Language language;
 
-    @Configurable(name = "UID", mutable = false)
+//    @Configurable(name = "UID", mutable = false)
     private final UUID uuid;
+
+//    @Configurable(name = "Receive DMs")
+    private boolean receiveDMs;
+
+//    @Configurable(name = "Favorite Color")
+    private GiftColor favoriteColor;
+
+//    @Configurable(name = "Number Of Pets")
+    private int numberOfPets;
 
     private double sanity;
 
@@ -56,15 +65,25 @@ public class PlayerProfile {
             }
         }
 
-
         this.file = file;
         this.config = YamlConfiguration.loadConfiguration(file);
         this.pronouns = config.getString("pronouns", "");
         this.lives = config.getInt("lives", DEFAULT_LIVES);
         this.money = config.getDouble("money", 0.0);
+        this.numberOfPets = config.getInt("numberOfPets");
+
+        this.receiveDMs = config.getBoolean("receiveDMs", true);
 
         /// Start at 100
         this.sanity = config.getDouble("sanity", MAX_SANITY);
+
+
+        try {
+            var string = config.getString("favoriteColor");
+            this.favoriteColor = GiftColor.valueOf(string);
+        } catch (Exception e) {
+            this.favoriteColor = null;
+        }
 
         try {
             var string = config.getString("language", "OTHER");
@@ -124,6 +143,8 @@ public class PlayerProfile {
         config.get("pronouns", pronouns);
         config.set("money", money);
         config.set("sanity", Math.min(sanity, MAX_SANITY));
+        config.set("receiveDMs", receiveDMs);
+        config.set("numberOfPets", numberOfPets);
         try {
             config.save(file);
         } catch (IOException e) {

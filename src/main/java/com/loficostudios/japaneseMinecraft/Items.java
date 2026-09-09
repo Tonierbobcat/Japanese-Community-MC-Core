@@ -7,6 +7,9 @@ import com.loficostudios.forgified.paper.items.JItem;
 import com.loficostudios.forgified.paper.items.SwordItem;
 import com.loficostudios.forgified.paper.items.armor.ArmorItem;
 import com.loficostudios.forgified.paper.items.armor.ArmorMaterial;
+import com.loficostudios.forgified.registry.DeferredRegistry;
+import com.loficostudios.forgified.registry.Registries;
+import com.loficostudios.forgified.registry.RegistryObject;
 import com.loficostudios.japaneseMinecraft.pokemon.MonsterBall;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.BlocksAttacks;
@@ -34,89 +37,46 @@ import java.util.List;
 public class Items {
 
     /// We need to override the item name because geyser cannot handle translatable item components
-    public static final ItemRegistry ITEMS = new ItemRegistry(List.of(
-            (item, stack) -> {
-                var meta = stack.getItemMeta();
+    public static final DeferredRegistry<JItem> ITEMS = Registries.create(JItem.class, JapaneseMinecraft.NAMESPACE);
 
-                meta.displayName(Component.text(Common.formatEnumName(item.getId()))
-                        .decoration(TextDecoration.ITALIC, false));
-
-                stack.setItemMeta(meta);
-            }));
-
-    public static final JItem FLOWER_SWORD = ITEMS.create("flower_sword",
-            () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, new JItem.Properties()
+    public static final RegistryObject<JItem> FLOWER_SWORD = ITEMS.register("flower_sword",
+            () -> new SwordItem(Material.WOODEN_SWORD, 5, 1.8, JItem.Properties.empty()
                     .custom((item) -> {
                         item.setData(DataComponentTypes.BLOCKS_ATTACKS, BlocksAttacks.blocksAttacks()
                                 .blockSound(Sound.ENCHANT_THORNS_HIT.getKey()).build());
                     })));
 
-    public static final JItem FLOWER_BOW = ITEMS.create("flower_bow", FlowerBow::new);
+    public static final RegistryObject<JItem> FLOWER_BOW = ITEMS.register("flower_bow", FlowerBow::new);
 
-    public static final JItem FLOWER_HELMET = ITEMS.create("flower_helmet",
+    public static final RegistryObject<JItem> FLOWER_HELMET = ITEMS.register("flower_helmet",
             () -> new ArmorItem(EquipmentSlot.HEAD, ArmorMaterials.FLOWER));
 
-    public static final JItem KEBAB = ITEMS.create("kebab", () -> new JItem(Material.COOKED_BEEF, new JItem.Properties()
-            .food(FoodProperties.food()
-                    .nutrition(10)
-                    .saturation(10)
-                    .build())
-            .model()));
+    public static final RegistryObject<JItem> KEBAB = ITEMS.register("kebab", () -> new JItem(Material.COOKED_BEEF, JItem.Properties.empty()
+            .consumable(new com.loficostudios.forgified.paper.items.properties.Consumable(10,10))));
 
-    public static final JItem RAW_CRAB = ITEMS.create("raw_crab", () -> new JItem(Material.COD, new JItem.Properties()
-            .food(FoodProperties.food()
-                    .nutrition(1)
-                    .saturation(1)
-                    .build())
-            .model()));
+    public static final RegistryObject<JItem> RAW_CRAB = ITEMS.register("raw_crab", () -> new JItem(Material.COD, JItem.Properties.empty()
+            .consumable(new com.loficostudios.forgified.paper.items.properties.Consumable(1,1))));
 
-    public static final JItem BUILDERS_CHEST = ITEMS.create("builders_chest", () -> new JItem(Material.CHEST, JItem.Properties.empty()));
+    public static final RegistryObject<JItem> BUILDERS_CHEST = ITEMS.register("builders_chest", () -> new JItem(Material.CHEST, JItem.Properties.empty()));
 
-    public static final JItem EDIBLE_IRON_PICKAXE = ITEMS.create("edible_iron_pickaxe", () -> new JItem(Material.IRON_PICKAXE, new JItem.Properties()
-            .food(FoodProperties.food().nutrition(20).saturation(20).build())
+    public static final RegistryObject<JItem> EDIBLE_IRON_PICKAXE = ITEMS.register("edible_iron_pickaxe", () -> new JItem(Material.IRON_PICKAXE, JItem.Properties.empty()
+            .consumable(new com.loficostudios.forgified.paper.items.properties.Consumable(20, 20))
             .custom((item) -> {
                 var effects = List.of(new PotionEffect(PotionEffectType.HASTE, 60, 255));
                 item.setData(DataComponentTypes.CONSUMABLE, Consumable.consumable().addEffect(ConsumeEffect.applyStatusEffects(effects, 1)).build());
-            })
-            .model()));
+            })));
 
     /// Used to level up monstermons
-    public static final JItem LEVEL_CANDY = ITEMS.create("level_candy", () -> new JItem(Material.EMERALD, JItem.Properties.empty()));
+    public static final RegistryObject<JItem> LEVEL_CANDY = ITEMS.register("level_candy", () -> new JItem(Material.EMERALD, JItem.Properties.empty()));
 
-    public static final JItem BASIC_FLASHLIGHT = ITEMS.create("basic_flashlight", () -> new JItem(Material.TORCH, new JItem.Properties()));
+    public static final RegistryObject<JItem> BASIC_FLASHLIGHT = ITEMS.register("basic_flashlight", () -> new JItem(Material.TORCH, JItem.Properties.empty()));
 
-    public static final JItem REGION_STICK = ITEMS.create("region_stick", () -> new JItem(Material.STICK, new JItem.Properties()
-            .model()));
+    public static final RegistryObject<JItem> REGION_STICK = ITEMS.register("region_stick", () -> new JItem(Material.STICK, JItem.Properties.empty()));
 
-    public static final JItem MASTER_BALL = ITEMS.create("master_ball", () -> new MonsterBall(10, new JItem.Properties()));
-    public static final JItem TELEPORT_CRYSTAL = ITEMS.create("teleport_crystal", () -> new JItem(Material.AMETHYST_SHARD, JItem.Properties.empty()));
+    public static final RegistryObject<JItem> MASTER_BALL = ITEMS.register("master_ball", () -> new MonsterBall(10, JItem.Properties.empty()));
+    public static final RegistryObject<JItem> TELEPORT_CRYSTAL = ITEMS.register("teleport_crystal", () -> new JItem(Material.AMETHYST_SHARD, JItem.Properties.empty()));
 
-    public static final JItem POKEBALL = ITEMS.create("pokeball", () -> new MonsterBall(1, new JItem.Properties()));
-
-    public static <T> @Nullable T getItemFromItem(ItemStack stack, Class<T> clazz) {
-        var id = getId(stack);
-        if (id == null)
-            return null;
-        var item = Items.ITEMS.getById(id);
-        return clazz.isInstance(item) ? clazz.cast(item) : null;
-    }
-
-    public static boolean isItem(ItemStack stack, JItem item) {
-        if (stack == null)
-            return false;
-        var id = getId(stack);
-        if (id == null)
-            return false;
-        return id.equals(item.getId());
-    }
-
-    private static @Nullable String getId(ItemStack stack) {
-        if (stack.getType().equals(Material.AIR) || !stack.hasItemMeta())
-            return null;
-        var pdc = stack.getItemMeta().getPersistentDataContainer();
-        var id = pdc.get(Items.ITEMS.getItemKey(), PersistentDataType.STRING);
-        return id;
-    }
+    public static final RegistryObject<JItem> POKEBALL = ITEMS.register("pokeball", () -> new MonsterBall(1,JItem.Properties.empty()));
 
     /// DEBUG
     public static class FlowerBow extends BowItem {

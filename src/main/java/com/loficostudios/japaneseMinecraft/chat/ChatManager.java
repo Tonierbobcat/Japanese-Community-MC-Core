@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +39,8 @@ public class ChatManager implements Listener {
 
     @EventHandler
     private void onChat(AsyncChatEvent e) {
+        if (e.isCancelled())
+            return;
         e.setCancelled(true);
 
         var sender = e.getPlayer();

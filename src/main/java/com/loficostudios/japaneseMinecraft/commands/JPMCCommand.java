@@ -72,28 +72,6 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
                 lang(sender, isJapanese);
                 return true;
             }
-            case "items" -> {
-                if (!hasPermission(sender)) {
-                    sender.sendMessage("You do not have permission to use this command.");
-                    return true;
-                }
-
-                if (args.length != 2) {
-                    sender.sendMessage("Usage: /jpmc items <id>");
-                    return true;
-                }
-
-                var id = args[1];
-
-                JItem item = Items.ITEMS.getById(id);
-                if (item == null) {
-                    sender.sendMessage("Item not found.");
-                    return true;
-                }
-
-                sender.getInventory().addItem(Items.ITEMS.createItemStack(item));
-                return true;
-            }
             case "start-game" -> {
                 if (!hasPermission(sender)) {
                     sender.sendMessage("You do not have permission to use this command.");
@@ -146,11 +124,6 @@ public class JPMCCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 2) {
             if (args[0].equals("lang")) {
                 return List.of("en", "jp");
-            } else if (args[0].equals("items")) {
-                if (!hasPermission(sender)) {
-                    return Collections.emptyList();
-                }
-                return Items.ITEMS.getRegistered().stream().map(JItem::getId).toList();
             }
         }
         return Collections.emptyList();

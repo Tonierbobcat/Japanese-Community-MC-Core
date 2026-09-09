@@ -29,7 +29,7 @@ public class ShopCommand implements CommandExecutor {
             return true;
         }
 
-        new ShopGui<>(Shops.BUILDER_SHOP, ShopGuiTemplate.generic(Component.text("Shop")), JapaneseMinecraft::getPlayerProfile)
+        new ShopGui<>(Shops.BUILDER_SHOP, ShopGuiTemplate.generic(Component.text("Shop")))
                 .open(sender);
         return true;
     }

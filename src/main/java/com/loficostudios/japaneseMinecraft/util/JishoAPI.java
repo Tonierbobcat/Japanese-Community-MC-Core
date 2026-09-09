@@ -18,6 +18,7 @@ public class JishoAPI {
 
     public @Nullable JishoResponse search(String query) {
         Debug.log("JishoAPI Query: " + query);
+
         try {
             URL url = new URL(API_URL + query.replace(" ", "+"));
             HttpURLConnection connection = ((HttpURLConnection) url.openConnection());

@@ -1,6 +1,7 @@
 package com.loficostudios.japaneseMinecraft.games;
 
 import com.github.jikyo.romaji.Transliterator;
+import com.loficostudios.forgified.registry.Registries;
 import com.loficostudios.japaneseMinecraft.Common;
 import com.loficostudios.japaneseMinecraft.Items;
 import com.loficostudios.japaneseMinecraft.JapaneseMinecraft;
@@ -80,7 +81,7 @@ public class GuessPokemonGame implements Game, Listener {
     }
 
     private void awardWinner(Player winner) {
-        var item = Items.ITEMS.createItemStack(Items.POKEBALL, 5);
+        var item = Registries.ITEM.createItemStack(Items.POKEBALL.get(), 5);
         var money = 50;
 
         var eng = Component.text(PREFIX + "You have been awarded with {amount}x {item} & ${money}");
