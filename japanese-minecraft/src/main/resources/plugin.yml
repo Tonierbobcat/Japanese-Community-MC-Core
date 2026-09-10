@@ -1,0 +1,12 @@
+name: JapaneseMinecraft
+version: '0.1.0'
+main: com.loficostudios.japaneseMinecraft.JapaneseMinecraft
+api-version: '1.21'
+softdepend: ["PlaceholderAPI", "Vault"]
+commands:
+  jpmc:
+  dm:
+  home:
+  spicify:
+  fly:
+  shop:

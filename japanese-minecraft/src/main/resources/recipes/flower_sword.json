@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " F ",
+    " F ",
+    " S "
+  ],
+  "key": {
+    "F": {
+      "item": "minecraft:poppy"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "japaneseminecraft:flower_sword",
+    "count": 1
+  }
+}

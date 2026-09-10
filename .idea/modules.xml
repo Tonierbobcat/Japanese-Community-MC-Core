@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/japanese-minecraft.iml" filepath="$PROJECT_DIR$/japanese-minecraft.iml" />
+      <module fileurl="file://$PROJECT_DIR$/monster-mons/monster-mons.iml" filepath="$PROJECT_DIR$/monster-mons/monster-mons.iml" />
     </modules>
   </component>
 </project>

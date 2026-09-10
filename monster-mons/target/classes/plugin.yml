@@ -1,0 +1,5 @@
+name: MonsterMons
+version: '0.1.0'
+main: com.loficostudios.monstermons.MonsterMonsPlugin
+api-version: '1.21'
+depend: [ ForgifiedPaper ]

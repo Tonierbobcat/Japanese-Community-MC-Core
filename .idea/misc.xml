@@ -5,6 +5,8 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/japanese-minecraft/pom.xml" />
+        <option value="$PROJECT_DIR$/monster-mons/pom.xml" />
       </list>
     </option>
   </component>

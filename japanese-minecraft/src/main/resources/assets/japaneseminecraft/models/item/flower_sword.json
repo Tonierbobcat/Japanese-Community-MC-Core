@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "japaneseminecraft:item/flower_sword"
+  }
+}

@@ -1,0 +1,11 @@
+level-candy-item-id: "level_candy"
+items:
+  level_candy:
+    type: generic
+    material: diamond
+  basic_ball:
+    type: ball
+    capture_power: 50
+  master_ball:
+    type: ball
+    capture_power: 100
